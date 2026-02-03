@@ -52,6 +52,37 @@
                 <button id="add-task-btn">+</button>
                 <h2>TODAY'S TASKS</h2>
                 <button id="filter-btn">\/</button>
+
+                <!-- Task list rendered here via JS -->
+                 <ul id="task-list"></ul>
+             </div>
+
+             <div id="modal-backdrop" class="hidden"></div>
+             <div id="add-task-modal" class="hidden" role="dialog" aria-modal="true">
+                <h3>ADD TASK</h3>
+                <!-- Title -->
+                <label for="task-title"><strong>Title</strong></label>
+                <input id="task-title" type="text" placeholder="e.g., Finish tutorial">
+
+                <!-- Notes -->
+                <label for="task-notes"><strong>Notes</strong></label>
+                <textarea id="task-notes" rows="3" placeholder="Optional..."></textarea>
+
+                <!-- Priority -->
+                 <label for="task-priority"><strong>Priority</strong></label>
+                 <select id="task-priority">
+                    <option value="high">High</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="low">Low</option>
+                 </select>
+
+                 <!-- success message (if added task successfully) -->
+                  <p id="task-status" class="task-status"></p>
+
+                 <div class="modal-actions">
+                    <button id="cancel-task-btn">Cancel</button>
+                    <button id="confirm-task-btn">Add</button> <!-- task adding confirmation -->
+                 </div>
              </div>
 
              <!-- Assignments Due Today (second dashboard card) -->

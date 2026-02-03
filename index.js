@@ -73,10 +73,126 @@ renderDate();
 
 // the code i used to create my hamburger-style navbar for an older version of my personal website. will need some tweaking and i don't understand all of it just yet, but this can give me an idea on how i could do it
 const menuToggle = document.querySelector('.menu-toggle');
-const sideNav = document.querySelector('.navbar');
+const navbar = document.querySelector('.navbar');
 
 if (menuToggle && navbar) {
     menuToggle.addEventListener("click", () => {
         navbar.classList.toggle("open");
     });
 }
+
+// TODAY'S TASKS (connecting to HTML)
+/* variables definition */
+const addTaskBtn = document.getElementById("add-task-btn");
+const backdrop = document.getElementById("modal-backdrop");
+const modal = document.getElementById("add-task-modal");
+
+const titleInput = document.getElementById("task-title");
+const notesInput = document.getElementById("task-notes");
+const prioritySelect = document.getElementById("task-priority");
+
+const cancelBtn = document.getElementById("cancel-task-btn");
+const confirmBtn = document.getElementById("confirm-task-btn");
+
+const taskListEl = document.getElementById("task-list");
+const statusEl = document.getElementById("task-status");
+
+// converts selectedDate to YYYY-MM-DD
+function dateKey(dateObj) {
+    const y = dateObj.getFullYear();
+    const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const d = String(dateObj.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+}
+
+// load/save tasks object from localStorage
+function loadAllTasks() {
+    const raw = localStorage.setItem("tasksByDate");
+    return raw ? JSON.parse(raw) : {}; // {} means none yet
+}
+
+function saveAllTasks(tasksByDate) {
+    localStorage.setItem("tasksByDate", JSON.stringify(tasksByDate));
+}
+
+// render tasks for the currently selected date
+function renderTasksForSelectedDate() {
+    const tasksByDate = loadAllTasks();
+    const key = dateKey(selectedDate);
+    const tasks = tasksByDate[key] || [];
+
+    taskListEl.innerHTML = ""; // clears the old list
+
+    tasks.forEach((t, index) => {
+        const li = document.createElement("li");
+        li.textContent = `${t.title} (${t.priority})`;
+        taskListEl.appendChild(li);
+    });
+}
+
+/* modal open/close */
+function openModal() {
+    backdrop.classList.remove("hidden");
+    modal.classList.remove("hidden");
+    titleInput.value = "";
+    notesInput.value = "";
+    prioritySelect.value = "medium";
+    statusEl.textContent = "";
+    titleInput.focus(); // subtle UX improvement
+}
+
+function closeModal() {
+    backdrop.classList.add("hidden");
+    modal.classList.add("hidden");
+}
+
+// ADD TASK TO TASK LIST FOR SELECTED DATE
+function addTask() {
+    const title = titleInput.value.trim();
+    const notes = notesInput.value.trim();
+    const priority = prioritySelect.value;
+
+    // Simple input validation so far
+    if (!title) {
+        alert("Title is required.");
+        return;
+    }
+
+    const tasksByDate = loadAllTasks();
+    const key = dateKey(selectedDate);
+
+    // check to ensure array exists for that date
+    if (!tasksByDate[key]) tasksByDate[key] = [];
+
+    // create a task object (use THIS to iterate and add to this later for any other add task elements i may think are needed)
+    const newTask = {
+        id: Date.now(),
+        title,
+        notes,
+        priority,
+        done: false,
+        createdAt: Date.now()
+    }
+
+    tasksByDate[key].push(newTask) // Similar to python append logic from mini-project last year
+    saveAllTasks(tasksByDate);
+
+    statusEl.textContent = "Task successfully added.";
+    renderTasksForSelectedDate();
+    
+    setTimeout(() => {
+        statusEl.textContent = "";
+        closeModal();
+    }, 700);
+    
+    
+}
+
+// Wiring up clicks, so that specific actions are performed based on clicks
+addTaskBtn.addEventListener("click", openModal);
+cancelBtn.addEventListener("click", closeModal);
+backdrop.addEventListener("click", closeModal);
+confirmBtn.addEventListener("click", addTask);
+
+// IMPORTANT: when the date changes, the tasks need to be re-rendered to avoid confusion
+//renderTasksForSelectedDate();
