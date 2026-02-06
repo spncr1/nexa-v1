@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const cancelBtn = document.getElementById("cancel-task-btn");
     const confirmBtn = document.getElementById("confirm-task-btn");
+    const deleteBtn = document.getElementById("delete-task-btn");
 
     const taskListEl = document.getElementById("task-list");
     const statusEl = document.getElementById("task-status");
@@ -37,10 +38,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const savedDate = localStorage.getItem("selectedDate");
 
     // IF there is a saved date, use it. Otherwise default to today.
-    let selectedDate = savedDate ? new Date(savedDate) : new Date();
+    let selectedDate = new Date();
 
     // Normalise the time to midday to avoid timezone issues
     selectedDate.setHours(12, 0, 0, 0);
+
+    let editingTaskId = null;
+
+    const STATUS_MS = 1500;
+    let statusTimer = null;
 
     // temporary welcome (username) logic to handle just ONE user for now (will update later for multi-user purposes)
     document.getElementById("welcome-name").textContent = "Spencer";
@@ -74,6 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
         tasks.forEach((t, index) => {
             const li = document.createElement("li");
             li.textContent = `${t.title} (${t.priority})`;
+            li.dataset.taskId = t.id; // attach the task id to the element (so clicks can find the correct task)
             taskListEl.appendChild(li);
         });
     }
@@ -128,6 +135,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* modal open/close */
     function openModal() {
+        let editingTaskId = null; // force add-mode
+        
+        document.getElementById("task-modal-title").textContent = "ADD TASK";
+        confirmBtn.textContent = "Add";
+        document.getElementById("delete-task-btn").classList.add("hidden");
+
         backdrop.classList.remove("hidden");
         modal.classList.remove("hidden");
         titleInput.value = "";
@@ -142,7 +155,11 @@ document.addEventListener("DOMContentLoaded", () => {
         modal.classList.add("hidden");
     }
 
-    // ADD TASK TO TASK LIST FOR SELECTED DATE
+    /* ===========================
+       MAIN TODAY'S TASK FUNCTIONS
+       ===========================
+    */
+    /* ADD TASK */
     function addTask() {
         const title = titleInput.value.trim();
         const notes = notesInput.value.trim();
@@ -171,27 +188,116 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         tasksByDate[key].push(newTask) // Similar to python append logic from mini-project last year
-        saveAllTasks(tasksByDate);
 
-        statusEl.textContent = "Task successfully added.";
+        saveAllTasks(tasksByDate);
         renderTasksForSelectedDate();
-        
-        setTimeout(() => {
-            statusEl.textContent = "";
-            closeModal();
-        }, 700);
+
+        showStatus("Task added successfully.", { closeAfter: true });
     }
 
-    // Wiring up clicks, so that specific actions are performed based on clicks
+    /* TASK INFO LOADER */
+    function openEditModal(taskId) {
+        const tasksByDate = loadAllTasks();
+        const key = dateKey(selectedDate);
+        const tasks = tasksByDate[key] || [];
+
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) return;
+
+        editingTaskId = taskId;
+
+        // fill inputs
+        titleInput.value = task.title;
+        notesInput.value = task.notes || "";
+        prioritySelect.value = task.priority;
+
+        // update modal heading + buttons
+        document.getElementById("task-modal-title").textContent = "EDIT TASK";
+        document.getElementById("confirm-task-btn").textContent = "Save";
+        document.getElementById("delete-task-btn").classList.remove("hidden");
+
+        backdrop.classList.remove("hidden");
+        modal.classList.remove("hidden");
+    }
+
+    /* TASK EDITS + SAVES */
+    function saveEdits() {
+        const title = titleInput.value.trim();
+        if (!title) { alert("Title is required."); return; }
+
+        const tasksByDate = loadAllTasks();
+        const key = dateKey(selectedDate);
+        const tasks = tasksByDate[key] || [];
+
+        const idx = tasks.findIndex(t => t.id === editingTaskId);
+        if (idx === -1) return;
+
+        tasks[idx].title = title;
+        tasks[idx].notes = notesInput.value.trim();
+        tasks[idx].priority = prioritySelect.value;
+
+        saveAllTasks(tasksByDate);
+        renderTasksForSelectedDate();
+
+        showStatus("Task updated.", { closeAfter: true });
+    }
+
+    function deleteTask() {
+        if (!editingTaskId) return;
+
+        const tasksByDate = loadAllTasks();
+        const key = dateKey(selectedDate);
+        const tasks = tasksByDate[key] || [];
+
+        tasksByDate[key] = tasks.filter(t => t.id !== editingTaskId);
+
+        saveAllTasks(tasksByDate);
+        renderTasksForSelectedDate();
+
+        showStatus("Task deleted.", { closeAfter: true });
+    }
+
+    function clearStatus() {
+        if (statusTimer) clearTimeout(statusTimer);
+        statusTimer = null;
+        statusEl.textContent = "";
+    }
+
+    function showStatus(message, { closeAfter = false} = {}) {
+        statusEl.textContent = message;
+
+        if (statusTimer) clearTimeout(statusTimer);
+        statusTimer = setTimeout(() => {
+            clearStatus();
+            if (closeAfter) closeModal();
+        }, STATUS_MS);
+    }
+
+    /* EVENTS WIRING (Clicks) - so that specific actions are performed based on clicks: */
     addTaskBtn.addEventListener("click", openModal);
+    deleteBtn.addEventListener("click", deleteTask);
     cancelBtn.addEventListener("click", closeModal);
     backdrop.addEventListener("click", closeModal);
-    confirmBtn.addEventListener("click", addTask);
-
-    /* EVENTS WIRING (Clicks): */
     todayBtn.addEventListener("click", goToToday);
     previousBtn.addEventListener("click", () => changeDay(-1));
     nextBtn.addEventListener("click", () => changeDay(+1));
+
+    // introduces logic that gives the "confirm" button uses other than just to add a task to a date. so now it handles for editing tasks, adding tasks, and deleting tasks
+    confirmBtn.addEventListener("click", () => {
+        if (editingTaskId) {
+            saveEdits();
+        } else {
+            addTask();
+        }
+    });
+    
+    taskListEl.addEventListener("click", (e) => {
+        const li = e.target.closest("li");
+        if (!li) return;
+
+        const taskId = Number(li.dataset.taskId);
+        openEditModal(taskId);
+    });
 
     renderDate(); // IMPORTANT: when the date changes, the tasks need to be re-rendered to avoid confusion
 });
