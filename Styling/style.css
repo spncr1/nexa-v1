@@ -332,6 +332,12 @@ h2 {
 
     z-index: 999;
     font-family: sans-serif, arial;
+
+    display: none;
+}
+
+.sort-panel:not(.hidden) {
+    display: grid;
 }
 
 .sort-panel label, .sort-panel select {
@@ -339,15 +345,21 @@ h2 {
     font-size: 14px;
 }
 
-.sort-panel label {
-    text-align: left;
-}
-
 .sort-panel select {
     width: 100%;
     padding: 6px 10px;
     border-radius: 8px;
     border: 1px solid #ccc;
+}
+
+.sort-row {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.sort-row label {
+    margin-bottom: 8px;
 }
 
 /* ASSIGNMENTS DUE (Card 2) */

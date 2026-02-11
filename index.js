@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const sortBtn = document.getElementById("sort-btn");
     const sortPanel = document.getElementById("sort-panel");
     const sortSelect = document.getElementById("sort-select");
-    let currentSortMode = localStorage.getItem("tasksSortMode", currentSortMode); // load saved sort mode (default: createdNewOld)
+    let currentSortMode = localStorage.getItem("taskSortMode") || "createdNewOld"; // load saved sort mode (default: createdNewOld)
     sortSelect.value = currentSortMode;
 
     // Load the last selected date from localStorage (so that when you referesh, you keep your place)
@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* modal open/close */
     function openModal() {
-        editingTaskId = null; // force add-mode
+        let editingTaskId = null; // force add-mode
         
         document.getElementById("task-modal-title").textContent = "ADD TASK";
         confirmBtn.textContent = "Add";
@@ -295,6 +295,8 @@ document.addEventListener("DOMContentLoaded", () => {
         sortPanel.classList.add("hidden");
     }
 
+    closeSortPanel();
+
     function toggleSortPanel() {
         sortPanel.classList.toggle("hidden");
     }
@@ -391,10 +393,11 @@ document.addEventListener("DOMContentLoaded", () => {
         closeSortPanel();
     });
 
-    sortSelect.addEventListener("click", (e) => {
+    sortSelect.addEventListener("change", () => {
         currentSortMode = sortSelect.value;
         localStorage.setItem("taskSortMode", currentSortMode);
         renderTasksForSelectedDate();
+        closeSortPanel();
     });
 
     renderDate(); // IMPORTANT: when the date changes, the tasks need to be re-rendered to avoid confusion
