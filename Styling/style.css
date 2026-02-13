@@ -3,6 +3,14 @@
    ======================
 */
 
+:root {
+    --bg: #ffffff;
+    --text: #111111;
+    --panel: rgb(141, 157, 141);
+    --border: rgb(3, 46, 8);
+    --surface: #ffffff;
+}
+
 /* MAIN BODY */
 html, body {
     text-align: center;
