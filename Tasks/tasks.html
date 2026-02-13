@@ -19,9 +19,9 @@
             </button>
             
             <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="tasks.html" class="active">Tasks</a></li>
-                <li><a href="assignments.html">Assignments</a></li>
+                <li><a href="/index.html">Home</a></li>
+                <li><a href="/Tasks/tasks.html" class="active">Tasks</a></li>
+                <li><a href="/Assignments/assignments.html">Assignments</a></li>
             </ul>
         </nav>
 
@@ -70,8 +70,57 @@
             <br>
             <br>
             <hr>
+
+            <!-- SYSTEM SETTINGS MODAL -->
+              <div id="system-settings-modal" class="hidden" role="dialog" aria-modal="true" aria-label="System Settings">
+                <div class="settings-layout">
+                    <aside class="settings-sidebar">
+                        <ul class="settings-sidebar-list">
+                            <li><button type="button" class="settings-nav" data-tab="general">General</button></li>
+                            <li><button type="button" class="settings-nav" data-tab="account">Account</button></li>
+                            <li><button type="button" class="settings-nav" data-tab="customise">Customise</button></li>
+                        </ul>
+                    </aside>
+
+                    <!-- Main content -->
+                     <div class="settings-content">
+                        <div class="settings-header">
+                            <h3 class="settings-title">SYSTEM SETTINGS</h3>
+                            <div id="settings-subtitle" class="settings-subtitle">General</div>
+                        </div>
+
+                        <div class="settings-body">
+                            <div class="settings-panel" data-panel="general">
+                                <p>More to come...</p>
+                            </div>
+
+                            <div class="settings-panel hidden" data-panel="account">
+                                <p>More to come...</p>
+                            </div>
+
+                            <div class="settings-panel" data-panel="customise">
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Dark mode</div>
+                                    </div>
+
+                                    <label class="switch">
+                                        <input type="checkbox" id="darkmode-toggle">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                     </div>
+                </div>
+              </div>
+              
+              <!-- System Settings Button (placement)-->
+             <div class="system-settings">
+                <button id="system-settings-btn">⚙️</button>
+             </div>
         </main>
         
-        <script src="index.js"></script>
+        <script src="tasks.js"></script>
     </body>
 </html>

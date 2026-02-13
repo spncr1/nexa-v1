@@ -19,9 +19,9 @@
             </button>
             
             <ul>
-                <li><a href="index.html" class="active">Home</a></li>
-                <li><a href="tasks.html">Tasks</a></li>
-                <li><a href="assignments.html">Assignments</a></li>
+                <li><a href="/index.html" class="active">Home</a></li>
+                <li><a href="/Tasks/tasks.html">Tasks</a></li>
+                <li><a href="/Assignments/assignments.html">Assignments</a></li>
             </ul>
         </nav>
 
@@ -108,7 +108,6 @@
                     </select>
                 </div> 
                 
-
                  <!-- success message (if added task successfully) -->
                   <p id="task-status" class="task-status"></p>
 
@@ -124,9 +123,9 @@
                 <div class="settings-layout">
                     <aside class="settings-sidebar">
                         <ul class="settings-sidebar-list">
-                            <li><button type="button" class="settings-nav active">General</button></li>
-                            <li><button type="button" class="settings-nav">Account</button></li>
-                            <li><button type="button" class="settings-nav">Customise</button></li>
+                            <li><button type="button" class="settings-nav" data-tab="general">General</button></li>
+                            <li><button type="button" class="settings-nav" data-tab="account">Account</button></li>
+                            <li><button type="button" class="settings-nav" data-tab="customise">Customise</button></li>
                         </ul>
                     </aside>
 
@@ -138,7 +137,26 @@
                         </div>
 
                         <div class="settings-body">
-                            <!-- Panels go here -->
+                            <div class="settings-panel" data-panel="general">
+                                <p>More to come...</p>
+                            </div>
+
+                            <div class="settings-panel hidden" data-panel="account">
+                                <p>More to come...</p>
+                            </div>
+
+                            <div class="settings-panel" data-panel="customise">
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Dark mode</div>
+                                    </div>
+
+                                    <label class="switch">
+                                        <input type="checkbox" id="darkmode-toggle">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                      </div>
                 </div>

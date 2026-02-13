@@ -1,0 +1,486 @@
+/* 
+  ==============================
+  SHARED APP FRAME (Assignments)
+  ==============================
+  - Base page layout
+  - Navbar
+  - Global headers
+  - Utility classes
+  - System settings button + modal
+*/
+
+html, body {
+    text-align: center;
+    display: flex;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    overscroll-behavior: none;
+    width: 100%;
+}
+
+.content {
+    text-align: center;
+    flex: 1;
+    padding: 24px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* NAVBAR */
+.navbar {
+    width: 180px;
+    border-right: 1px solid #ddd;
+    padding: 16px;
+    text-align: left;
+}
+
+.navbar ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    font-family: sans-serif, arial;
+    gap: 12px;
+    padding: 0;
+    margin-top: 16px;
+    font-size: 20px;
+    text-align: center;
+}
+
+.navbar a {
+    border-radius: 6px;
+    display: block;
+    width: 100%;
+    text-decoration: none;
+    color: black;
+}
+
+.navbar a:hover {
+    background: rgba(4, 255, 0, 0.742);
+}
+
+.navbar a.active {
+    background: rgba(124, 255, 122, 0.66);
+    font-weight: 700;
+}
+
+.menu-toggle {
+    background: none;
+    border: none;
+    font-size: 70px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    margin-left: 50px;
+    text-align: center;
+}
+
+/* ----- HEADERS STYLING ----- */
+h1 {
+    color: black;
+    font-family: sans-serif, arial;
+    font-size: 40px;
+}
+
+h2 {
+    color: black;
+    font-family: sans-serif, arial;
+    font-size: 30px;
+}
+
+/* UTIL */
+.hidden { display: none; }
+
+/* SYSTEM SETTINGS BUTTON */
+.system-settings {
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+}
+
+#system-settings-btn {
+    font-size: 40px;
+    border-radius: 20px;
+    background-color: white;
+    color: white;
+    width: 30px;
+    height: 30px;
+    align-self: center;
+    justify-self: center;
+    border: none;
+    cursor: pointer;
+}
+
+#system-settings-btn:hover {
+    transition: transform 0.3s ease, filter 0.3s ease;
+    transform: scale(1.15) rotate(8deg);
+    filter: brightness(1.05);
+}
+
+#system-settings-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 360px;
+    font-family: sans-serif, arial;
+    background: white;
+    border-radius: 12px;
+    padding: 0;
+    border: 1px solid #ddd;
+    z-index: 10;
+    text-align: left;
+    overflow: hidden;
+}
+
+.settings-layout {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    min-height: 240px;
+}
+
+.settings-sidebar {
+    border-right: 1px solid #ddd;
+    padding: 12px;
+    background: #f7f7f7;
+}
+
+.settings-sidebar-title {
+    margin: 0 0 10px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.settings-sidebar-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 8px;
+}
+
+.settings-nav {
+    width: 100%;
+    text-align: left;
+    border: 1px solid #ccc;
+    background: white;
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.settings-nav:hover {
+    transform: scale(1.03);
+    filter: brightness(1.02);
+}
+
+.settings-nav.active {
+    border-color: #111;
+    font-weight: 700;
+}
+
+.settings-header {
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.settings-title {
+    margin: 5px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.settings-subtitle {
+    margin-top: 6px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 0.85;
+}
+
+.settings-panel.hidden { display: none; }
+
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    margin-top: 12px;
+}
+
+.setting-labels { text-align: left; margin-left: 10px; }
+.setting-name { font-weight: 700; }
+.setting-desc { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 25px;
+    margin-right: 10px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #cfcfcf;
+    border-radius: 999px;
+    transition: 0.2s ease;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+.slider::before {
+    content: "";
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    top: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: 0.2s ease;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+.switch input:checked + .slider {
+    background: rgba(124, 255, 122, 0.66);
+}
+
+.switch input:checked + .slider::before {
+    transform: translateX(17px);
+}
+
+/* 
+  =======================
+  ASSIGNMENTS PAGE LAYOUT
+  =======================
+*/
+
+.assignments-page-header {
+    margin-bottom: 16px;
+}
+
+.page-title {
+    margin: 0;
+    font-family: sans-serif, arial;
+    font-size: 34px;
+    letter-spacing: 1px;
+}
+
+.page-subtitle {
+    font-size: 16px;
+    font-weight: 400;
+    opacity: 0.75;
+}
+
+/* 3-column layout: subjects | main | widgets */
+.assignments-layout {
+    display: grid;
+    grid-template-columns: 220px minmax(520px, 1fr) 320px;
+    gap: 18px;
+    align-items: start;
+}
+
+/* Subjects panel */
+.subjects-panel {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: left;
+    background: #fff;
+}
+
+.panel-title {
+    margin: 0 0 10px;
+    font-size: 16px;
+    font-weight: 800;
+    font-family: sans-serif, arial;
+}
+
+.panel-subtitle {
+    font-size: 13px;
+    font-weight: 400;
+    opacity: 0.75;
+}
+
+.subjects-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.subject-item {
+    width: 100%;
+    text-align: left;
+    border: 1px solid #ccc;
+    background: #fff;
+    border-radius: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    font-family: sans-serif, arial;
+    font-size: 14px;
+}
+
+.subject-item.active {
+    border-color: #111;
+    font-weight: 800;
+}
+
+/* Main centre */
+.assignments-main {
+    display: grid;
+    gap: 12px;
+}
+
+/* Controls row placeholder */
+.assignment-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.btn-primary {
+    border: none;
+    background: #111;
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: sans-serif, arial;
+    font-weight: 700;
+}
+
+.controls-group {
+    display: grid;
+    gap: 6px;
+}
+
+.control-label {
+    font-family: sans-serif, arial;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: left;
+}
+
+.control-select {
+    font-family: sans-serif, arial;
+    font-size: 13px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+/* Table card */
+.assignments-table-card {
+    border: 2px solid rgb(3, 46, 8);
+    background-color: rgb(141, 157, 141);
+    border-radius: 10px;
+    padding: 14px 12px;
+}
+
+.assignments-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.table-title {
+    margin: 0;
+    font-family: sans-serif, arial;
+    font-size: 26px;
+    font-weight: 900;
+}
+
+.assignments-table-wrap {
+    overflow: auto;
+    border-radius: 10px;
+}
+
+.assignments-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.75);
+    font-family: sans-serif, arial;
+}
+
+.assignments-table th, .assignments td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.12);
+    text-align: left;
+    font-size: 14px;
+    font-weight: 700;
+    color: #111;
+}
+
+.assignments-table th {
+    background: rgba(255, 255, 255, 0.9);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* Right widgets column */
+.assignments-widgets {
+    display: grid;
+    gap: 14px;
+}
+
+.widget-card {
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 12px;
+    text-align: left;
+    min-height: 130px;
+}
+
+.widget-title {
+    font-family: sans-serif, arial;
+    font-weight: 900;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.widget-placeholder {
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0,06);
+    height: 90px;
+}
+
+/* Different placeholder shapes based on first initial UI sketch */
+.widget-line { height: 90px; }
+.widget-list { height: 110px; }
+.widget-pie { height: 110px; }
+
+/* Responsive fallback just in case of trouble */
+@media (max-width: 1100px) {
+    .assignments-layout {
+        grid-template-columns: 1fr;
+    }
+}

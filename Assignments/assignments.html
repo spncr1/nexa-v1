@@ -5,7 +5,7 @@
         <title>Student Hub (Lite) Assignments</title>
         
         <!-- CSS stylesheet -->
-        <link rel="stylesheet" href="/Styling/style.css">
+        <link rel="stylesheet" href="/Styling/assignments.css">
 
         <!-- Fonts will go here (once decided)... -->
         
@@ -19,29 +19,169 @@
             </button>
             
             <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="tasks.html">Tasks</a></li>
-                <li><a href="assignments.html" class="active">Assignments</a></li>
+                <li><a href="/index.html">Home</a></li>
+                <li><a href="/Tasks/tasks.html">Tasks</a></li>
+                <li><a href="/Assignments/assignments.html" class="active">Assignments</a></li>
             </ul>
         </nav>
 
         <main class="content">
-            <button id="today-btn">TODAY</button>
-            
-            <div class="date-header">
+            <header class="assignment-page-header">
+                <h1 class="page-title">ASSIGNMENTS SCHEDULE <span class="page-subtitle">(Semester)</span></h1> <!-- semester is just a placeholder for now -->
+            </header>
 
-                <div class="date-row">
-                    <button id="previous-btn"><</button>
+            <!-- MAIN LAYOUT -->
+            <section class="assignments-layout">
+                <aside class="subjects-panel" aria-label="Subjects">
+                    <h3 class="panel-title">Subjects <span class="panel-subtitle">(Semester)</span>:</h3>
 
-                    <div class="date-text">
-                        <h1 id="date-display"></h1>
-                        <h2 id="day-display"></h2>
+                    <ul class="subjects-list">
+                        <li><button type="button" class="subject-item active" data-subject="all">All Subjects</button></li>
+                        <li><button type="button" class="subject-item active" data-subject="subject-1">Subject 1</button></li>
+                        <li><button type="button" class="subject-item active" data-subject="subject-2">Subject 2</button></li>
+                        <li><button type="button" class="subject-item active" data-subject="subject-3">Subject 3</button></li>
+                        <li><button type="button" class="subject-item active" data-subject="subject-4">Subject 4</button></li>
+
+                    </ul>
+                </aside>
+
+                <section class="assignments-main" aria-label="Assignments table">
+                    <div class="assignments-controls">
+                        <button type="button" class="btn-primary" id="add-assignment-btn">+</button>
+
+                        <div class="controls-group">
+                            <label class="control-label" for="assignments-sort">Sort</label>
+                            <select id="assignments-sort" class="control-select">
+                                <option value="dueSoon">Due date (soonest)</option>
+                                <option value="dueLate">Due date (latest)</option>
+                                <option value="weightHigh">Weighting (high -> low)</option>
+                                <option value="weightLow">Weighting (low -> high) </option>
+                                <option value="priority">Priority</option>
+                            </select>
+                        </div>
+
+                        <div class="controls-group">
+                            <label class="control-label" for="assignments-filter">Filter</label>
+                            <select id="assignments-filter" class="control-select">
+                                <option value="all">All</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                                <option value="completed">All</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <button id="next-btn">></button>
+                    <!-- TABLE SHELL -->
+                    <div class="assignments-table-card">
+                        <div class="assignments-table-header">
+                            <h2 class="table-title">All Assignments</h2>
+                        </div>
+
+                        <div class="assignments-table-wrap">
+                            <table class="assignments-table">
+                                <thead>
+                                    <tr>
+                                        <th>Course</th>
+                                        <th>Task</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Due Date</th>
+                                        <th>Weighting (%)</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="assignments-body">
+                                    <!-- placeholder rows (for now) -->
+                                     <tr>
+                                        <td>Data Structures & Algorithms</td>
+                                        <td>Programming Assignment 1</td>
+                                        <td>Medium</td>
+                                        <td>In progress</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                     </tr>
+                                     <tr>
+                                        <td>Engineering Research Preparation</td>
+                                        <td>AT1</td>
+                                        <td>Not started</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                     </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- RIGHT: VISUAL WIDGETS (placeholders) -->
+                 <aside class="assignments-widgets" aria-label="Summary widgets">
+                    <div class="widget-card">
+                        <div class="widget-title">TBC</div>
+                        <div class="widget-placeholder widget-line"></div>
+                    </div>
+
+                    <div class="widget-card">
+                        <div class="widget-title">Total Course Assignments</div>
+                        <div class="widget-placeholder widget-list"></div>
+                    </div>
+                    
+                    <div class="widget-card">
+                        <div class="widget-title">Status</div>
+                        <div class="widget-placeholder widget-pie"></div>
+                    </div>
+                 </aside>
+            </section>
+            <!-- <hr> - USE IF I WANNA ADD AN EXTRA SECTION BELOW FOR ADDITIONAL SETTINGS --> 
+
+            <!-- SYSTEM SETTINGS MODAL -->
+              <div id="system-settings-modal" class="hidden" role="dialog" aria-modal="true" aria-label="System Settings">
+                <div class="settings-layout">
+                    <aside class="settings-sidebar">
+                        <ul class="settings-sidebar-list">
+                            <li><button type="button" class="settings-nav" data-tab="general">General</button></li>
+                            <li><button type="button" class="settings-nav" data-tab="account">Account</button></li>
+                            <li><button type="button" class="settings-nav" data-tab="customise">Customise</button></li>
+                        </ul>
+                    </aside>
+
+                    <!-- Main content -->
+                     <div class="settings-content">
+                        <div class="settings-header">
+                            <h3 class="settings-title">SYSTEM SETTINGS</h3>
+                            <div id="settings-subtitle" class="settings-subtitle">General</div>
+                        </div>
+
+                        <div class="settings-body">
+                            <div class="settings-panel" data-panel="general">
+                                <p>More to come...</p>
+                            </div>
+
+                            <div class="settings-panel hidden" data-panel="account">
+                                <p>More to come...</p>
+                            </div>
+
+                            <div class="settings-panel" data-panel="customise">
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Dark mode</div>
+                                    </div>
+
+                                    <label class="switch">
+                                        <input type="checkbox" id="darkmode-toggle">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                     </div>
                 </div>
-            </div>
-            <hr>
+              </div>
+              
+              <!-- System Settings Button (placement)-->
+             <div class="system-settings">
+                <button id="system-settings-btn">⚙️</button>
+             </div>
         </main>
         
         <script src="index.js"></script>
