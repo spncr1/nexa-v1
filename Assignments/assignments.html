@@ -37,14 +37,12 @@
                 <aside class="subjects-panel" aria-label="Subjects">
                     <h3 class="panel-title">Subjects <span class="panel-subtitle">(Semester)</span>:</h3>
 
-                    <ul class="subjects-list">
-                        <!--<li><button type="button" class="subject-item active" data-subject="all-subjects">Add a Subject (placeholder)</button></li>-->
-                        <li><button type="button" class="subject-item active" data-subject="subject-1">Intro to Data Engineering</button></li>
-                        <li><button type="button" class="subject-item active" data-subject="subject-2">Collaboration in Complex Projects</button></li>
-                        <li><button type="button" class="subject-item active" data-subject="subject-3">Data Structures & Algorithms</button></li>
-                        <li><button type="button" class="subject-item active" data-subject="subject-4">Engineering Research Preparation</button></li>
+                    <button type="button" class="btn-primary subjects-add-btn" id="add-subject-btn" aria-label="Add Subject">
+                        +
+                    </button>
 
-                    </ul>
+                    <!-- empty list, populated by JS -->
+                    <ul class="subjects-list" id="subjects-list"></ul>
                 </aside>
 
                 <!-- MIDDLE COLUMN -->
@@ -63,17 +61,6 @@
                                 <option value="weightHigh">Weighting (high -> low)</option>
                                 <option value="weightLow">Weighting (low -> high) </option>
                                 <option value="priority">Priority</option>
-                            </select>
-                        </div>
-
-                        <div class="controls-group">
-                            <label class="control-label" for="assignments-filter">Filter</label>
-                            <select id="assignments-filter" class="control-select">
-                                <option value="all">All</option>
-                                <option value="high">High</option>
-                                <option value="medium">Medium</option>
-                                <option value="low">Low</option>
-                                <option value="completed">Completed</option>
                             </select>
                         </div>
                     </div>
@@ -173,6 +160,26 @@
              <div class="system-settings">
                 <button id="system-settings-btn">⚙️</button>
              </div>
+
+             <!-- SUBJECT MODAL BACKDROP -->
+              <div id="subject-modal-backdrop" class="hidden"></div>
+
+              <!-- ADD SUBJECT MODAL -->
+               <div id="add-subject-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Add Subject">
+                <h3 align="center">ADD SUBJECT</h3>
+
+                <div class="form-row">
+                    <label for="subject-name"><strong>Subject name</strong></label>
+                    <input id="subject-name" type="text" placeholder="e.g., Data Structures & Algorithms">
+                </div>
+
+                <p id="subject-status" class="task-status"></p>
+
+                <div class="modal-actions">
+                    <button id="cancel-subject-btn">Cancel</button>
+                    <button id="confirm-subject-btn">Add</button>
+                </div>
+               </div>
         </main>
         
         <script src="/Assignments/assignments.js"></script>
