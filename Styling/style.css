@@ -152,12 +152,12 @@ h2 {
     align-content: start;
     background-color: rgb(141, 157, 141);
     border: rgb(3, 46, 8) 2px solid;
-    height: 45%;
     width: 20%;
     border-radius: 10px;
     padding: 14px 12px;
     gap: 10px;
-    overflow: visible;
+    max-height: 420px;
+    overflow: hidden;
 }
 
 .today-tasks-header {
@@ -167,6 +167,7 @@ h2 {
     align-items: center;
     column-gap: 10px;
     position: relative;
+    flex: 0 0 auto;
 }
 
 .today-tasks-header h2 {
@@ -195,6 +196,7 @@ h2 {
     text-align: left;
     overflow-y: auto;
     max-height: 100%;
+    min-height: 0;
 }
 
 #task-list li {

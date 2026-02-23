@@ -35,14 +35,16 @@
             <section class="assignments-layout">
                 <!-- LEFT COLUMN -->
                 <aside class="subjects-panel" aria-label="Subjects">
-                    <h3 class="panel-title">Subjects <span class="panel-subtitle">(Semester)</span>:</h3>
+                    <div class="subjects-panel-header">
+                        <h3 class="panel-title">Subjects <span class="panel-subtitle">(Semester)</span>:</h3>
 
-                    <button type="button" class="btn-primary subjects-add-btn" id="add-subject-btn" aria-label="Add Subject">
-                        +
-                    </button>
+                        <button type="button" class="btn-primary subjects-add-btn" id="add-subject-btn" aria-label="Add Subject">
+                            +
+                        </button>
+                    </div>
 
-                    <!-- empty list, populated by JS -->
-                    <ul class="subjects-list" id="subjects-list"></ul>
+                    <!-- Subjects list rendered here via JS -->
+                    <ul id="subjects-list"></ul>
                 </aside>
 
                 <!-- MIDDLE COLUMN -->
@@ -177,7 +179,7 @@
 
               <!-- ADD SUBJECT MODAL -->
                <div id="add-subject-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Add Subject">
-                <h3 align="center">ADD SUBJECT</h3>
+                <h3 id="subject-modal-title" align="center">ADD SUBJECT</h3>
 
                 <div class="form-row">
                     <label for="subject-name"><strong>Subject name</strong></label>
@@ -188,6 +190,7 @@
 
                 <div class="modal-actions">
                     <button id="cancel-subject-btn">Cancel</button>
+                    <button id="delete-subject-btn" class="hidden">Delete</button>
                     <button id="confirm-subject-btn">Add</button>
                 </div>
                </div>
