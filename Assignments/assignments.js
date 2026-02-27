@@ -22,6 +22,39 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmSubjectBtn = document.getElementById("confirm-subject-btn");
     const deleteSubjectBtn = document.getElementById("delete-subject-btn");
 
+    /* System Settings elements */
+    const systemSettingsBtn = document.getElementById("system-settings-btn");
+    const systemSettingsModal = document.getElementById("system-settings-modal");
+    const backdrop = document.getElementById("modal-backdrop");
+
+    const navButtons = document.querySelectorAll(".settings-nav");
+    const panels = document.querySelectorAll(".settings-panel");
+    const subtitle = document.getElementById("settings-subtitle");
+    const darkToggle = document.getElementById("dark-mode-toggle");
+
+    /* Add Assignment elements */
+    const addAssignmentBtn = document.getElementById("add-assignment-btn");
+    const assignmentsBody = document.getElementById("assignments-body");
+
+    const assignmentModal = document.getElementById("add-assignment-modal");
+    const assignmentModalTitle = document.getElementById("assignment-modal-title");
+
+    const assignmentCourse = document.getElementById("assignment-course");
+    const assignmentTask = document.getElementById("assignment-task");
+    const assignmentDesc = document.getElementById("assignment-desc");
+    const assignmentPriority = document.getElementById("assignment-priority");
+    const assignmentStatus = document.getElementById("assignment-status");
+    const assignmentDue = document.getElementById("assignment-due");
+    const assignmentWeight = document.getElementById("assignment-weight");
+    
+    const assignmentStatusText = document.getElementById("assignment-status-text");
+    const cancelAssignmentBtn = document.getElementById("cancel-assignment-btn");
+    const deleteAssignmentBtn = document.getElementById("delete-assignment-btn");
+    const confirmAssignmentBtn = document.getElementById("confirm-assignment-btn");
+
+    const ASSIGNMENTS_KEY = "studenthub_assignments";
+    let editingAssignmentId = null;
+
     // Storage
     const STORAGE_KEY = "studenthub_subjects";
 
@@ -194,7 +227,307 @@ document.addEventListener("DOMContentLoaded", () => {
         showSubjectStatus("Subject deleted.", { closeAfter: true });
     }
 
-    // Wiring up the events:
+    function openSystemSettings() {
+        backdrop.classList.remove("hidden");
+        systemSettingsModal.classList.remove("hidden");
+    }
+
+    function closeSystemSettings() {
+        systemSettingsModal.classList.add("hidden");
+
+        const subjectOpen = subjectModal && !subjectModal.classList.contains("hidden");
+        const assignmentOpen = assignmentModal && !assignmentModal.classList.contains("hidden");
+
+        if (!subjectOpen && !assignmentOpen) {
+            backdrop.classList.add("hidden");
+        }
+    }
+
+    function setActiveTab(tabKey) {
+        navButtons.forEach(btn => { // active button syling
+            btn.classList.toggle("active", btn.dataset.tab === tabKey);
+        });
+
+        panels.forEach(panel => {
+            panel.classList.toggle("hidden", panel.dataset.panel !== tabKey);
+        });
+
+        if (subtitle) {
+            subtitle.textContent = tabKey.charAt(0).toUpperCase() + tabKey.slice(1);
+        }
+    }
+
+    function setDarkMode(isOn) {
+        document.body.classList.toggle("dark-mode", isOn);
+        localStorage.setItem("darkMode", isOn ? "1" : "0");
+    }
+
+    if (systemSettingsBtn && systemSettingsModal && backdrop) {
+        systemSettingsBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openSystemSettings();
+        });
+
+        backdrop.addEventListener("click", () => {
+            closeSystemSettings();
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key !== "Escape") return;
+            closeSystemSettings();
+        });
+
+        navButtons.forEach(btn => {
+            btn.addEventListener("click", () => setActiveTab(btn.dataset.tab));
+        });
+
+        setActiveTab("general");
+
+        if (darkToggle) {
+            const saved = localStorage.getItem("darkMode") === "1";
+            darkToggle.checked = saved;
+            setDarkMode(saved);
+
+            darkToggle.addEventListener("change", () => {
+                setDarkMode(darkToggle.checked);
+            });
+        }
+    }
+
+    // Add Assignment
+    function loadAssignments() {
+        try {
+            const raw = localStorage.getItem(ASSIGNMENTS_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            console.warn("Failed to parse assignments:", e);
+            return [];
+        }
+    }
+
+    function saveAssignments(assignments) {
+        localStorage.setItem(ASSIGNMENTS_KEY, JSON.stringify(assignments));
+    }
+
+    function formatDueDate(iso) {
+        if (!iso) return "";
+        // To keep things simple and consistent: YYYY-MM-DD format which matches type=date
+        return iso;
+    }
+
+    function formatWeight(num) {
+        if (num === null || num === undefined || num === "") return "";
+        const n = Number(num);
+        if (!Number.isFinite(n)) return "";
+        return n.toFixed(1);
+    }
+
+    function wordCount(str) {
+        return (str || "").trim().split(/\s+/).filter(Boolean).length;
+    }
+
+    function populateCourseOptions() {
+        const subjects = loadSubjects(); // uses existing local storage to load subjects in
+        assignmentCourse.innerHTML = "";
+
+        if (!subjects.length) {
+            const opt = document.createElement("option");
+            opt.value = "";
+            opt.textContent = "No subjects yet (add one first)";
+            assignmentCourse.appendChild(opt);
+            assignmentCourse.disabled = true;
+            return;
+        }
+
+        assignmentCourse.disabled = false;
+
+        subjects.forEach(s => {
+            const opt = document.createElement("option");
+            opt.value = s.id;
+            opt.textContent = s.name;
+            assignmentCourse.appendChild(opt);
+        });
+    }
+
+    function renderAssignments() {
+        const assignments = loadAssignments();
+        assignmentsBody.innerHTML = "";
+
+        if (!assignments.length) return;
+
+        const subjects = loadSubjects();
+        const subjectNameById = new Map(subjects.map(s => [s.id, s.name]));
+
+        assignments.forEach(a => {
+            const tr = document.createElement("tr");
+            tr.dataset.assignmentId = a.id;
+
+            const courseName = subjectNameById.get(a.courseId) || "(Deleted subject)";
+
+            tr.innerHTML = `
+                <td>${courseName}</td>
+                <td>${a.task}</td>
+                <td>${a.priority}</td>
+                <td>${a.status}</td>
+                <td>${formatDueDate(a.dueDate)}</td>
+                <td>${formatWeight(a.weighting)}</td>
+            `;
+
+            assignmentsBody.appendChild(tr);
+        });
+    }
+
+    function openAssignmentModalAdd() {
+        editingAssignmentId = null;
+
+        populateCourseOptions();
+
+        assignmentModalTitle.textContent = "ADD ASSIGNMENT";
+        confirmAssignmentBtn.textContent = "Add";
+        deleteAssignmentBtn.classList.add("hidden");
+        assignmentStatusText.textContent = "";
+
+        assignmentTask.value = "";
+        assignmentDesc.value = "";
+        assignmentPriority.value = "medium";
+        assignmentStatus.value = "not-started";
+        assignmentDue.value = "";
+        assignmentWeight.value = "";
+
+        backdrop.classList.remove("hidden");
+        assignmentModal.classList.remove("hidden");
+        assignmentTask.focus();
+    }
+
+    function openAssignmentModalEdit(assignmentId) {
+        const assignments = loadAssignments();
+        const a = assignments.find(x => x.id === assignmentId);
+        if (!a) return;
+
+        editingAssignmentId = assignmentId;
+
+        populateCourseOptions();
+
+        assignmentModalTitle.textContent = "EDIT ASSIGNMENT";
+        confirmAssignmentBtn.textContent = "Save";
+        deleteAssignmentBtn.classList.add("hidden");
+        assignmentStatusText.textContent = "";
+
+        assignmentCourse.value = a.courseId || "";
+        assignmentTask.value = a.task || "";
+        assignmentDesc.value = a.description || "";
+        assignmentPriority.value = a.priority || "medium";
+        assignmentStatus.value = a.status || "not-started";
+        assignmentDue.value = a.dueDate || "";
+        assignmentWeight.value = (a.weighting ?? "");
+
+        backdrop.classList.remove("hidden");
+        assignmentModal.classList.remove("hidden");
+    }
+
+    function closeAssignmentModal() {
+        assignmentModal.classList.add("hidden");
+        assignmentStatusText.textContent = "";
+        backdrop.classList.add("hidden");
+    }
+
+    function addAssignment() {
+        if (assignmentCourse.disabled) {
+            assignmentStatusText.textContent = "Add a subject first.";
+            return;
+        }
+
+        const task = assignmentTask.value.trim();
+        if (!task) {
+            assignmentStatusText.textContent = "Task name is required.";
+            return;
+        }
+
+        const desc = assignmentDesc.value.trim();
+        if (wordCount(desc) > 500) {
+            assignmentStatusText.textContent = "Description exceeds 500 words. Please enter less characters.";
+            return;
+        }
+        
+        const weightRaw = assignmentWeight.value.trim();
+        const weighting = weightRaw === "" ?  null : Number(weightRaw);
+        if (weighting !== null && !Number.isFinite(weighting)) {
+            assignmentStatusText.textContent = "Weighting must be a number.";
+            return;
+        }
+
+        const now = Date.now();
+        const assignments = loadAssignments();
+
+        const newAssignment = {
+            id: `assignment_${now}`,
+            courseId: assignmentCourse.value,
+            task,
+            description: desc,
+            priority: assignmentPriority.value,
+            status: assignmentStatus.value,
+            dueDate: assignmentDue.value,
+            weighting,
+            createdAt: now,
+            updatedAt: now
+        };
+
+        assignments.push(newAssignment);
+        saveAssignments(assignments);
+        renderAssignments();
+        closeAssignmentModal();
+    }
+
+    function saveAssignmentEdits() {
+        if (!editingAssignmentId) return;
+
+        const task = assignmentTask.value.trim();
+        if (!task) {
+            assignmentStatusText.textContent = "Task  name is required.";
+            return;
+        }
+
+        const desc = assignmentDesc.value.trim();
+        if (wordCount(desc) > 500) {
+            assignmentStatusText.textContent = "Description exceeds 500 words. Please enter less characters.";
+        }
+        
+        const weighting = Number(assignmentWeight.value);
+        if (!Number.isFinite(weighting)) {
+            assignmentStatusText.textContent = "Weighting must be a number.";
+            return;
+        }
+
+        const assignments = loadAssignments();
+        const idx = assignments.findIndex(a => a.id === editingAssignmentId);
+        if (idx === -1) return;
+
+        assignments[idx] = {
+            ...assignments[idx],
+            courseId: assignmentCourse.value,
+            task,
+            description: desc,
+            priority: assignmentPriority.value,
+            status: assignmentStatus.value,
+            dueDate: assignmentDue.value,
+            weighting,
+            updatedAt: Date.now()
+        };
+
+        saveAssignments(assignments);
+        renderAssignments();
+        closeAssignmentModal();
+    }
+
+    function deleteAssignment() {
+        if (!editingAssignmentId) return;
+        const assignments = loadAssignments().filter(a => a.id !== editingAssignmentId);
+        saveAssignments(assignments);
+        renderAssignments();
+        closeAssignmentModal();
+    }
+
+    // Wiring up the events (subjects)
     addSubjectBtn.addEventListener("click", openSubjectModal);
     cancelSubjectBtn.addEventListener("click", closeSubjectModal);
     subjectBackdrop.addEventListener("click", closeSubjectModal);
@@ -210,7 +543,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const btn = e.target.closest(".subject-item");
         if (!btn || btn.disabled) return;
 
-        document.querySelectorAll(".subjects-list .subject-item")
+        document.querySelectorAll("#subjects-list .subject-item")
             .forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
 
@@ -231,13 +564,44 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.key === "Escape") closeSubjectModal();
     });
 
-    // Initial render
-    renderSubjects(loadSubjects());
+    // Wiring up the events (assignments)
+    addAssignmentBtn.addEventListener("click", openAssignmentModalAdd);
+    cancelAssignmentBtn.addEventListener("click", closeAssignmentModal);
+    deleteAssignmentBtn.addEventListener("click", deleteAssignment);
 
+    confirmAssignmentBtn.addEventListener("click", () => {
+        if (editingAssignmentId) saveAssignmentEdits();
+        else addAssignment();
+    });
+
+    assignmentsBody.addEventListener("click", (e) => {
+        const tr = e.target.closest("tr");
+        if (!tr) return;
+        openAssignmentModalEdit(tr.dataset.assignmentId);
+    });
+
+    backdrop.addEventListener("click", () => {
+        closeAssignmentModal();
+        closeSystemSettings(); // using the shared backdrop for both
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key !== "Escape") return;
+        closeAssignmentModal();
+        closeSystemSettings();
+    });
+    
     function updateSubjectsOverflowHint() {
         const panel = document.querySelector(".subjects-panel");
         if (!panel) return;
         const canScroll = subjectsListEl.scrollHeight > subjectsListEl.clientHeight + 1;
         panel.classList.toggle("has-more", canScroll);
     }
+
+     // Initial render
+    renderSubjects(loadSubjects());
+    populateCourseOptions();
+    renderAssignments();
+    subjectsListEl.addEventListener("scroll", updateSubjectsOverflowHint);
+    window.addEventListener("resize", updateSubjectsOverflowHint);
 });

@@ -6,7 +6,7 @@
         
         <!-- CSS stylesheet -->
         <link rel="stylesheet" href="/Styling/assignments.css">
-        <!-- <link rel="stylesheet" href="/Styling/dark-mode.css"> -->
+        <link rel="stylesheet" href="/Styling/dark-mode.css">
 
         <!-- Fonts will go here (once decided)... -->
         
@@ -73,7 +73,6 @@
                                 <option value="high">High</option>
                                 <option value="medium">Medium</option>
                                 <option value="low">Low</option>
-                                <option value="completed">All</option>
                             </select>
                         </div>
                     </div>
@@ -174,6 +173,8 @@
                 <button id="system-settings-btn">⚙️</button>
              </div>
 
+             <div id="modal-backdrop" class="hidden"></div>
+
              <!-- SUBJECT MODAL BACKDROP -->
               <div id="subject-modal-backdrop" class="hidden"></div>
 
@@ -193,6 +194,68 @@
                     <button id="delete-subject-btn" class="hidden">Delete</button>
                     <button id="confirm-subject-btn">Add</button>
                 </div>
+               </div>
+               <!-- ADD/EDIT ASSIGNMENT MODAL -->
+               <div id="add-assignment-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Add Assignment">
+                <h3 id="assignment-modal-title" align="center">ADD ASSIGNMENT</h3>
+
+                <!-- Course -->
+                 <div class="form-row">
+                    <label for="assignment-course"><strong>Course</strong></label>
+                    <select id="assignment-course"></select>
+                 </div>
+
+                 <!-- Task -->
+                 <div class="form-row">
+                    <label for="assignment-task"><strong>Task</strong></label>
+                    <input id="assignment-task" type="text" placeholder="e.g., AT3 Research Report"></input>
+                 </div>
+
+                 <!-- Description (not shown on table intentionally) -->
+                 <div class="form-row">
+                    <label for="assignment-desc"><strong>Description</strong></label>
+                    <textarea id="assignment-desc" rows="4" placeholder="Brief summary (max. 500 words)..."></textarea>
+                 </div>
+
+                 <!-- Priority -->
+                 <div class="form-row">
+                    <label for="assignment-priority"><strong>Course</strong></label>
+                    <select id="assignment-priority">
+                        <option value="high">High</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                 </div>
+
+                 <!-- Status -->
+                 <div class="form-row">
+                    <label for="assignment-status"><strong>Status</strong></label>
+                    <select id="assignment-status">
+                        <option value="not-started" selected>Not started</option>
+                        <option value="in-progress">In progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                 </div>
+
+                 <!-- Due Date -->
+                 <div class="form-row">
+                    <label for="assignment-due"><strong>Due date</strong></label>
+                    <input id="assignment-due" type="date"></input>
+                 </div>
+
+                 <!-- Weighting -->
+                 <div class="form-row">
+                    <label for="assignment-weight"><strong>Weighting (%)</strong></label>
+                    <input id="assignment-weight" type="number" min="0" max="100" step="0.1" placeholder="e.g., 20"></input>
+                 </div>
+
+                 <p id="assignment-status-text" class="task-status"></p>
+
+                 <div class="modal-actions">
+                    <button id="cancel-assignment-btn">Cancel</button>
+                    <button id="delete-assignment-btn">Delete</button>
+                    <button id="confirm-assignment-btn">Add</button>
+                 </div>
                </div>
         </main>
         

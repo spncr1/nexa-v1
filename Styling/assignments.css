@@ -132,9 +132,13 @@ h2 {
     border-radius: 12px;
     padding: 0;
     border: 1px solid #ddd;
-    z-index: 10;
+    z-index: 900;
     text-align: left;
     overflow: hidden;
+}
+
+.settings-panel p {
+    margin-left: 10px;
 }
 
 .settings-layout {
@@ -295,11 +299,15 @@ h2 {
     display: grid;
     grid-template-columns: 220px minmax(520px, 1fr) 320px;
     grid-template-rows: auto auto;
-    gap: 18px;
+    gap: 16px;
+    row-gap: 8px;
+    column-gap: 16px;
     align-items: start;
 }
 
 /* Subjects panel */
+.subjects-panel { position: relative; }
+
 .subjects-panel {
     border: 2px solid rgb(3, 46, 8);
     background-color: rgb(141, 157, 141);
@@ -344,7 +352,6 @@ h2 {
     padding: 0;
     margin: 0;
     display: grid;
-    margin-top: 10px;
     cursor: pointer;
     max-height: 225px;
     overflow-y: auto;
@@ -365,7 +372,7 @@ h2 {
     border-radius: 8px;
     padding: 10px 12px;
     display: block;
-    margin-top: 10px;
+    margin-top: 6px;
     text-align: left;
     font-family: sans-serif, arial;
     font-size: 14px;
@@ -427,7 +434,7 @@ h2 {
 .assignments-table {
     width: 100%;
     border-collapse: collapse;
-    background: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.6);
     font-family: sans-serif, arial;
 }
 
@@ -441,7 +448,7 @@ h2 {
 }
 
 .assignments-table th {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.6);
     position: sticky;
     top: 0;
     z-index: 1;
@@ -464,11 +471,11 @@ h2 {
     justify-content: flex-start;
 
     padding: 10px 12px;
-    border: 1px solid #ddd;
+    background: rgb(141, 157, 141);
+    border: 2px solid rgb(3, 46, 8);
     border-radius: 10px;
-    background: #fff;
     width: 70%;
-    margin-top: 12px;
+    margin-top: 220px;
     margin-left: 70px;
 }
 
@@ -482,9 +489,7 @@ h2 {
     height: 30px;
     align-self: center;
     justify-self: center;
-    cursor: pointer;
-
-    justify-self: start;    
+    cursor: pointer;    
 }
 
 .btn-primary:hover {
@@ -512,8 +517,9 @@ h2 {
     font-size: 13px;
     padding: 8px 10px;
     border-radius: 8px;
-    border: 1px solid #ccc;
+    border: 2px solid #111;
     box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.6);
 }
 
 #assignments-sort {
@@ -619,7 +625,27 @@ h2 {
     border-radius: 8px;
 }
 
-#add-subject-modal .modal-actions {
+#modal-backdrop { z-index: 9; }
+
+#add-subject-modal input, #add-task-modal textarea {
+    width: 80%;
+    margin: 0;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-family: sans-serif, arial;
+}
+
+#add-subject-modal select {
+    width: 60%;
+    max-width: 100%;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-family: sans-serif, arial;
+}
+
+.modal-actions {
     display: flex;
     justify-content: space-between;
     gap: 12px;
@@ -631,6 +657,70 @@ h2 {
     font-weight: 700;
     text-align: center;
     min-height: 1.2em;
+}
+
+/* ADD ASSIGNMENTS STYLING */
+button, input, select, textarea { font-family: inherit; }
+
+#modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 850;
+}
+
+#add-assignment-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(520px, 92vw);
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 16px;
+    z-index: 900;
+    text-align: left;
+}
+
+#add-assignment-modal .form-row {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    align-items: start;
+    column-gap: 12px;
+    margin-bottom: 12px;
+}
+
+#add-assignment-modal .form-row label {
+    text-align: left;
+    margin: 0;
+    padding-top: 8px;
+}
+
+#modal-backdrop { z-index: 9; }
+
+#add-assignment-modal input, #add-assignment-modal textarea {
+    width: 80%;
+    margin: 0;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-family: sans-serif, arial;
+}
+
+#add-assignment-modal select {
+    width: 60%;
+    max-width: 100%;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-family: sans-serif, arial;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
 }
 
 /* Responsive fallback just in case of trouble */
