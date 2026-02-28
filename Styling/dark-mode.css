@@ -64,7 +64,7 @@ body.dark-mode .navbar a {
 
 body.dark-mode .navbar a:hover {
     background: rgba(4, 255, 0, 0.742);
-    color: black;
+    color: white;
     font-weight: 700;
 }
 
@@ -547,4 +547,9 @@ body.dark-mode .switch input:checked + .slider {
 
 body.dark-mode .switch input:checked + .slider::before {
     transform: translateX(17px);
+}
+
+body.dark-mode #add-subject-modal, #add-assignment-modal {
+    background: black;
+    border: black;
 }

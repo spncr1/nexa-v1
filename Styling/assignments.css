@@ -440,15 +440,13 @@ h2 {
 
 .assignments-table th, .assignments-table td {
     padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.6);
     border-bottom: 1px solid rgba(0,0,0,0.12);
     text-align: left;
     font-size: 14px;
     font-weight: 700;
     color: #111;
-}
-
-.assignments-table th {
-    background: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
     position: sticky;
     top: 0;
     z-index: 1;

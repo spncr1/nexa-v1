@@ -52,6 +52,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const deleteAssignmentBtn = document.getElementById("delete-assignment-btn");
     const confirmAssignmentBtn = document.getElementById("confirm-assignment-btn");
 
+    const assignmentsSort = document.getElementById("assignments-sort");
+    const assignmentsFilter = document.getElementById("assignments-filter");
+
     const ASSIGNMENTS_KEY = "studenthub_assignments";
     let editingAssignmentId = null;
 
@@ -311,8 +314,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function formatDueDate(iso) {
         if (!iso) return "";
-        // To keep things simple and consistent: YYYY-MM-DD format which matches type=date
-        return iso;
+
+        const d = new Date(`${iso}T00:00:00`);
+        if (Number.isNaN(d.getTime())) return iso;
+    
+        const formatted = new Intl.DateTimeFormat("en-AU", {
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        }).format(d);
+        
+        const parts = formatted.split(" ");
+        if (parts.length === 3) return `${parts[0]} ${parts[1]}, ${parts[2]}`; // e.g., the date should be returned as: 20 March, 2026
+
+        return formatted;
     }
 
     function formatWeight(num) {
@@ -349,11 +364,65 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    function parseISODate(iso) {
+        if (!iso) return null;
+        const d = new Date(`${iso}T00:00:00`);
+        return Number.isNaN(d.getTime()) ? null : d;
+    }
+
+    function priorityRank(p) {
+        return p === "high" ? 3 : p === "medium" ? 2 : p === "low" ? 1 : 0;
+    }
+
     function renderAssignments() {
         const assignments = loadAssignments();
         assignmentsBody.innerHTML = "";
 
         if (!assignments.length) return;
+
+        // FILTER (by priority)
+        const filterVal = (assignmentsFilter?.value || "all").toLowerCase();
+        if (filterVal !== "all") {
+            assignments = assignments.filter(a => (a.priority || "").toLowerCase() === filterVal);
+        }
+
+        // SORT
+        const sortVal = assignmentsSort?.value || "dueSoon";
+
+        assignments.sort((a, b) => {
+            const aDate = parseISODate(a.dueDate);
+            const bDate = parseISODate(b.dueDate);
+
+            const aWeight = Number.isFinite(a.weighting) ? a.weighting : null;
+            const bWeight = Number.isFinite(b.weighting) ? b.weighting : null;
+
+            switch (sortVal) {
+                case "dueSoon":
+                    if (!aDate && !bDate) return 0;
+                    if (!aDate) return 1;
+                    if (!bDate) return -1;
+                    return aDate - bDate;
+                case "dueLate":
+                    if (!aDate && !bDate) return 0;
+                    if (!aDate) return 1;
+                    if (!bDate) return -1;
+                    return bDate - aDate;
+                case "weightHigh":
+                    if (aWeight === null && bWeight === null) return 0;
+                    if (aWeight === null) return 1;
+                    if (bWeight === null) return -1;
+                    return bWeight - aWeight;
+                case "weightLow":
+                    if (aWeight === null && bWeight === null) return 0;
+                    if (aWeight === null) return 1;
+                    if (bWeight === null) return -1;
+                    return aWeight - bWeight;
+                case "priority":
+                    return priorityRank(b.priority) - priorityRank(a.priority);
+                default:
+                    return 0;
+            }
+        });
 
         const subjects = loadSubjects();
         const subjectNameById = new Map(subjects.map(s => [s.id, s.name]));
@@ -410,7 +479,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         assignmentModalTitle.textContent = "EDIT ASSIGNMENT";
         confirmAssignmentBtn.textContent = "Save";
-        deleteAssignmentBtn.classList.add("hidden");
+        deleteAssignmentBtn.classList.remove("hidden");
         assignmentStatusText.textContent = "";
 
         assignmentCourse.value = a.courseId || "";
@@ -492,8 +561,9 @@ document.addEventListener("DOMContentLoaded", () => {
             assignmentStatusText.textContent = "Description exceeds 500 words. Please enter less characters.";
         }
         
-        const weighting = Number(assignmentWeight.value);
-        if (!Number.isFinite(weighting)) {
+        const weightRaw = assignmentWeight.value.trim();
+        const weighting = weightRaw === "" ? null : Number(weightRaw);
+        if (weighting !== null && !Number.isFinite(weighting)) {
             assignmentStatusText.textContent = "Weighting must be a number.";
             return;
         }
@@ -568,6 +638,8 @@ document.addEventListener("DOMContentLoaded", () => {
     addAssignmentBtn.addEventListener("click", openAssignmentModalAdd);
     cancelAssignmentBtn.addEventListener("click", closeAssignmentModal);
     deleteAssignmentBtn.addEventListener("click", deleteAssignment);
+    assignmentsSort.addEventListener("change", renderAssignments);
+    assignmentsFilter.addEventListener("change", renderAssignments);
 
     confirmAssignmentBtn.addEventListener("click", () => {
         if (editingAssignmentId) saveAssignmentEdits();
