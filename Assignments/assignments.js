@@ -58,13 +58,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const ASSIGNMENTS_KEY = "studenthub_assignments";
     let editingAssignmentId = null;
 
+    /* Widget elements */
+    let carouselIndex = 0;
+    let carouselSubjects = [];
+
     // Storage
     const STORAGE_KEY = "studenthub_subjects";
 
     function loadSubjects() {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
-            return raw ? JSON.parse(raw) : [];
+            const parsed = raw ? JSON.parse(raw) : [];
+            return Array.isArray(parsed)
+                ? parsed.filter(s => s && typeof s.id === "string" && typeof s.name === "string")
+                : [];
         } catch (e) {
             console.warn("Failed to parse subjects from localStorage:", e);
             return [];
@@ -156,6 +163,22 @@ document.addEventListener("DOMContentLoaded", () => {
         subjectBackdrop.classList.add("hidden");
         subjectModal.classList.add("hidden");
         subjectStatus.textContent = "";
+    }
+
+    // Widget helpers
+    function groupAssignmentsBySubject(assignments) {
+        const map = new Map();
+
+        (assignments || []).forEach(a => {
+            if (!a || !a.courseId) return;
+
+            if (!map.has(a.courseId)) {
+                map.set(a.courseId, []);
+            }
+            map.get(a.courseId).push(a);
+        });
+        
+        return map;
     }
 
     // Add subject
@@ -301,7 +324,15 @@ document.addEventListener("DOMContentLoaded", () => {
     function loadAssignments() {
         try {
             const raw = localStorage.getItem(ASSIGNMENTS_KEY);
-            return raw ? JSON.parse(raw) : [];
+            const parsed = raw ? JSON.parse(raw) : [];
+            if (!Array.isArray(parsed)) return [];
+
+            return parsed.filter(a =>
+                a &&
+                typeof a.id === "string" &&
+                typeof a.courseId === "string" &&
+                typeof a.task === "string"
+            );
         } catch (e) {
             console.warn("Failed to parse assignments:", e);
             return [];
@@ -374,10 +405,23 @@ document.addEventListener("DOMContentLoaded", () => {
         return p === "high" ? 3 : p === "medium" ? 2 : p === "low" ? 1 : 0;
     }
 
-    function renderAssignments() {
-        const assignments = loadAssignments();
-        assignmentsBody.innerHTML = "";
+    function calculateSubjectTotals(assignments) {
+        const totals = new Map();
 
+        assignments.forEach(a => {
+            const w = Number(a.weighting);
+            if (!Number.isFinite(w)) return;
+
+            const current = totals.get(a.courseId) || 0;
+            totals.set(a.courseId, current + w);
+        });
+
+        return totals;
+    }
+
+    function renderAssignments() {
+        let assignments = loadAssignments();
+        assignmentsBody.innerHTML = "";
         if (!assignments.length) return;
 
         // FILTER (by priority)
@@ -427,11 +471,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const subjects = loadSubjects();
         const subjectNameById = new Map(subjects.map(s => [s.id, s.name]));
 
+        const subjectTotals = calculateSubjectTotals(assignments);
+        
         assignments.forEach(a => {
             const tr = document.createElement("tr");
             tr.dataset.assignmentId = a.id;
-
             const courseName = subjectNameById.get(a.courseId) || "(Deleted subject)";
+            const totalForSubject = subjectTotals.get(a.courseId) || 0;
+            const w = Number(a.weighting);
+
+            let shareText = "";
+            if (Number.isFinite(a.weighting) && totalForSubject > 0) {
+                const share = (a.weighting / totalForSubject) * 100;
+                shareText = share.toFixed(1) + "%";
+            }
 
             tr.innerHTML = `
                 <td>${courseName}</td>
@@ -440,6 +493,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td>${a.status}</td>
                 <td>${formatDueDate(a.dueDate)}</td>
                 <td>${formatWeight(a.weighting)}</td>
+                <td>${shareText}</td>
             `;
 
             assignmentsBody.appendChild(tr);
@@ -597,6 +651,129 @@ document.addEventListener("DOMContentLoaded", () => {
         closeAssignmentModal();
     }
 
+    // Widget FUNCTIONS
+    function createPieSVG(assignmentsForSubject, subjectName) {
+        const size = 120;
+        const radius = size / 2;
+        
+        const weights = assignmentsForSubject
+            .map(a => Number(a.weighting))
+            .filter(Number.isFinite)
+        
+        const total = weights.reduce((sum, w) => sum + w, 0);
+
+        const wrapper = document.createElement("div");
+        wrapper.style.textAlign = "center";
+
+        const title = document.createElement("div");
+        title.textContent = subjectName;
+        title.style.fontWeight = "700";
+        title.style.marginBottom = "6px";
+        wrapper.appendChild(title);
+        
+        const svgNS = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(svgNS, "svg");
+        svg.setAttribute("width", size);
+        svg.setAttribute("height", size);
+        svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
+
+        let startAngle = 0;
+
+        assignmentsForSubject.forEach((a, index) => {
+            const w = Number(a.weighting);
+            if (!Number.isFinite(w) || total === 0) return;
+
+            if (!total) {
+                const msg= document.createElement("div");
+                msg.textContent = "No weightings yet";
+                msg.style.fontSize = "12px";
+                msg.style.opacity = "0.8";
+                wrapper.appendChild(msg);
+                return wrapper;
+            }
+
+            const sliceAngle = (w / total) * 2 * Math.PI;
+            const endAngle = startAngle + sliceAngle;
+
+            const x1 = radius + radius * Math.cos(startAngle);
+            const y1 = radius + radius * Math.sin(startAngle);
+            const x2 = radius + radius * Math.cos(endAngle);
+            const y2 = radius + radius * Math.sin(endAngle);
+
+            const largeArc = sliceAngle > Math.PI ? 1 : 0;
+
+            const path = document.createElementNS(svgNS, "path");
+            path.setAttribute("d",
+                `M ${radius} ${radius}
+                 L ${x1} ${y1}
+                 A ${radius} ${radius}  0 ${largeArc} 1 ${x2} ${y2}
+                 Z`
+            );
+
+            const hue = (index * 60) % 360;
+            const colour = `hsl(${hue}, 70%, 55%)`;
+
+            path.style.setProperty("fill", colour, "important");
+            path.style.setProperty("stroke", "none", "important");
+
+            svg.appendChild(path);
+            startAngle = endAngle;
+        });
+
+        wrapper.appendChild(svg);
+        return wrapper;
+    }
+
+    function renderCarousel() {
+        const slideEl = document.getElementById("carousel-slide");
+        const dotsEl = document.getElementById("carousel-dots");
+        if (!slideEl || !dotsEl) return;
+
+        slideEl.innerHTML = "";
+        dotsEl.innerHTML = "";
+
+        if (!carouselSubjects.length) {
+            slideEl.textContent = "No assignments yet.";
+            return;
+        }
+
+        if (carouselIndex >= carouselSubjects.length) carouselIndex = 0;
+        if (carouselIndex < 0 || carouselIndex >= carouselSubjects.length) carouselIndex = 0;
+
+        const current = carouselSubjects[carouselIndex];
+        slideEl.appendChild(
+            createPieSVG(current.assignments, current.name)
+        );
+
+        carouselSubjects.forEach((_, i) => {
+            const dot = document.createElement("span");
+            if (i === carouselIndex) dot.classList.add("active");
+            dotsEl.appendChild(dot);
+        });
+    }
+
+    function rebuildCarousel() {
+        const assignments = loadAssignments();
+        const subjects = loadSubjects();
+        const grouped = groupAssignmentsBySubject(assignments);
+
+        carouselSubjects = [];
+
+        subjects.forEach(s => {
+            const list = grouped.get(s.id) || [];
+            const hasWeights = list.some(a => Number.isFinite(Number(a.weighting)) && Number(a.weighting) > 0);
+            if (!hasWeights) return;
+                carouselSubjects.push({
+                    id: s.id,
+                    name: s.name,
+                    assignments: list
+                });
+        });
+
+        carouselIndex = 0;
+        renderCarousel();
+    }
+
     // Wiring up the events (subjects)
     addSubjectBtn.addEventListener("click", openSubjectModal);
     cancelSubjectBtn.addEventListener("click", closeSubjectModal);
@@ -670,10 +847,24 @@ document.addEventListener("DOMContentLoaded", () => {
         panel.classList.toggle("has-more", canScroll);
     }
 
+    // Wiring up the events (widgets)
+    document.getElementById("carousel-prev")?.addEventListener("click", () => {
+        if (!carouselSubjects.length) return;
+        carouselIndex = (carouselIndex - 1 + carouselSubjects.length) % carouselSubjects.length;
+        renderCarousel();
+    });
+
+    document.getElementById("carousel-next")?.addEventListener("click", () => {
+        if (!carouselSubjects.length) return;
+        carouselIndex = (carouselIndex + 1 + carouselSubjects.length) % carouselSubjects.length;
+        renderCarousel();
+    });
+
      // Initial render
     renderSubjects(loadSubjects());
     populateCourseOptions();
     renderAssignments();
+    rebuildCarousel();
     subjectsListEl.addEventListener("scroll", updateSubjectsOverflowHint);
     window.addEventListener("resize", updateSubjectsOverflowHint);
 });

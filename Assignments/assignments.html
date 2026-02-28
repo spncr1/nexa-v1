@@ -49,10 +49,23 @@
 
                 <!-- MIDDLE COLUMN -->
                 <section class="assignments-main" aria-label="Assignments controls">
-                    <!--<div class="widget-card">
-                        <div class="widget-title">Assessment Weightings Summariser (for each subject)</div>
-                        <div class="widget-placeholder widget-line"></div>
-                    </div> this is a comment for now, and I will act on this soon-->
+                    <div class="weighting-carousel" id="weighting-carousel">
+                        <div class="carousel-header">
+                            <h3>Assessment Weightings</h3>
+                        </div>
+
+                        <div class="carousel-content">
+                            <button class="carousel-nav" id="carousel-prev"><</button>
+
+                            <div class="carousel-slide" id="carousel-slide">
+                                <!-- content here -->
+                            </div>
+
+                            <button class="carousel-nav" id="carousel-next">></button>
+                        </div>
+
+                        <div class="carousel-dots" id="carousel-dots"></div>
+                    </div>
 
                     <div class="assignments-controls">
                         <div class="controls-group">
@@ -72,7 +85,7 @@
                         </div>
 
                         <div class="controls-group">
-                            <label class="control-label" for="assignments-filter">Filter</label>
+                            <label class="control-label" for="assignments-filter">Filter (by priority)</label>
                             <select id="assignments-filter" class="control-select">
                                 <option value="all">All</option>
                                 <option value="high">High</option>
@@ -106,6 +119,7 @@
                  <div class="assignments-table-card" aria-label="All Assignments table">
                     <div class="assignments-table-header">
                         <h2 class="table-title">All Assignments</h2>
+                        <p>(Surgical delete button goes here + other customisation buttons)</p>
                     </div>
 
                     <div class="assignments-table-wrap">
@@ -118,6 +132,7 @@
                                         <th>Status</th>
                                         <th>Due Date</th>
                                         <th>Weighting (%)</th>
+                                        <th>Share of Subject</th>
                                     </tr>
                                 </thead>
 

@@ -461,7 +461,76 @@ h2 {
     align-self: start;
 }
 
-/* Controls row placeholder */
+/* Controls row / Main widget (pie chart) */
+.weighting-carousel {
+    border: 2px solid rgb(3, 46, 8);
+    background: rgb(141, 157, 141);
+    border-radius: 10px;
+    padding: 16px;
+    width: 70%;
+    margin: 0 auto 16px auto;
+}
+
+#weighting-carousel svg path {
+    fill: initial;
+    stroke: none;
+}
+
+.carousel-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.carousel-slide {
+    width: 120px;
+    min-height: 120px;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-slide svg {
+    display: block;
+}
+
+.carousel-nav {
+    font-size: 18px;
+    border-radius: 20px;
+    background-color: black;
+    color: white;
+    width: 30px;
+    height: 30px;
+    align-self: center;
+    justify-self: center;
+    cursor: pointer;  
+}
+
+/*.carousel-nav:hover {
+
+}*/
+
+.carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.carousel-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #222;
+    opacity: 0.3;
+}
+
+.carousel-dots span.active {
+    opacity: 1;
+}
+
 .assignments-controls {
     display: flex;
     gap: 12px;
