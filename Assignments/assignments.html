@@ -93,9 +93,9 @@
                         <label class="control-label" for="assignments-filter">Filter (by priority)</label>
                         <select id="assignments-filter" class="control-select">
                             <option value="all">All</option>
-                            <option value="high">High</option>
-                            <option value="medium">Medium</option>
                             <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
                         </select>
                     </div>
                 </aside>
@@ -268,9 +268,9 @@
                  <div class="form-row">
                     <label for="assignment-priority"><strong>Priority</strong></label>
                     <select id="assignment-priority">
-                        <option value="high">High</option>
-                        <option value="medium" selected>Medium</option>
                         <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
                     </select>
                  </div>
 
@@ -303,6 +303,12 @@
                     <button class="btn-secondary" id="delete-assignment-btn">Delete</button>
                     <button class="btn-secondary" id="confirm-assignment-btn">Add</button>
                  </div>
+               </div>
+
+               <!-- VIEW ASSIGNMENT MODAL (read-only) -->
+               <div id="view-assignment-modal" class="hidden" role="dialog" aria-modal="true" aria-label="View Assignment">
+                <h3 id="view-assignment-title" align="center">ASSIGNMENT</h3>
+                <p id="view-assignment-desc" class="view-assignment-desc"></p>
                </div>
         </main>
         

@@ -1,10 +1,21 @@
 document.addEventListener("DOMContentLoaded", () => {
     const menuToggle = document.querySelector(".menu-toggle");
-    const navbar = document.querySelector(".navbar");
+    const NAV_COLLAPSED_KEY = "studenthub_nav_collapsed";
 
-    if (menuToggle && navbar) {
+    function setNavCollapsed(isCollapsed) {
+        document.body.classList.toggle("nav-collapsed", isCollapsed);
+        localStorage.setItem(NAV_COLLAPSED_KEY, isCollapsed ? "1" : "0");
+        if (menuToggle) {
+            menuToggle.setAttribute("aria-expanded", (!isCollapsed).toString());
+        }
+    }
+
+    if (menuToggle) {
+        const savedCollapsed = localStorage.getItem(NAV_COLLAPSED_KEY) === "1";
+        setNavCollapsed(savedCollapsed);
         menuToggle.addEventListener("click", () => {
-            navbar.classList.toggle("open");
+            const next = !document.body.classList.contains("nav-collapsed");
+            setNavCollapsed(next);
         });
     }
 
@@ -51,9 +62,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const cancelAssignmentBtn = document.getElementById("cancel-assignment-btn");
     const deleteAssignmentBtn = document.getElementById("delete-assignment-btn");
     const confirmAssignmentBtn = document.getElementById("confirm-assignment-btn");
+    const viewAssignmentModal = document.getElementById("view-assignment-modal");
+    const viewAssignmentTitle = document.getElementById("view-assignment-title");
+    const viewAssignmentDesc = document.getElementById("view-assignment-desc");
 
     const assignmentsSort = document.getElementById("assignments-sort");
     const assignmentsFilter = document.getElementById("assignments-filter");
+    const resetAssignmentsBtn = document.getElementById("reset-btn");
+    const hoverSound = new Audio("/Sfx/omnitrixTurnOn.MP3");
 
     const ASSIGNMENTS_KEY = "studenthub_assignments";
     let editingAssignmentId = null;
@@ -555,6 +571,24 @@ document.addEventListener("DOMContentLoaded", () => {
         backdrop.classList.add("hidden");
     }
 
+    function openViewAssignmentModal(assignment) {
+        if (!viewAssignmentModal || !viewAssignmentTitle || !viewAssignmentDesc) return;
+
+        const taskName = (assignment?.task || "").trim() || "Assignment";
+        const description = (assignment?.description || "").trim() || "No task description added yet.";
+
+        viewAssignmentTitle.textContent = taskName;
+        viewAssignmentDesc.textContent = description;
+
+        backdrop.classList.remove("hidden");
+        viewAssignmentModal.classList.remove("hidden");
+    }
+
+    function closeViewAssignmentModal() {
+        if (!viewAssignmentModal) return;
+        viewAssignmentModal.classList.add("hidden");
+    }
+
     function addAssignment() {
         if (assignmentCourse.disabled) {
             assignmentStatusText.textContent = "Add a subject first.";
@@ -658,32 +692,47 @@ document.addEventListener("DOMContentLoaded", () => {
         renderDashboard();
     }
 
+    function resetAllAssignments() {
+        const assignments = loadAssignments();
+        if (!assignments.length) {
+            alert("No assignments to reset.");
+            return;
+        }
+
+        const confirmed = window.confirm(
+            "Reset all assignments? This will permanently delete every assignment in the table."
+        );
+        if (!confirmed) return;
+
+        localStorage.removeItem(ASSIGNMENTS_KEY);
+        editingAssignmentId = null;
+
+        closeAssignmentModal();
+        renderAssignments();
+        rebuildCarousel();
+        renderTotalCourseAssignmentsWidget();
+        renderDashboard();
+    }
+
     // Widget FUNCTIONS
     function createPieSVG(assignmentsForSubject) {
-    const size = 160;
-    const radius = size / 2;
+        const cssPieSize = parseFloat(
+            getComputedStyle(document.documentElement).getPropertyValue("--pie-size")
+        );
+        const size = Number.isFinite(cssPieSize) && cssPieSize > 0 ? cssPieSize : 160;
+        const radius = size / 2;
+        const svgNS = "http://www.w3.org/2000/svg";
 
-    const wrapper = document.createElement("div");
-    wrapper.style.textAlign = "center";
+        const wrapper = document.createElement("div");
+        wrapper.style.textAlign = "center";
 
-    const svgNS = "http://www.w3.org/2000/svg";
-    const svg = document.createElementNS(svgNS, "svg");
-    svg.setAttribute("width", size);
-    svg.setAttribute("height", size);
-    svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
+        const svg = document.createElementNS(svgNS, "svg");
+        svg.setAttribute("width", size);
+        svg.setAttribute("height", size);
+        svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
 
-    // Collect finite weights
-    const weights = assignmentsForSubject
-        .map(a => Number(a?.weighting))
-        .filter(Number.isFinite);
-
-    const total = weights.reduce((sum, w) => sum + w, 0);
-
-    // If total is 0 (all zero / blank weights), draw something anyway
-    if (!Number.isFinite(total) || total <= 0) {
-        const n = assignmentsForSubject.length;
-
-        if (n <= 0) {
+        const validAssignments = (assignmentsForSubject || []).filter(a => a && typeof a.task === "string");
+        if (!validAssignments.length) {
             const msg = document.createElement("div");
             msg.textContent = "No assignments yet.";
             msg.style.fontSize = "12px";
@@ -692,127 +741,96 @@ document.addEventListener("DOMContentLoaded", () => {
             return wrapper;
         }
 
-        // 1 assignment -> full pie
-        if (n === 1) {
-            const circle = document.createElementNS(svgNS, "circle");
-            circle.setAttribute("cx", radius);
-            circle.setAttribute("cy", radius);
-            circle.setAttribute("r", radius);
-            circle.style.setProperty("fill", "hsl(120, 70%, 55%)", "important"); // single colour
-            circle.style.setProperty("stroke", "none", "important");
-            svg.appendChild(circle);
-        } else {
-            // 2+ assignments -> equal slices
-            let startAngle = 0;
+        const slices = validAssignments.map((a, index) => {
+            const rawWeight = Number(a.weighting);
+            return {
+                assignment: a,
+                index,
+                rawWeight: Number.isFinite(rawWeight) && rawWeight >= 0 ? rawWeight : 0
+            };
+        });
 
-            for (let i = 0; i < n; i++) {
-                const sliceAngle = (1 / n) * 2 * Math.PI;
-                const endAngle = startAngle + sliceAngle;
+        const totalWeight = slices.reduce((sum, s) => sum + s.rawWeight, 0);
+        const equalShare = totalWeight <= 0 ? 1 / slices.length : 0;
 
+        let startAngle = 0;
+
+        function playSliceHoverSound() {
+            hoverSound.currentTime = 0;
+            hoverSound.play().catch(() => {});
+        }
+
+        slices.forEach((slice) => {
+            const ratio = totalWeight > 0 ? (slice.rawWeight / totalWeight) : equalShare;
+            const sliceAngle = ratio * 2 * Math.PI;
+            const endAngle = startAngle + sliceAngle;
+            const hue = (slice.index * 60) % 360;
+            const pct = ratio * 100;
+            const midAngle = startAngle + sliceAngle / 2;
+
+            if (sliceAngle >= (2 * Math.PI - 1e-6)) {
+                const circle = document.createElementNS(svgNS, "circle");
+                circle.setAttribute("cx", radius);
+                circle.setAttribute("cy", radius);
+                circle.setAttribute("r", radius);
+                circle.setAttribute("fill", `hsl(${hue}, 70%, 55%)`);
+                circle.classList.add("pie-slice");
+                circle.addEventListener("click", () => openViewAssignmentModal(slice.assignment));
+                circle.addEventListener("mouseenter", playSliceHoverSound);
+                svg.appendChild(circle);
+            } else {
                 const x1 = radius + radius * Math.cos(startAngle);
                 const y1 = radius + radius * Math.sin(startAngle);
                 const x2 = radius + radius * Math.cos(endAngle);
                 const y2 = radius + radius * Math.sin(endAngle);
-
                 const largeArc = sliceAngle > Math.PI ? 1 : 0;
 
                 const path = document.createElementNS(svgNS, "path");
                 path.setAttribute(
                     "d",
                     `M ${radius} ${radius}
-                     L ${x1} ${y1}
-                     A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}
-                     Z`
+                    L ${x1} ${y1}
+                    A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}
+                    Z`
                 );
-
-                const hue = (i * 60) % 360;
-                path.style.setProperty("fill", `hsl(${hue}, 70%, 55%)`, "important");
-                path.style.setProperty("stroke", "none", "important");
-
+                path.setAttribute("fill", `hsl(${hue}, 70%, 55%)`);
+                path.classList.add("pie-slice");
+                path.addEventListener("click", () => openViewAssignmentModal(slice.assignment));
+                path.addEventListener("mouseenter", playSliceHoverSound);
                 svg.appendChild(path);
-                startAngle = endAngle;
             }
-        }
+
+            // Label inside each slice: task + weighting %
+            const labelRadius = radius * 0.62;
+            const tx = radius + Math.cos(midAngle) * labelRadius;
+            const ty = radius + Math.sin(midAngle) * labelRadius;
+
+            const label = document.createElementNS(svgNS, "text");
+            label.setAttribute("x", tx);
+            label.setAttribute("y", ty);
+            label.setAttribute("text-anchor", "middle");
+            label.setAttribute("dominant-baseline", "middle");
+            label.classList.add("pie-label");
+
+            const line1 = document.createElementNS(svgNS, "tspan");
+            line1.setAttribute("x", tx);
+            line1.setAttribute("dy", "-0.45em");
+            line1.textContent = (slice.assignment.task || "Task").trim().slice(0, 11);
+
+            const line2 = document.createElementNS(svgNS, "tspan");
+            line2.setAttribute("x", tx);
+            line2.setAttribute("dy", "1.2em");
+            line2.textContent = `${pct.toFixed(1)}%`;
+
+            label.appendChild(line1);
+            label.appendChild(line2);
+            svg.appendChild(label);
+
+            startAngle = endAngle;
+        });
 
         wrapper.appendChild(svg);
-
-        const note = document.createElement("div");
-        note.textContent = "Total weighting = 0%";
-        note.style.fontSize = "12px";
-        note.style.opacity = "0.75";
-        note.style.marginTop = "6px";
-        wrapper.appendChild(note);
-
         return wrapper;
-    }
-
-    // Normal weighted pie
-    const positive = assignmentsForSubject.filter(a => Number(a?.weighting) > 0 && Number.isFinite(Number(a?.weighting)));
-
-    // If only one positive weighting -> draw a full circle (SVG arcs can't do full 360° reliably)
-    if (positive.length === 1) {
-        const circle = document.createElementNS(svgNS, "circle");
-        circle.setAttribute("cx", radius);
-        circle.setAttribute("cy", radius);
-        circle.setAttribute("r", radius);
-        circle.setAttribute("fill", "hsl(0, 70%, 55%)"); // pick whatever base colour you want
-        circle.style.setProperty("fill", "hsl(0, 70%, 55%)", "important");
-        circle.style.setProperty("stroke", "none", "important");
-        svg.appendChild(circle);
-
-        wrapper.appendChild(svg);
-        return wrapper;
-    }
-
-    let startAngle = 0;
-
-    positive.forEach((a, index) => {
-        const w = Number(a.weighting);
-        const sliceAngle = (w / total) * 2 * Math.PI;
-
-        // Safety: if we ever get ~full circle due to floating point, also fallback to circle
-        if (sliceAngle >= (2 * Math.PI - 1e-6)) {
-            const circle = document.createElementNS(svgNS, "circle");
-            circle.setAttribute("cx", radius);
-            circle.setAttribute("cy", radius);
-            circle.setAttribute("r", radius);
-            circle.setAttribute("fill", `hsl(${(index * 60) % 360}, 70%, 55%)`);
-            circle.style.setProperty("fill", `hsl(${(index * 60) % 360}, 70%, 55%)`, "important");
-            circle.style.setProperty("stroke", "none", "important");
-            svg.appendChild(circle);
-            return;
-        }
-
-        const endAngle = startAngle + sliceAngle;
-
-        const x1 = radius + radius * Math.cos(startAngle);
-        const y1 = radius + radius * Math.sin(startAngle);
-        const x2 = radius + radius * Math.cos(endAngle);
-        const y2 = radius + radius * Math.sin(endAngle);
-
-        const largeArc = sliceAngle > Math.PI ? 1 : 0;
-
-        const path = document.createElementNS(svgNS, "path");
-        path.setAttribute(
-            "d",
-            `M ${radius} ${radius}
-            L ${x1} ${y1}
-            A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}
-            Z`
-        );
-
-        const hue = (index * 60) % 360;
-        path.setAttribute("fill", `hsl(${hue}, 70%, 55%)`);
-        path.style.setProperty("fill", `hsl(${hue}, 70%, 55%)`, "important");
-        path.style.setProperty("stroke", "none", "important");
-
-        svg.appendChild(path);
-        startAngle = endAngle;
-    });
-
-    wrapper.appendChild(svg);
-    return wrapper;
-    
     }
 
     function renderCarousel() {
@@ -874,7 +892,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const palette = [
             "hsl(210, 70%, 55%)",
             "hsl(120, 70%, 50%)",
-            "hsl(35, 85%, 55%)",
+            "hsl(40, 100%, 50%)",
             "hsl(290, 65%, 60%)",
             "hsl(0, 75%, 60%)",
             "hsl(180, 65%, 45%)"
@@ -970,6 +988,14 @@ document.addEventListener("DOMContentLoaded", () => {
     return "Other";
     }
 
+    function priorityLabel(s) {
+    // your stored values are: not-started, in-progress, completed
+    if (s === "low") return "Low";
+    if (s === "medium") return "Medium";
+    if (s === "high") return "High";
+    return "Other";
+    }
+
     function buildStatusCounts(assignments) {
     const counts = new Map([
         ["not-started", 0],
@@ -988,11 +1014,37 @@ document.addEventListener("DOMContentLoaded", () => {
     return counts;
     }
 
+    function buildPriorityCounts(assignments) {
+    const counts = new Map([
+        ["low", 0],
+        ["medium", 0],
+        ["high", 0],
+    ]);
+
+    assignments.forEach(a => {
+        const key = (a?.priority || "").toLowerCase();
+        if (counts.has(key)) counts.set(key, counts.get(key) + 1);
+        else counts.set("other", (counts.get("other") || 0) + 1);
+    });
+
+    // remove "other" if unused
+    if ((counts.get("other") || 0) === 0) counts.delete("other");
+    return counts;
+    }
+
     function coloursForStatus(key) {
     // simple, readable palette
     if (key === "completed") return "#2ecc71";
     if (key === "in-progress") return "#f1c40f";
     if (key === "not-started") return "#e74c3c";
+    return "#7f8c8d";
+    }
+
+    function coloursForPriority(key) {
+    // simple, readable palette
+    if (key === "low") return "#2ecc71";
+    if (key === "medium") return "#f1c40f";
+    if (key === "high") return "#e74c3c";
     return "#7f8c8d";
     }
 
@@ -1099,14 +1151,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     } else {
         labelEl.textContent = "Priority";
-        // placeholder for next slide so the carousel works now
-        const msg = document.createElement("div");
-        msg.style.fontSize = "13px";
-        msg.style.opacity = "0.8";
-        msg.style.textAlign = "center";
-        msg.style.paddingTop = "60px";
-        msg.textContent = "Priority view coming next.";
-        slideEl.appendChild(msg);
+
+        const counts = buildPriorityCounts(assignments);
+        
+        // if truly nothing exists, show a simple message
+        const total = Array.from(counts.values()).reduce((a, b) => a + b, 0);
+        if (total === 0) {
+        slideEl.textContent = "No assignments yet.";
+        } else {
+        slideEl.appendChild(
+            createVerticalBarChart({
+            title: "Priority",
+            countsMap: counts,
+            colourFn: coloursForPriority,
+            labelFn: (k) => (k === "other" ? "Other" : priorityLabel(k))
+            })
+        );
+        }
     }
 
     dashSlides.forEach((_, i) => {
@@ -1170,6 +1231,7 @@ document.addEventListener("DOMContentLoaded", () => {
     deleteAssignmentBtn.addEventListener("click", deleteAssignment);
     assignmentsSort.addEventListener("change", renderAssignments);
     assignmentsFilter.addEventListener("change", renderAssignments);
+    resetAssignmentsBtn?.addEventListener("click", resetAllAssignments);
 
     confirmAssignmentBtn.addEventListener("click", () => {
         if (editingAssignmentId) saveAssignmentEdits();
@@ -1184,12 +1246,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     backdrop.addEventListener("click", () => {
         closeAssignmentModal();
+        closeViewAssignmentModal();
         closeSystemSettings(); // using the shared backdrop for both
     });
 
     document.addEventListener("keydown", (e) => {
         if (e.key !== "Escape") return;
         closeAssignmentModal();
+        closeViewAssignmentModal();
         closeSystemSettings();
     });
     

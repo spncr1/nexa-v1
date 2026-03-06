@@ -84,6 +84,24 @@ body.dark-mode .menu-toggle {
     color: white;
 }
 
+body.dark-mode.nav-collapsed .navbar {
+    width: 72px;
+    padding: 16px 10px;
+    overflow: hidden;
+}
+
+body.dark-mode.nav-collapsed .navbar ul {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-12px);
+    margin-top: 0;
+    height: 0;
+}
+
+body.dark-mode.nav-collapsed .menu-toggle {
+    margin-left: 0;
+}
+
 body.dark-mode h1, body.dark-mode h2 {
     font-family: sans-serif, arial;
 }
@@ -121,6 +139,7 @@ body.dark-mode #today-btn {
     font-size: 24px;
     border-radius: 5px;
     background-color: white;
+    border: 2px solid grey;
     color: black;
     width: 100px;
 }
@@ -129,6 +148,7 @@ body.dark-mode #previous-btn, body.dark-mode #next-btn {
     font-size: 25px;
     border-radius: 20px;
     background-color: white;
+    border: 2px solid grey;
     color: black;
     width: 40px;
 }
@@ -243,7 +263,7 @@ body.dark-mode #add-task-modal {
     text-align: left;
 }
 
-body.dark-mode .form-row {
+body.dark-mode #add-assignment-modal .form-row {
     display: grid;
     grid-template-columns: 90px 1fr;
     align-items: start;
@@ -251,7 +271,7 @@ body.dark-mode .form-row {
     margin-bottom: 12px;
 }
 
-body.dark-mode .form-row label {
+body.dark-mode #add-assignment-modal .form-row label {
     text-align: left;
     margin: 0;
     padding-top: 8px;
@@ -373,6 +393,13 @@ body.dark-mode .system-settings {
     position: fixed;
     bottom: 50px;
     left: 50px;
+    transition: transform 0.24s ease, opacity 0.2s ease;
+}
+
+body.dark-mode.nav-collapsed .system-settings {
+    transform: translateX(-120px);
+    opacity: 0;
+    pointer-events: none;
 }
 
 body.dark-mode #system-settings-btn {
@@ -561,7 +588,6 @@ body.dark-mode .weighting-carousel {
 }
 
 body.dark-mode #weighting-carousel svg path {
-  fill: initial;
   stroke: none;
 }
 
@@ -989,7 +1015,7 @@ body.dark-mode .dash-dots span.active {
         grid-template-rows: auto;
     }
 
-    .assignment-widgets {
+    .assignments-widgets {
         grid-row: auto;
     }
 
@@ -1021,5 +1047,546 @@ body.dark-mode .dash-dots span.active {
     .carousel-slide {
         width: 100%;
         min-height: 160px;
+    }
+}
+
+/* =========================================
+   ASSIGNMENTS DARK MODE SYNC (CURRENT LAYOUT)
+   Mirrors assignments.css structure/placement
+   ========================================= */
+body.dark-mode .content {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+body.dark-mode .page-subtitle {
+    font-size: 16px;
+    font-weight: 400;
+    opacity: 0.75;
+}
+
+body.dark-mode .assignments-layout {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr) 180px 300px;
+    grid-template-rows: minmax(300px, auto) auto;
+    gap: 16px;
+    row-gap: 20px;
+    column-gap: 16px;
+    align-items: start;
+}
+
+body.dark-mode .assignments-main {
+    display: block;
+    grid-column: 2;
+    grid-row: 1;
+    align-self: start;
+}
+
+body.dark-mode .subjects-panel {
+    border: 2px solid rgb(10, 185, 31);
+    background-color: rgb(141, 157, 141);
+    border-radius: 10px;
+    padding: 14px 12px;
+    text-align: left;
+    max-height: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+}
+
+body.dark-mode .subjects-panel.has-more::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    height: 28px;
+    pointer-events: none;
+    border-radius: 8px;
+    background: linear-gradient(to bottom, rgba(141, 157, 141, 0), rgba(141, 157, 141, 1));
+}
+
+body.dark-mode .subjects-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+body.dark-mode .subjects-panel-header .panel-title {
+    margin: 0;
+}
+
+body.dark-mode .panel-title {
+    margin: 0 0 10px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #111;
+}
+
+body.dark-mode .panel-subtitle {
+    font-size: 13px;
+    font-weight: 400;
+    opacity: 0.75;
+    color: #111;
+}
+
+body.dark-mode #subjects-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    justify-items: stretch;
+    cursor: pointer;
+    max-height: 225px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+
+body.dark-mode #subjects-list li {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    width: 100%;
+}
+
+body.dark-mode #subjects-list .subject-item {
+    background: rgba(255, 255, 255, 0.75);
+    border: rgb(3, 46, 8) 2px solid;
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: block;
+    margin-top: 6px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 700;
+    color: #111;
+    cursor: pointer;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+body.dark-mode #subjects-list .subject-item.active {
+    border-color: #111;
+    font-weight: 800;
+}
+
+body.dark-mode #subjects-list .subject-item:hover {
+    transform: scale(0.95);
+    transition: transform 0.15s ease;
+}
+
+body.dark-mode #subjects-list .subject-item:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+body.dark-mode .assignments-table-card {
+    border: 2px solid rgb(10, 185, 31);
+    background-color: rgb(141, 157, 141);
+    border-radius: 10px;
+    padding: 14px 12px;
+    grid-column: 1 / 4;
+    grid-row: 2;
+    align-self: start;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 0;
+    overflow: visible;
+}
+
+body.dark-mode .assignments-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: left;
+    margin-bottom: 10px;
+}
+
+body.dark-mode .table-title {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 900;
+    color: #e9e9ea;
+}
+
+body.dark-mode .assignments-table-wrap {
+    overflow: auto;
+    border-radius: 10px;
+}
+
+body.dark-mode .assignments-table th {
+    background: rgba(139, 163, 133, 0.7);
+    border-right: 1px solid rgba(255,255,255,0.18);
+    border-bottom: 1px solid rgba(255,255,255,0.18);
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 16px;
+    font-weight: 800;
+    color: #e9e9ea;
+    cursor: pointer;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+body.dark-mode .assignments-table td {
+    background: rgba(255, 255, 255, 0.78);
+    border-right: 1px solid rgba(0,0,0,0.12);
+    border-bottom: 1px solid rgba(0,0,0,0.12);
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+    cursor: pointer;
+}
+
+body.dark-mode .weighting-carousel {
+    border: 2px solid grey;
+    background: #000;
+    border-radius: 10px;
+    padding: 8px 16px 14px;
+    width: 100%;
+    max-width: 400px;
+    min-height: calc(var(--pie-size) + 130px);
+    height: auto;
+    display: grid;
+    align-content: start;
+    row-gap: 20px;
+    overflow: visible;
+    margin: 0;
+}
+
+body.dark-mode .weighting-carousel .carousel-header h3,
+body.dark-mode .weighting-carousel .carousel-content,
+body.dark-mode .weighting-carousel .carousel-dots {
+    margin: 0;
+}
+
+body.dark-mode .carousel-content {
+    display: grid;
+    justify-content: center;
+    justify-items: center;
+}
+
+body.dark-mode .carousel-footer {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr) 30px;
+    align-items: center;
+    width: calc(var(--pie-size) + 36px);
+    max-width: 100%;
+    justify-self: center;
+}
+
+body.dark-mode .carousel-subject {
+    font-weight: 700;
+    text-align: center;
+    color: #e9e9ea;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+body.dark-mode .carousel-slide {
+    width: calc(var(--pie-size) + 36px);
+    min-height: calc(var(--pie-size) + 8px);
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    justify-self: center;
+}
+
+body.dark-mode .pie-slice {
+    cursor: pointer;
+    stroke: #111;
+    stroke-width: 2;
+    transition: transform 0.15s ease, filter 0.15s ease, stroke-width 0.15s ease;
+    transform-origin: center;
+}
+
+body.dark-mode .pie-slice:hover {
+    filter: brightness(1.1);
+    stroke-width: 3;
+}
+
+body.dark-mode .pie-label {
+    font-size: 9px;
+    font-weight: 700;
+    fill: black;
+    stroke: rgba(0, 0, 0, 0.6);
+    stroke-width: 0.6;
+    paint-order: stroke fill;
+    pointer-events: none;
+}
+
+body.dark-mode .pie-breakdown {
+    margin-top: 6px;
+    display: grid;
+    gap: 4px;
+    text-align: left;
+    font-size: 11px;
+    line-height: 1.3;
+    max-width: 280px;
+    color: #e9e9ea;
+}
+
+body.dark-mode .pie-breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+body.dark-mode .pie-breakdown-task {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.carousel-slide svg {
+    display: block;
+    width: var(--pie-size);
+    height: var(--pie-size);
+    overflow: visible;
+}
+
+.carousel-nav {
+    font-size: 18px;
+    border-radius: 20px;
+    background-color: black;
+    color: white;
+    border: 2px solid grey;
+    width: 30px;
+    height: 30px;
+    align-self: center;
+    justify-self: center;
+    cursor: pointer;  
+}
+
+.carousel-nav:hover {
+    background-color: rgb(80, 90, 80);
+    cursor: pointer;
+    border-color: black;
+    color: black;
+}
+
+.carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.carousel-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #222;
+    opacity: 0.3;
+}
+
+.carousel-dots span.active {
+    opacity: 1;
+}
+
+body.dark-mode .assignments-controls {
+    grid-column: 3;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+    justify-content: flex-start;
+    justify-self: center;
+    padding: 14px 12px;
+    background: rgb(141, 157, 141);
+    border: 2px solid rgb(10, 185, 31);
+    border-radius: 10px;
+    width: 100%;
+    max-width: 180px;
+    box-sizing: border-box;
+    min-height: 295px;
+    margin: 0;
+    margin-left: 0;
+}
+
+body.dark-mode .controls-group {
+    display: grid;
+    gap: 6px;
+    justify-items: stretch;
+}
+
+body.dark-mode .assignments-controls .controls-group:first-child {
+    justify-items: center;
+}
+
+body.dark-mode #assignments-sort,
+body.dark-mode #assignments-filter {
+    width: 100%;
+    max-width: 160px;
+}
+
+body.dark-mode .assignments-widgets {
+    display: grid;
+    gap: 20px;
+    align-content: start;
+    justify-items: stretch;
+    grid-column: 4;
+    grid-row: 1 / 3;
+    align-self: start;
+}
+
+body.dark-mode .dash-slide {
+    min-height: 210px;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e9e9ea;
+}
+
+body.dark-mode .vchart-legend {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    padding: 0 6px;
+    font-size: 12px;
+    align-items: center;
+    color: #e9e9ea;
+}
+
+body.dark-mode .vchart-legend-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+body.dark-mode .settings-panel p {
+    margin-left: 10px;
+}
+
+body.dark-mode #subject-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.22);
+    z-index: 900;
+}
+
+body.dark-mode #add-subject-modal .form-row {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    align-items: start;
+    column-gap: 12px;
+    margin: 12px 0;
+}
+
+body.dark-mode #add-subject-modal .form-row label {
+    text-align: left;
+    margin: 0;
+    padding-top: 8px;
+}
+
+body.dark-mode #add-subject-modal .form-row input {
+    font-size: 14px;
+    padding: 10px 12px;
+    border: 1px solid grey;
+    border-radius: 8px;
+    color: #e9e9ea;
+    background: #111;
+}
+
+body.dark-mode #add-assignment-modal .form-row {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    align-items: start;
+    column-gap: 12px;
+    margin-bottom: 12px;
+}
+
+body.dark-mode #add-assignment-modal .form-row label {
+    text-align: left;
+    margin: 0;
+    padding-top: 8px;
+}
+
+body.dark-mode #add-assignment-modal input,
+body.dark-mode #add-assignment-modal textarea,
+body.dark-mode #add-subject-modal input,
+body.dark-mode #add-subject-modal textarea,
+body.dark-mode input,
+body.dark-mode textarea {
+    background: #111;
+    color: #e9e9ea;
+    border: 1px solid grey;
+}
+
+body.dark-mode #add-assignment-modal select,
+body.dark-mode #add-subject-modal select,
+body.dark-mode select {
+    background: #111;
+    color: #e9e9ea;
+    border: 1px solid grey;
+}
+
+body.dark-mode #subject-status.task-status {
+    margin: 8px 0 12px;
+    font-weight: 700;
+    text-align: center;
+    min-height: 1.2em;
+}
+
+body.dark-mode #view-assignment-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(460px, 92vw);
+    background: #000;
+    border: 2px solid grey;
+    border-radius: 12px;
+    padding: 16px;
+    z-index: 900;
+    text-align: left;
+}
+
+body.dark-mode .view-assignment-desc {
+    margin: 8px 0 0;
+    font-size: 14px;
+    line-height: 1.45;
+    color: #e9e9ea;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+@media (max-width: 1100px) {
+    body.dark-mode .assignments-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+
+    body.dark-mode .assignments-main,
+    body.dark-mode .assignments-controls,
+    body.dark-mode .assignments-widgets {
+        grid-column: 1;
+        grid-row: auto;
+    }
+
+    body.dark-mode .assignments-table-card {
+        grid-column: 1;
+    }
+
+    body.dark-mode .weighting-carousel,
+    body.dark-mode .assignments-controls {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
     }
 }

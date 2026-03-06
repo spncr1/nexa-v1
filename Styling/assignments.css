@@ -9,6 +9,19 @@
   - System settings button + modal
 */
 
+:root {
+    --bg: #ffffff;
+    --text: #111111;
+    --panel: rgb(141, 157, 141);
+    --border: rgb(3, 46, 8);
+    --surface: #ffffff;
+    --nav-width: 180px;
+    --content-max: 1280px;
+    --content-pad: 24px;
+    --pie-size: 160px;
+}
+
+/* MAIN BODY */
 html, body {
     text-align: center;
     display: flex;
@@ -23,7 +36,11 @@ html, body {
 .content {
     text-align: center;
     flex: 1;
-    padding: 24px;
+    padding: var(--content-pad);
+    width: 100%;
+    max-width: var(--content-max);
+    margin: 0 auto;
+    box-sizing: border-box;
 }
 
 ul {
@@ -38,6 +55,7 @@ ul {
     border-right: 1px solid #ddd;
     padding: 16px;
     text-align: left;
+    transition: width 0.24s ease, padding 0.24s ease;
 }
 
 .navbar ul {
@@ -50,6 +68,7 @@ ul {
     margin-top: 16px;
     font-size: 20px;
     text-align: center;
+    transition: opacity 0.2s ease, transform 0.2s ease, margin-top 0.2s ease;
 }
 
 .navbar a {
@@ -77,6 +96,25 @@ ul {
     margin-bottom: 10px;
     margin-left: 50px;
     text-align: center;
+    transition: margin-left 0.24s ease;
+}
+
+body.nav-collapsed .navbar {
+    width: 72px;
+    padding: 16px 10px;
+    overflow: hidden;
+}
+
+body.nav-collapsed .navbar ul {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-12px);
+    margin-top: 0;
+    height: 0;
+}
+
+body.nav-collapsed .menu-toggle {
+    margin-left: 0;
 }
 
 /* ----- HEADERS STYLING ----- */
@@ -100,6 +138,13 @@ h2 {
     position: fixed;
     bottom: 50px;
     left: 50px;
+    transition: transform 0.24s ease, opacity 0.2s ease;
+}
+
+body.nav-collapsed .system-settings {
+    transform: translateX(-120px);
+    opacity: 0;
+    pointer-events: none;
 }
 
 #system-settings-btn {
@@ -295,8 +340,8 @@ h2 {
 /* 3-column layout: subjects / all assignments | main | widgets */
 .assignments-layout {
     display: grid;
-    grid-template-columns: 220px minmax(420px, 1fr) 220px 320px;
-    grid-template-rows: auto auto;
+    grid-template-columns: 220px minmax(0, 1fr) 180px 300px;
+    grid-template-rows: minmax(300px, auto) auto;
     gap: 16px;
     row-gap: 20px;
     column-gap: 16px;
@@ -350,6 +395,7 @@ h2 {
     padding: 0;
     margin: 0;
     display: grid;
+    justify-items: stretch;
     cursor: pointer;
     max-height: 225px;
     overflow-y: auto;
@@ -362,6 +408,7 @@ h2 {
     padding: 0;
     background: transparent;
     border: 0;
+    width: 100%;
 }
 
 #subjects-list .subject-item {
@@ -377,6 +424,8 @@ h2 {
     font-weight: 700;
     color: #111;
     cursor: pointer;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 #subjects-list .subject-item.active {
@@ -436,20 +485,38 @@ h2 {
     font-family: sans-serif, arial;
 }
 
-.assignments-table th, .assignments-table td {
+/* ALL ASSIGNMENTS table header */
+.assignments-table th {
+    background: rgba(139, 163, 133, 0.6);
+    border-right: 1px solid rgba(0,0,0,0.12);
+    border-bottom: 1px solid rgba(0,0,0,0.12);
     padding: 10px 12px;
+    text-align: left;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* ALL ASSIGNMENTS table body (elements) */
+.assignments-table td {
     background: rgba(255, 255, 255, 0.6);
     border-right: 1px solid rgba(0,0,0,0.12);
     border-bottom: 1px solid rgba(0,0,0,0.12);
+    padding: 10px 12px;
     text-align: left;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 600;
     color: #111;
     cursor: pointer;
     position: sticky;
     top: 0;
     z-index: 1;
 }
+
+
 
 /* Middle column */
 .assignments-main {
@@ -466,11 +533,12 @@ h2 {
     border-radius: 10px;
     padding: 8px 16px 14px;
     max-width: 400px;
-    height: 270px;
+    min-height: calc(var(--pie-size) + 130px);
+    height: auto;
     display: grid;
     align-content: start;
     row-gap: 20px;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .weighting-carousel .carousel-header h3, .weighting-carousel .carousel-content, .weighting-carousel .carousel-dots {
@@ -478,34 +546,95 @@ h2 {
 }
 
 #weighting-carousel svg path {
-    fill: initial;
     stroke: none;
 }
 
 .carousel-content {
     display: grid;
     justify-content: center;
+    justify-items: center;
 }
 
 .carousel-footer {
     display: grid;
-    grid-template-columns: 30px auto 30px;
+    grid-template-columns: 30px minmax(0, 1fr) 30px;
     align-items: center;
+    width: calc(var(--pie-size) + 36px);
+    max-width: 100%;
+    justify-self: center;
 }
 
-.carousel-subject { font-weight: 700; text-align: center; }
+.carousel-subject {
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 .carousel-slide {
-    width: 330px;
-    min-height: 120px;
+    width: calc(var(--pie-size) + 36px);
+    min-height: calc(var(--pie-size) + 8px);
     height: auto;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: visible;
+    justify-self: center;
 }
 
 .carousel-slide svg {
     display: block;
+    width: var(--pie-size);
+    height: var(--pie-size);
+    overflow: visible;
+}
+
+.pie-slice {
+    cursor: pointer;
+    stroke: #ffffff;
+    stroke-width: 2;
+    transition: transform 0.15s ease, filter 0.15s ease, stroke-width 0.15s ease;
+    transform-origin: center;
+}
+
+.pie-slice:hover {
+    filter: brightness(1.15);
+    stroke-width: 3;
+    transition: transform 0.3s ease, filter 0.3s ease;
+    transform: scale(1.10);
+}
+
+.pie-label {
+    font-size: 9px;
+    font-weight: 700;
+    fill: black;
+    stroke: rgba(0, 0, 0, 0.55);
+    stroke-width: 0.6;
+    paint-order: stroke fill;
+    pointer-events: none;
+}
+
+.pie-breakdown {
+    margin-top: 6px;
+    display: grid;
+    gap: 4px;
+    text-align: left;
+    font-size: 11px;
+    line-height: 1.3;
+    max-width: 280px;
+}
+
+.pie-breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.pie-breakdown-task {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .carousel-nav {
@@ -555,12 +684,13 @@ h2 {
     gap: 12px;
     align-items: stretch;
     justify-content: flex-start;
-
+    justify-self: center;
     padding: 14px 12px;
     background: rgb(141, 157, 141);
     border: 2px solid rgb(3, 46, 8);
     border-radius: 10px;
     width: 100%;
+    max-width: 180px;
     box-sizing: border-box;
     min-height: 295px;
 }
@@ -633,12 +763,9 @@ h2 {
     background: rgba(255, 255, 255, 0.6);
 }
 
-#assignments-sort {
+#assignments-sort, #assignments-filter {
     width: 100%;
-}
-
-#assignments-filter {
-    width: 100%;
+    max-width: 160px;
 }
 
 /* Right widgets column */
@@ -808,6 +935,10 @@ h2 {
 
 .dash-slide {
   min-height: 210px;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Vertical bar chart */
@@ -870,17 +1001,21 @@ h2 {
 }
 
 .vchart-legend {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   flex-wrap: wrap;
-  gap: 10px 14px;
+  gap: 10px;
   padding: 0 6px;
   font-size: 12px;
+  align-items: center;
 }
 
 .vchart-legend-item {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  white-space: nowrap;
 }
 
 .vchart-swatch {
@@ -1060,6 +1195,30 @@ button, input, select, textarea { font-family: inherit; }
     display: flex;
     justify-content: space-between;
     gap: 12px;
+}
+
+#view-assignment-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(460px, 92vw);
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 16px;
+    z-index: 900;
+    text-align: left;
+}
+
+.view-assignment-desc {
+    margin: 8px 0 0;
+    font-family: sans-serif, arial;
+    font-size: 14px;
+    line-height: 1.45;
+    color: #111;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 /* Responsive fallback just in case */
