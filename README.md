@@ -1,10 +1,10 @@
-# Student Hub Productivity Dashboard
+# STELLIS - A Student Productivity Hub
 
 A browser-based productivity web app designed to help students manage tasks, assignments, and schedules all in the one place.
 
 My motivation behind building this project was to help me build a clean, simple system that visualises how daily work connects to larger academic goals. The focus was on clarity, usability, and creating an interface that makes planning feel calm rather than overwhelming.
 
-*Live version: (deployed Vercel link goes here)*
+*Live version: *
 
 ---
 
@@ -31,7 +31,20 @@ My motivation behind building this project was to help me build a clean, simple 
 ---
 
 ## Screenshots
-add some screenshots here...
+### Dashboard Overview
+![Dashboard](Screenshots/app-screenshot-1.png)
+
+### Weekly Task Planner
+![Tasks Planner](Screenshots/app-screenshot-2.png)
+
+### Monthly Calendar View
+![Calendar](Screenshots/app-screenshot-3.png)
+
+### Assignment Analytics & Visual Widgets
+![Assignments](Screenshots/app-screenshot-4.png)
+
+### Dark Mode
+![Dark Mode](Screenshots/app-screenshot-5.png)
 
 ---
 
