@@ -55,7 +55,7 @@
                         
                         <h2>TODAY'S TASKS</h2>
                         
-                        <button class="btn-primary" id="sort-btn">\|/</button>
+                        <button class="btn-primary" id="sort-btn">S</button>
                         <!-- Sort dropdown panel-->
                         <div id="sort-panel" class="sort-panel hidden" role="menu" aria-label="Sort Tasks">
                             <div class="sort-row">
@@ -146,7 +146,7 @@
 
                  <div class="modal-actions">
                     <button class="btn-secondary" id="cancel-task-btn">Cancel</button>
-                    <button class="btn-secondary" id="delete-task-btn" class="hidden">Delete</button>
+                    <button class="btn-secondary hidden" id="delete-task-btn">Delete</button>
                     <button class="btn-secondary" id="confirm-task-btn">Add</button> <!-- task adding confirmation -->
                  </div>
              </div>
@@ -171,11 +171,42 @@
 
                         <div class="settings-body">
                             <div class="settings-panel" data-panel="general">
-                                <p>More to come...</p>
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Reset App Data?</div>
+                                    </div>
+                                    <button type="button" id="reset-app-data-btn" class="setting-action-btn danger">Reset</button>
+                                </div>
+
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Load Demo Data?</div>
+                                    </div>
+                                    <button type="button" id="load-demo-data-btn" class="setting-action-btn success">Load</button>
+                                </div>
                             </div>
 
                             <div class="settings-panel hidden" data-panel="account">
-                                <p>More to come...</p>
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Display name</div>
+                                    </div>
+                                    <input type="text" id="account-name-input" class="setting-account-input" placeholder="e.g., Spencer">
+                                </div>
+
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Semester label</div>
+                                    </div>
+                                    <input type="text" id="account-semester-input" class="setting-account-input" placeholder="e.g., Autumn Session 2026">
+                                </div>
+
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Save account details</div>
+                                    </div>
+                                    <button type="button" id="save-account-btn" class="setting-action-btn success">Save</button>
+                                </div>
                             </div>
 
                             <div class="settings-panel" data-panel="customise">

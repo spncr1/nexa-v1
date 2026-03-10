@@ -153,11 +153,42 @@
 
                         <div class="settings-body">
                             <div class="settings-panel" data-panel="general">
-                                <p>More to come...</p>
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Reset App Data</div>
+                                    </div>
+                                    <button type="button" id="reset-app-data-btn" class="setting-action-btn danger">Reset</button>
+                                </div>
+
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Load Demo Data</div>
+                                    </div>
+                                    <button type="button" id="load-demo-data-btn" class="setting-action-btn success">Load</button>
+                                </div>
                             </div>
 
                             <div class="settings-panel hidden" data-panel="account">
-                                <p>More to come...</p>
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Display name</div>
+                                    </div>
+                                    <input type="text" id="account-name-input" class="setting-account-input" placeholder="e.g., Spencer">
+                                </div>
+
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Semester label</div>
+                                    </div>
+                                    <input type="text" id="account-semester-input" class="setting-account-input" placeholder="e.g., Autumn Session 2026">
+                                </div>
+
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Save account details</div>
+                                    </div>
+                                    <button type="button" id="save-account-btn" class="setting-action-btn success">Save</button>
+                                </div>
                             </div>
 
                             <div class="settings-panel" data-panel="customise">

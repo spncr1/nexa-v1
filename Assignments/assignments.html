@@ -29,7 +29,7 @@
 
         <main class="content">
             <header class="assignment-page-header">
-                <h1 class="page-title">ASSIGNMENTS SCHEDULE <span class="page-subtitle" id="semester-label"></span></h1>
+                <h1 class="page-title">ASSIGNMENTS SCHEDULE <span class="page-subtitle semester-label"></span></h1>
             </header>
 
             <!-- MAIN LAYOUT -->
@@ -37,7 +37,7 @@
                 <!-- LEFT COLUMN -->
                 <aside class="subjects-panel" aria-label="Subjects">
                     <div class="subjects-panel-header">
-                        <h3 class="panel-title">Subjects <span class="panel-subtitle" id="semester-label"></span></h3>
+                        <h3 class="panel-title">Subjects <span class="panel-subtitle semester-label"></span></h3>
 
                         <button type="button" class="btn-primary subjects-add-btn" id="add-subject-btn" aria-label="Add Subject">
                             +
@@ -145,8 +145,8 @@
 
                  <div class="assignments-table-card" aria-label="All Assignments table">
                     <div class="assignments-table-header">
-                        <h2 class="table-title">All Assignments <span class="page-subtitle" id="semester-label"></span></h2>
-                        <button class="btn-secondary" id="reset-btn">Reset</button>
+                        <h2 class="table-title">All Assignments <span class="page-subtitle semester-label"></span></h2>
+                        <button class="reset-btn">Reset</button> <!-- would "clear all assignments" be more suitable here? -->
                     </div>
 
                     <div class="assignments-table-wrap">
@@ -191,11 +191,42 @@
 
                         <div class="settings-body">
                             <div class="settings-panel" data-panel="general">
-                                <p>More to come...</p>
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Reset App Data?</div>
+                                    </div>
+                                    <button type="button" id="reset-app-data-btn" class="setting-action-btn danger">Reset</button>
+                                </div>
+
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Load Demo Data?</div>
+                                    </div>
+                                    <button type="button" id="load-demo-data-btn" class="setting-action-btn success">Load</button>
+                                </div>
                             </div>
 
                             <div class="settings-panel hidden" data-panel="account">
-                                <p>More to come...</p>
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Display name</div>
+                                    </div>
+                                    <input type="text" id="account-name-input" class="setting-account-input" placeholder="e.g., Spencer">
+                                </div>
+
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Semester label</div>
+                                    </div>
+                                    <input type="text" id="account-semester-input" class="setting-account-input" placeholder="e.g., Autumn Session 2026">
+                                </div>
+
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Save account details</div>
+                                    </div>
+                                    <button type="button" id="save-account-btn" class="setting-action-btn success">Save</button>
+                                </div>
                             </div>
 
                             <div class="settings-panel" data-panel="customise">
@@ -238,7 +269,7 @@
 
                 <div class="modal-actions">
                     <button class="btn-secondary" id="cancel-subject-btn">Cancel</button>
-                    <button class="btn-secondary" id="delete-subject-btn" class="hidden">Delete</button>
+                    <button class="btn-secondary hidden" id="delete-subject-btn">Delete</button>
                     <button class="btn-secondary" id="confirm-subject-btn">Add</button>
                 </div>
                </div>

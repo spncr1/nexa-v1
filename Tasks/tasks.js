@@ -2,6 +2,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const menuToggle = document.querySelector(".menu-toggle");
     const NAV_COLLAPSED_KEY = "studenthub_nav_collapsed";
     const TASKS_KEY = "tasksByDate";
+    const SUBJECTS_KEY = "studenthub_subjects";
+    const ASSIGNMENTS_KEY = "studenthub_assignments";
+    const USER_NAME_KEY = "studenthub_user_name";
+    const SEMESTER_KEY = "studenthub_semester_label";
+    const DEFAULT_USER_NAME = "Student";
+    const DEFAULT_SEMESTER_LABEL = "Autumn Session 2026";
+    const APP_DATA_KEYS = [TASKS_KEY, SUBJECTS_KEY, ASSIGNMENTS_KEY, USER_NAME_KEY, SEMESTER_KEY];
 
     const todayBtn = document.getElementById("today-btn");
     const previousBtn = document.getElementById("previous-btn");
@@ -42,6 +49,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const panels = document.querySelectorAll(".settings-panel");
     const subtitle = document.getElementById("settings-subtitle");
     const darkToggle = document.getElementById("dark-mode-toggle");
+    const resetAppDataBtn = document.getElementById("reset-app-data-btn");
+    const loadDemoDataBtn = document.getElementById("load-demo-data-btn");
+    const accountNameInput = document.getElementById("account-name-input");
+    const accountSemesterInput = document.getElementById("account-semester-input");
+    const saveAccountBtn = document.getElementById("save-account-btn");
 
     let viewMode = "week";
     let activeDate = atNoon(new Date());
@@ -759,6 +771,168 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("darkMode", isOn ? "1" : "0");
     }
 
+    function loadUserName() {
+        const saved = localStorage.getItem(USER_NAME_KEY);
+        return saved && saved.trim() ? saved : DEFAULT_USER_NAME;
+    }
+
+    function loadSemesterLabel() {
+        const saved = localStorage.getItem(SEMESTER_KEY);
+        return saved && saved.trim() ? saved : DEFAULT_SEMESTER_LABEL;
+    }
+
+    function populateAccountInputs() {
+        if (accountNameInput) {
+            accountNameInput.value = loadUserName();
+        }
+        if (accountSemesterInput) {
+            accountSemesterInput.value = loadSemesterLabel();
+        }
+    }
+
+    function saveAccountSettings() {
+        const nameValue = (accountNameInput?.value || "").trim() || DEFAULT_USER_NAME;
+        const semesterValue = (accountSemesterInput?.value || "").trim() || DEFAULT_SEMESTER_LABEL;
+
+        localStorage.setItem(USER_NAME_KEY, nameValue);
+        localStorage.setItem(SEMESTER_KEY, semesterValue);
+        populateAccountInputs();
+    }
+
+    function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function pick(list) {
+        return list[randomInt(0, list.length - 1)];
+    }
+
+    function hasAnyAppData() {
+        return APP_DATA_KEYS.some((key) => {
+            const raw = localStorage.getItem(key);
+            if (raw === null || raw.trim() === "") return false;
+
+            try {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) return parsed.length > 0;
+                if (parsed && typeof parsed === "object") return Object.keys(parsed).length > 0;
+                return true;
+            } catch {
+                return true;
+            }
+        });
+    }
+
+    function resetAllAppData() {
+        if (!hasAnyAppData()) {
+            alert("No app data to reset.");
+            return;
+        }
+
+        const confirmed = window.confirm(
+            "Reset all app data? This will permanently delete all saved tasks, subjects, and assignments across the application."
+        );
+        if (!confirmed) return;
+
+        APP_DATA_KEYS.forEach((key) => localStorage.removeItem(key));
+        editingTaskId = null;
+        modalDateKey = "";
+        modalHour = null;
+        activeDate = atNoon(new Date());
+        selectedMonthDate = atNoon(new Date());
+        populateAccountInputs();
+        refreshCalendarViews();
+    }
+
+    function generateDemoTasksByDate() {
+        const titles = [
+            "Review lecture notes",
+            "Gym session",
+            "Read assigned material",
+            "Prepare for tutorial",
+            "Work on assignment draft",
+            "Finish quiz practice",
+            "Group study session",
+            "Draft weekly plan",
+            "Read chapter 4",
+            "Prepare lab notes",
+            "Update weekly planner",
+            "Revise formulas and/or key concepts",
+            "Watch tutorial",
+            "Clean up inbox",
+            "Organise study notes",
+            "Plan tomorrow's schedule",
+            "Buy groceries",
+            "Call brother",
+            "Go for a run",
+            "Clean study desk"
+        ];
+        const notes = [
+            "Focus on core concepts.",
+            "Keep this short and focused.",
+            "Highlight key points for revision later.",
+            "Check upcoming deadlines while reviewing.",
+            "Write down questions to ask in class.",
+            "Bring examples into notes.",
+            "Double-check deadlines.",
+            "Aim to complete in one sitting.",
+            "Leave 10 minutes for review."
+        ];
+        const priorities = ["low", "medium", "high"];
+        const quarterMinutes = [0, 15, 30, 45];
+        const baseDate = atNoon(new Date());
+        const tasksByDate = {};
+        const totalTasks = randomInt(24, 38);
+        const now = Date.now();
+
+        for (let i = 0; i < totalTasks; i += 1) {
+            const dateOffset = randomInt(-10, 40);
+            const dateObj = atNoon(new Date(baseDate));
+            dateObj.setDate(baseDate.getDate() + dateOffset);
+            const key = dateKey(dateObj);
+            const withTime = Math.random() < 0.78;
+            const scheduledHour = withTime ? randomInt(7, 21) : null;
+            const scheduledMinute = withTime ? pick(quarterMinutes) : null;
+            const scheduledTime = withTime
+                ? `${String(scheduledHour).padStart(2, "0")}:${String(scheduledMinute).padStart(2, "0")}`
+                : null;
+
+            const task = {
+                id: now + i,
+                title: pick(titles),
+                notes: pick(notes),
+                priority: pick(priorities),
+                scheduledHour,
+                scheduledMinute,
+                scheduledTime,
+                createdAt: now - randomInt(0, 8) * 86400000,
+                updatedAt: now - randomInt(0, 2) * 3600000
+            };
+
+            if (!Array.isArray(tasksByDate[key])) {
+                tasksByDate[key] = [];
+            }
+            tasksByDate[key].push(task);
+        }
+
+        return tasksByDate;
+    }
+
+    function loadDemoTasksData() {
+        const demoTasksByDate = generateDemoTasksByDate();
+        localStorage.setItem(TASKS_KEY, JSON.stringify(demoTasksByDate));
+        localStorage.setItem(USER_NAME_KEY, "Demo Student");
+        localStorage.setItem(SEMESTER_KEY, DEFAULT_SEMESTER_LABEL);
+
+        editingTaskId = null;
+        modalDateKey = "";
+        modalHour = null;
+        activeDate = atNoon(new Date());
+        selectedMonthDate = atNoon(new Date());
+        populateAccountInputs();
+        refreshCalendarViews();
+    }
+
     if (menuToggle) {
         const savedCollapsed = localStorage.getItem(NAV_COLLAPSED_KEY) === "1";
         setNavCollapsed(savedCollapsed);
@@ -855,6 +1029,19 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    if (resetAppDataBtn) {
+        resetAppDataBtn.addEventListener("click", resetAllAppData);
+    }
+
+    if (loadDemoDataBtn) {
+        loadDemoDataBtn.addEventListener("click", loadDemoTasksData);
+    }
+
+    if (saveAccountBtn) {
+        saveAccountBtn.addEventListener("click", saveAccountSettings);
+    }
+
+    populateAccountInputs();
     renderTimeRail(weekTimeRailEl);
     renderTimeRail(monthTimeRailEl);
     refreshCalendarViews();

@@ -64,8 +64,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const panels = document.querySelectorAll(".settings-panel");
     const subtitle = document.getElementById("settings-subtitle");
     const darkToggle = document.getElementById("dark-mode-toggle"); // for dark mode
+    const resetAppDataBtn = document.getElementById("reset-app-data-btn");
+    const loadDemoDataBtn = document.getElementById("load-demo-data-btn");
+    const accountNameInput = document.getElementById("account-name-input");
+    const accountSemesterInput = document.getElementById("account-semester-input");
+    const saveAccountBtn = document.getElementById("save-account-btn");
 
-    // Load the last selected date from localStorage (so that when you referesh, you keep your place)
+    // Load the last selected date from localStorage (so that when you refresh, you keep your place)
     const savedDate = localStorage.getItem("selectedDate");
 
     // IF there is a saved date, use it. Otherwise default to today.
@@ -81,15 +86,64 @@ document.addEventListener("DOMContentLoaded", () => {
     selectedDate.setHours(12, 0, 0, 0);
 
     let editingTaskId = null;
+    const TASKS_KEY = "tasksByDate";
     const ASSIGNMENTS_KEY = "studenthub_assignments";
     const SUBJECTS_KEY = "studenthub_subjects";
+    const USER_NAME_KEY = "studenthub_user_name";
+    const SEMESTER_KEY = "studenthub_semester_label";
+    const DEFAULT_USER_NAME = "Student";
+    const DEFAULT_SEMESTER_LABEL = "Autumn Session 2026";
+    const APP_DATA_KEYS = [TASKS_KEY, SUBJECTS_KEY, ASSIGNMENTS_KEY, USER_NAME_KEY, SEMESTER_KEY];
     const ASSIGNMENTS_PREVIEW_LIMIT = 2;
 
     const STATUS_MS = 1500;
     let statusTimer = null;
 
-    // temporary welcome (username) logic to handle just ONE user for now (will update later for multi-user purposes)
-    document.getElementById("welcome-name").textContent = "Spencer";
+    function loadUserName() {
+        const saved = localStorage.getItem(USER_NAME_KEY);
+        return saved && saved.trim() ? saved : DEFAULT_USER_NAME;
+    }
+
+    function loadSemesterLabel() {
+        const saved = localStorage.getItem(SEMESTER_KEY);
+        return saved && saved.trim() ? saved : DEFAULT_SEMESTER_LABEL;
+    }
+
+    function renderUserName() {
+        const el = document.getElementById("welcome-name");
+        if (el) {
+            el.textContent = loadUserName();
+        }
+    }
+
+    function renderSemesterLabel() {
+        const labels = document.querySelectorAll(".semester-label");
+        if (!labels.length) return;
+        labels.forEach((el) => {
+            el.textContent = `(${loadSemesterLabel()})`;
+        });
+    }
+
+    function populateAccountInputs() {
+        if (accountNameInput) {
+            accountNameInput.value = loadUserName();
+        }
+        if (accountSemesterInput) {
+            accountSemesterInput.value = loadSemesterLabel();
+        }
+    }
+
+    function saveAccountSettings() {
+        const nameValue = (accountNameInput?.value || "").trim() || DEFAULT_USER_NAME;
+        const semesterValue = (accountSemesterInput?.value || "").trim() || DEFAULT_SEMESTER_LABEL;
+
+        localStorage.setItem(USER_NAME_KEY, nameValue);
+        localStorage.setItem(SEMESTER_KEY, semesterValue);
+
+        renderUserName();
+        renderSemesterLabel();
+        populateAccountInputs();
+    }
 
     // converts selectedDate to YYYY-MM-DD
     function dateKey(dateObj) {
@@ -101,8 +155,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // load/save tasks object from localStorage
     function loadAllTasks() {
-        const raw = localStorage.getItem("tasksByDate");
-        return raw ? JSON.parse(raw) : {}; // {} means none yet
+        try {
+            const raw = localStorage.getItem(TASKS_KEY);
+            const parsed = raw ? JSON.parse(raw) : {};
+            return parsed && typeof parsed === "object" ? parsed : {};
+        } catch (e) {
+            console.warn("Failed to parse tasks:", e);
+            return {};
+        }
     }
 
     function loadAssignments() {
@@ -134,7 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function saveAllTasks(tasksByDate) {
-        localStorage.setItem("tasksByDate", JSON.stringify(tasksByDate));
+        localStorage.setItem(TASKS_KEY, JSON.stringify(tasksByDate));
     }
 
     // render tasks for the currently selected date
@@ -305,7 +365,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    /* helper fumctions for dates */
+    /* helper functions for dates */
     // returns a string that gives the full date and year in the Australian format
     function formatFullDate(dateObj) {
         const day = dateObj.getDate(); // 1-31
@@ -357,7 +417,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* modal open/close */
     function openModal() {
-        let editingTaskId = null; // force add-mode
+        editingTaskId = null; // force add-mode
         
         document.getElementById("task-modal-title").textContent = "ADD TASK";
         confirmBtn.textContent = "Add";
@@ -602,6 +662,202 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("darkMode", isOn ? "1" : "0");
     }
 
+    function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function pick(list) {
+        return list[randomInt(0, list.length - 1)];
+    }
+
+    function hasAnyAppData() {
+        return APP_DATA_KEYS.some((key) => {
+            const raw = localStorage.getItem(key);
+            if (raw === null || raw.trim() === "") return false;
+
+            try {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) return parsed.length > 0;
+                if (parsed && typeof parsed === "object") return Object.keys(parsed).length > 0;
+                return true;
+            } catch {
+                return true;
+            }
+        });
+    }
+
+    function formatISODate(dateObj) {
+        const y = dateObj.getFullYear();
+        const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+        const d = String(dateObj.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+    }
+
+    function generateDemoTasksByDate() {
+        const titles = [
+            "Review lecture notes",
+            "Gym session",
+            "Finish quiz practice",
+            "Group meeting",
+            "Draft weekly plan",
+            "Read chapter 4",
+            "Prepare lab notes",
+            "Submit discussion post",
+            "Revise formulas",
+            "Practice coding drills",
+            "Watch tutorial",
+            "Clean up inbox"
+        ];
+        const notes = [
+            "Focus on key outcomes.",
+            "Keep this under one hour.",
+            "Track progress in checklist.",
+            "Prioritize this before dinner."
+        ];
+        const priorities = ["low", "medium", "high"];
+        const baseDate = new Date();
+        baseDate.setHours(12, 0, 0, 0);
+
+        const tasksByDate = {};
+        const totalTasks = randomInt(16, 28);
+        const now = Date.now();
+
+        for (let i = 0; i < totalTasks; i += 1) {
+            const dateObj = new Date(baseDate);
+            dateObj.setDate(baseDate.getDate() + randomInt(-10, 40));
+            const key = dateKey(dateObj);
+
+            const task = {
+                id: now + i,
+                title: pick(titles),
+                notes: pick(notes),
+                priority: pick(priorities),
+                done: false,
+                createdAt: now - randomInt(0, 8) * 86400000,
+                updatedAt: now - randomInt(0, 3) * 3600000
+            };
+
+            if (!Array.isArray(tasksByDate[key])) {
+                tasksByDate[key] = [];
+            }
+            tasksByDate[key].push(task);
+        }
+
+        return tasksByDate;
+    }
+
+    function generateDemoAssignmentsData() {
+        const subjectPool = [
+            "Software Engineering",
+            "Database Systems",
+            "Cyber Security",
+            "Computer Networks",
+            "Data Structures",
+            "Operating Systems",
+            "Web Development"
+        ];
+        const taskPool = [
+            "Quiz",
+            "Lab Report",
+            "Case Study",
+            "Team Presentation",
+            "Project Milestone",
+            "Final Exam",
+            "Reflection",
+            "Research Summary"
+        ];
+        const descPool = [
+            "Draft and submit a concise response with key references.",
+            "Apply the weekly concepts and include screenshots/evidence.",
+            "Demonstrate the workflow and explain design choices.",
+            "Collaborate with your group and document outcomes."
+        ];
+        const priorities = ["low", "medium", "high"];
+        const statuses = ["not-started", "in-progress", "completed"];
+        const now = Date.now();
+        const today = new Date();
+        const subjectCount = randomInt(4, 5);
+        const subjects = [];
+        const assignments = [];
+        const shuffledSubjects = [...subjectPool].sort(() => Math.random() - 0.5).slice(0, subjectCount);
+
+        shuffledSubjects.forEach((name, subjectIndex) => {
+            const subjectId = `subject_demo_${now}_${subjectIndex}`;
+            subjects.push({
+                id: subjectId,
+                name,
+                createdAt: now - subjectIndex * 1000,
+                updatedAt: now - subjectIndex * 1000
+            });
+
+            const assignmentCount = randomInt(1, 4);
+            const rawWeights = Array.from({ length: assignmentCount }, () => Math.random() + 0.25);
+            const weightSum = rawWeights.reduce((sum, value) => sum + value, 0);
+
+            for (let i = 0; i < assignmentCount; i += 1) {
+                const dueDate = new Date(today);
+                dueDate.setDate(today.getDate() + randomInt(2, 120));
+                const weight = Number(((rawWeights[i] / weightSum) * 100).toFixed(1));
+                const taskType = pick(taskPool);
+
+                assignments.push({
+                    id: `assignment_demo_${now}_${subjectIndex}_${i}`,
+                    courseId: subjectId,
+                    task: `${taskType} ${i + 1}`,
+                    description: pick(descPool),
+                    priority: pick(priorities),
+                    status: pick(statuses),
+                    dueDate: formatISODate(dueDate),
+                    weighting: weight,
+                    createdAt: now - randomInt(0, 10) * 86400000,
+                    updatedAt: now - randomInt(0, 3) * 3600000
+                });
+            }
+        });
+
+        return { subjects, assignments };
+    }
+
+    function resetAllAppData() {
+        if (!hasAnyAppData()) {
+            alert("No app data to reset.");
+            return;
+        }
+
+        const confirmed = window.confirm(
+            "Reset all app data? This will permanently delete all saved tasks, subjects, and assignments across the application."
+        );
+        if (!confirmed) return;
+
+        APP_DATA_KEYS.forEach((key) => localStorage.removeItem(key));
+        editingTaskId = null;
+        selectedDate = new Date();
+        selectedDate.setHours(12, 0, 0, 0);
+        renderUserName();
+        renderSemesterLabel();
+        populateAccountInputs();
+        renderDate();
+    }
+
+    function loadAllDemoData() {
+        const demoTasks = generateDemoTasksByDate();
+        const demoAssignments = generateDemoAssignmentsData();
+
+        localStorage.setItem(TASKS_KEY, JSON.stringify(demoTasks));
+        localStorage.setItem(SUBJECTS_KEY, JSON.stringify(demoAssignments.subjects));
+        localStorage.setItem(ASSIGNMENTS_KEY, JSON.stringify(demoAssignments.assignments));
+        localStorage.setItem(USER_NAME_KEY, "Demo Student");
+        localStorage.setItem(SEMESTER_KEY, DEFAULT_SEMESTER_LABEL);
+
+        editingTaskId = null;
+        selectedDate = new Date();
+        selectedDate.setHours(12, 0, 0, 0);
+        renderUserName();
+        renderSemesterLabel();
+        populateAccountInputs();
+        renderDate();
+    }
+
     /* EVENTS WIRING (Clicks) - so that specific actions are performed based on clicks: */
     addTaskBtn.addEventListener("click", openModal);
     deleteBtn.addEventListener("click", deleteTask);
@@ -699,5 +955,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    if (resetAppDataBtn) {
+        resetAppDataBtn.addEventListener("click", resetAllAppData);
+    }
+
+    if (loadDemoDataBtn) {
+        loadDemoDataBtn.addEventListener("click", loadAllDemoData);
+    }
+
+    if (saveAccountBtn) {
+        saveAccountBtn.addEventListener("click", saveAccountSettings);
+    }
+
+    renderUserName();
+    renderSemesterLabel();
+    populateAccountInputs();
     renderDate(); // IMPORTANT: when the date changes, the tasks need to be re-rendered to avoid confusion
 });

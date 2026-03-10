@@ -272,6 +272,45 @@ body.nav-collapsed .system-settings {
 .setting-name { font-weight: 700; }
 .setting-desc { font-size: 12px; opacity: 0.75; margin-top: 2px; }
 
+.setting-action-btn {
+    min-width: 84px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.setting-action-btn:hover {
+    transform: scale(1.03);
+    filter: brightness(1.04);
+}
+
+.setting-action-btn.danger {
+    background: #d84c4c;
+    border-color: #b63b3b;
+}
+
+.setting-action-btn.success {
+    background: #2f9a4a;
+    border-color: #227738;
+}
+
+.setting-account-input {
+    width: 130px;
+    max-width: 100%;
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1px solid #b9b9b9;
+    font-family: inherit;
+    font-size: 13px;
+    margin-right: 10px;
+    box-sizing: border-box;
+}
+
 .switch {
     position: relative;
     display: inline-block;
@@ -559,7 +598,7 @@ body.nav-collapsed .system-settings {
     display: grid;
     grid-template-columns: 30px minmax(0, 1fr) 30px;
     align-items: center;
-    width: calc(var(--pie-size) + 36px);
+    width: calc(var(--pie-size) + 80px);
     max-width: 100%;
     justify-self: center;
 }
@@ -718,10 +757,10 @@ body.nav-collapsed .system-settings {
 .btn-secondary {
     font-size: 14px;
     border-radius: 5px;
-    background: rgba(255, 255, 255, 0.6);
+    background-color: rgb(141, 157, 141);
     border: 2px solid black;
     color: black;
-    width: 60px;
+    width: 70px;
     height: 30px;
     align-self: center;
     justify-self: center;
@@ -735,6 +774,24 @@ body.nav-collapsed .system-settings {
 }
 
 /*if i wanna add specific styling for the reset btn then it can go here under the "btn-secondary" class */
+.reset-btn {
+    font-size: 14px;
+    border-radius: 5px;
+    background-color: rgba(144, 190, 144, 0.6);
+    border: 2px solid black;
+    color: black;
+    width: 70px;
+    height: 30px;
+    align-self: center;
+    justify-self: center;
+}
+
+.reset-btn:hover {
+    background-color: rgb(80, 90, 80);
+    cursor: pointer;
+    border-color: grey;
+    color: black;
+}
 
 .controls-group {
     display: grid;
@@ -765,7 +822,7 @@ body.nav-collapsed .system-settings {
 
 #assignments-sort, #assignments-filter {
     width: 100%;
-    max-width: 160px;
+    max-width: 155px;
 }
 
 /* Right widgets column */

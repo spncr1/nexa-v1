@@ -42,6 +42,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const panels = document.querySelectorAll(".settings-panel");
     const subtitle = document.getElementById("settings-subtitle");
     const darkToggle = document.getElementById("dark-mode-toggle");
+    const resetAppDataBtn = document.getElementById("reset-app-data-btn");
+    const loadDemoDataBtn = document.getElementById("load-demo-data-btn");
+    const accountNameInput = document.getElementById("account-name-input");
+    const accountSemesterInput = document.getElementById("account-semester-input");
+    const saveAccountBtn = document.getElementById("save-account-btn");
 
     /* Add Assignment elements */
     const addAssignmentBtn = document.getElementById("add-assignment-btn");
@@ -72,6 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const hoverSound = new Audio("/Sfx/omnitrixTurnOn.MP3");
 
     const ASSIGNMENTS_KEY = "studenthub_assignments";
+    const TASKS_KEY = "tasksByDate";
     let editingAssignmentId = null;
 
     /* Widget elements */
@@ -80,6 +86,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Storage
     const STORAGE_KEY = "studenthub_subjects";
+    const USER_NAME_KEY = "studenthub_user_name";
+    const SEMESTER_KEY = "studenthub_semester_label";
+    const DEFAULT_USER_NAME = "Student";
+    const DEFAULT_SEMESTER_LABEL = "Autumn Session 2026";
+    const APP_DATA_KEYS = [TASKS_KEY, STORAGE_KEY, ASSIGNMENTS_KEY, USER_NAME_KEY, SEMESTER_KEY];
+
+    function loadUserName() {
+        const saved = localStorage.getItem(USER_NAME_KEY);
+        return saved && saved.trim() ? saved : DEFAULT_USER_NAME;
+    }
+
+    function loadSemesterLabel() {
+        const saved = localStorage.getItem(SEMESTER_KEY);
+        return saved && saved.trim() ? saved : DEFAULT_SEMESTER_LABEL;
+    }
+
+    function renderSemesterLabel() {
+        const labels = document.querySelectorAll(".semester-label");
+        if (!labels.length) return;
+        labels.forEach((el) => {
+            el.textContent = `(${loadSemesterLabel()})`;
+        });
+    }
+
+    function populateAccountInputs() {
+        if (accountNameInput) {
+            accountNameInput.value = loadUserName();
+        }
+        if (accountSemesterInput) {
+            accountSemesterInput.value = loadSemesterLabel();
+        }
+    }
+
+    function saveAccountSettings() {
+        const nameValue = (accountNameInput?.value || "").trim() || DEFAULT_USER_NAME;
+        const semesterValue = (accountSemesterInput?.value || "").trim() || DEFAULT_SEMESTER_LABEL;
+
+        localStorage.setItem(USER_NAME_KEY, nameValue);
+        localStorage.setItem(SEMESTER_KEY, semesterValue);
+        populateAccountInputs();
+        renderSemesterLabel();
+    }
 
     function loadSubjects() {
         try {
@@ -125,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!subjects.length) {
             const li = document.createElement("li");
-            li.innerHTML = `<button type="button" class="subject-item" disabled>No subjects yet </button>`;
+            li.textContent = "No subjects yet.";
             subjectsListEl.appendChild(li);
             return;
         }
@@ -643,7 +691,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const task = assignmentTask.value.trim();
         if (!task) {
-            assignmentStatusText.textContent = "Task  name is required.";
+            assignmentStatusText.textContent = "Task name is required.";
             return;
         }
 
@@ -714,6 +762,215 @@ document.addEventListener("DOMContentLoaded", () => {
         renderDashboard();
     }
 
+    function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function pick(list) {
+        return list[randomInt(0, list.length - 1)];
+    }
+
+    function hasAnyAppData() {
+        return APP_DATA_KEYS.some((key) => {
+            const raw = localStorage.getItem(key);
+            if (raw === null || raw.trim() === "") return false;
+
+            try {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) return parsed.length > 0;
+                if (parsed && typeof parsed === "object") return Object.keys(parsed).length > 0;
+                return true;
+            } catch {
+                return true;
+            }
+        });
+    }
+
+    function formatISODate(dateObj) {
+        const y = dateObj.getFullYear();
+        const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+        const d = String(dateObj.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+    }
+
+    function resetAllAppData() {
+        if (!hasAnyAppData()) {
+            alert("No app data to reset.");
+            return;
+        }
+
+        const confirmed = window.confirm(
+            "Reset all app data? This will permanently delete all saved tasks, subjects, and assignments across the application."
+        );
+        if (!confirmed) return;
+
+        APP_DATA_KEYS.forEach((key) => localStorage.removeItem(key));
+        editingAssignmentId = null;
+        editingSubjectId = null;
+
+        if (systemSettingsModal && !systemSettingsModal.classList.contains("hidden")) {
+            closeSystemSettings();
+        }
+        if (subjectModal && !subjectModal.classList.contains("hidden")) {
+            closeSubjectModal();
+        }
+        closeViewAssignmentModal();
+        renderSubjects(loadSubjects());
+        populateCourseOptions();
+        renderAssignments();
+        rebuildCarousel();
+        renderSemesterLabel();
+        populateAccountInputs();
+        renderTotalCourseAssignmentsWidget();
+        renderDashboard();
+        updateSubjectsOverflowHint();
+    }
+
+    function generateDemoAssignmentsData() {
+        const subjectPool = [
+            "Introduction to (University Studies)",
+            "Research Methods",
+            "Critical Thinking",
+            "Professional Practice",
+            "Global Perspectives",
+            "Contemporary Issues",
+            "Applies Studies",
+            "Ethics and Society",
+            "Global Perspectives",
+            "Principles of Communication",
+            "Statistics",
+            "Academic Writing",
+            "Business Fundamentals"
+        ];
+        const taskPool = [
+            "Quiz",
+            "Lab Report",
+            "Case Study",
+            "Team Presentation",
+            "Project Milestone",
+            "Final Exam",
+            "Reflection",
+            "Research Summary",
+            "Project Report",
+            "Group Presentation",
+            "Research Paper",
+            "Reflection Journal",
+            "Literature Review"
+        ];
+        const descPool = [
+            "Summarise the key concepts and support your ideas with references.",
+            "Apply the weekly material to analyse the given scenario.",
+            "Work with your group to deveop and present your findings.",
+            "Demonstrate your understanding of the topic through clear examples.",
+            "Use credible sources to support your arguments.",
+            "Structure your work clearly and reference all sources",
+            "Focus on the main themes discussed during the semester.",
+            "Provide a concise explanation of your reasoning."
+        ];
+        const priorities = ["low", "medium", "high"];
+        const statuses = ["not-started", "in-progress", "completed"];
+        const now = Date.now();
+        const today = new Date();
+        const subjectCount = randomInt(4, 5);
+        const subjects = [];
+        const assignments = [];
+
+        const shuffledSubjects = [...subjectPool].sort(() => Math.random() - 0.5).slice(0, subjectCount);
+
+        shuffledSubjects.forEach((name, subjectIndex) => {
+            const subjectId = `subject_demo_${now}_${subjectIndex}`;
+            subjects.push({
+                id: subjectId,
+                name,
+                createdAt: now - subjectIndex * 1000,
+                updatedAt: now - subjectIndex * 1000
+            });
+
+            const assignmentCount = randomInt(1, 5);
+            const weightingTemplates = {
+                1: [
+                    [100]
+                ],
+                2: [
+                    [50, 50],
+                    [40, 60],
+                    [30, 70]
+                ],
+                3: [
+                    [20, 30, 50],
+                    [25, 25, 50],
+                    [30, 30, 40],
+                    [20, 40, 40]
+                ],
+                4: [
+                    [25, 25, 25, 25],
+                    [20, 20, 20, 40],
+                    [10, 20, 30, 40],
+                    [15, 20, 25, 40]
+                ],
+                5: [
+                    [10, 15, 20, 25, 30],
+                    [10, 20, 20, 20, 30],
+                    [15, 15, 20, 25, 25],
+                    [10, 10, 20, 30, 30]
+                ]
+            };
+
+            function shuffleArray(arr) {
+                return [...arr].sort(() => Math.random() - 0.5);
+            }
+
+            function pickWeightings(count) {
+                const templates = weightingTemplates[count];
+                const chosen = pick(templates);
+                return shuffleArray(chosen);
+            }
+
+            const weightings = pickWeightings(assignmentCount);
+
+            for (let i = 0; i < assignmentCount; i += 1) {
+                const dueDate = new Date(today);
+                dueDate.setDate(today.getDate() + randomInt(2, 120));
+                const taskType = pick(taskPool);
+
+                assignments.push({
+                    id: `assignment_demo_${now}_${subjectIndex}_${i}`,
+                    courseId: subjectId,
+                    task: `${taskType} ${i + 1}`,
+                    description: pick(descPool),
+                    priority: pick(priorities),
+                    status: pick(statuses),
+                    dueDate: formatISODate(dueDate),
+                    weighting: Number(weightings[i].toFixed(1)),
+                    createdAt: now - randomInt(0, 10) * 86400000,
+                    updatedAt: now - randomInt(0, 3) * 3600000
+                });
+            }
+        });
+
+        return { subjects, assignments };
+    }
+
+    function loadDemoAssignmentsData() {
+        const demo = generateDemoAssignmentsData();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(demo.subjects));
+        localStorage.setItem(ASSIGNMENTS_KEY, JSON.stringify(demo.assignments));
+        localStorage.setItem(USER_NAME_KEY, "Demo Student");
+        localStorage.setItem(SEMESTER_KEY, DEFAULT_SEMESTER_LABEL);
+
+        editingAssignmentId = null;
+        editingSubjectId = null;
+        renderSubjects(loadSubjects());
+        populateCourseOptions();
+        renderAssignments();
+        rebuildCarousel();
+        renderSemesterLabel();
+        populateAccountInputs();
+        renderTotalCourseAssignmentsWidget();
+        renderDashboard();
+        updateSubjectsOverflowHint();
+    }
+
     // Widget FUNCTIONS
     function createPieSVG(assignmentsForSubject) {
         const cssPieSize = parseFloat(
@@ -768,7 +1025,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const pct = ratio * 100;
             const midAngle = startAngle + sliceAngle / 2;
 
-            if (sliceAngle >= (2 * Math.PI - 1e-6)) {
+            const isFullCircle = sliceAngle >= (2 * Math.PI - 1e-6);
+
+            if (isFullCircle) {
                 const circle = document.createElementNS(svgNS, "circle");
                 circle.setAttribute("cx", radius);
                 circle.setAttribute("cy", radius);
@@ -802,8 +1061,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Label inside each slice: task + weighting %
             const labelRadius = radius * 0.62;
-            const tx = radius + Math.cos(midAngle) * labelRadius;
-            const ty = radius + Math.sin(midAngle) * labelRadius;
+            const tx = isFullCircle ? radius : radius + Math.cos(midAngle) * labelRadius;
+            const ty = isFullCircle ? radius : radius + Math.sin(midAngle) * labelRadius;
 
             const label = document.createElementNS(svgNS, "text");
             label.setAttribute("x", tx);
@@ -935,7 +1194,7 @@ document.addEventListener("DOMContentLoaded", () => {
         legendEl.innerHTML = "";
 
         if (!rows.length) {
-            barsEl.innerHTML = `<div style="opacity:.75;font-size:12px;padding:10px;">No subjects yet.</div>`;
+            barsEl.textContent = "No subjects yet.";
             return;
         }
 
@@ -1232,6 +1491,9 @@ document.addEventListener("DOMContentLoaded", () => {
     assignmentsSort.addEventListener("change", renderAssignments);
     assignmentsFilter.addEventListener("change", renderAssignments);
     resetAssignmentsBtn?.addEventListener("click", resetAllAssignments);
+    resetAppDataBtn?.addEventListener("click", resetAllAppData);
+    loadDemoDataBtn?.addEventListener("click", loadDemoAssignmentsData);
+    saveAccountBtn?.addEventListener("click", saveAccountSettings);
 
     confirmAssignmentBtn.addEventListener("click", () => {
         if (editingAssignmentId) saveAssignmentEdits();
@@ -1277,25 +1539,13 @@ document.addEventListener("DOMContentLoaded", () => {
         renderCarousel();
     });
 
-    const SEMESTER_KEY = "studenthub_semester_label";
-
-    function loadSemesterLabel() {
-        const saved = localStorage.getItem(SEMESTER_KEY);
-        return saved && saved.trim() ? saved : "Autumn Session 2026";
-    }
-
-    function renderSemesterLabel() {
-        const el = document.getElementById("semester-label");
-        if (!el) return;
-        el.textContent = `(${loadSemesterLabel()})`;
-    }
-
      // Initial render
     renderSubjects(loadSubjects());
     populateCourseOptions();
     renderAssignments();
     rebuildCarousel();
     renderSemesterLabel();
+    populateAccountInputs();
     renderTotalCourseAssignmentsWidget();
     renderDashboard();
     subjectsListEl.addEventListener("scroll", updateSubjectsOverflowHint);
