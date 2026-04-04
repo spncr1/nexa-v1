@@ -2,18 +2,18 @@
 <html lang="en">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>NEXA</title>
+        <title>Student Hub (Lite) Tasks</title>
         
         <!-- CSS stylesheet -->
-        <link rel="stylesheet" href="/Styling/style.css">
-        <link rel="stylesheet" href="/Styling/dark-mode.css">
+        <link rel="stylesheet" href="/client/features/Tasks/tasks.css">
+        <link rel="stylesheet" href="/client/shared/styles/dark-mode.css">
 
         <!-- Fonts will go here (once decided)... -->
         
         <!-- Favicon -->
-        <link rel="icon" type="image/png" href="/Images/student-hub-lite-favicon-v1.png">
+        <link rel="icon" type="image/png" href="/client/shared/assets/Images/student-hub-lite-favicon-v1.png">
     </head>
-    <body>
+    <body class="tasks-page">
 
         <nav class="navbar">
             <button class="menu-toggle" aria-label="Toggle navigation">
@@ -21,119 +21,94 @@
             </button>
             
             <ul>
-                <li><a href="/index.html" class="active">Home</a></li>
-                <li><a href="/Tasks/tasks.html">Tasks</a></li>
-                <li><a href="/Assignments/assignments.html">Assignments</a></li>
+                <li><a href="/client/app/index.html">Home</a></li>
+                <li><a href="/client/features/Tasks/tasks.html" class="active">Tasks</a></li>
+                <li><a href="/client/features/Assignments/assignments.html">Assignments</a></li>
             </ul>
         </nav>
 
         <main class="content">
-            <button id="today-btn">TODAY</button>
-            
-            <div class="date-header">
+            <header class="tasks-page-header">
+                <h1 class="page-title">TASKS PLANNER</h1>
+            </header>
 
-                <div class="date-row">
-                    <button id="previous-btn"><</button>
+            <section class="tasks-controls" aria-label="Tasks controls">
+                <div class="tasks-nav-group">
+                    <button id="today-btn">TODAY</button>
+                    <button id="previous-btn" class="tasks-nav-btn" aria-label="Previous period"><</button>
+                    <button id="next-btn" class="tasks-nav-btn" aria-label="Next period">></button>
+                </div>
 
-                    <div class="date-text">
-                        <h1 id="date-display"></h1>
-                        <h2 id="day-display"></h2>
+                <div class="tasks-range-label-wrap">
+                    <h2 id="tasks-range-label">Week of ...</h2>
+                </div>
+
+                <div class="tasks-view-toggle" role="tablist" aria-label="Calendar view">
+                    <button id="week-view-btn" class="btn-secondary active" type="button" role="tab" aria-selected="true">Week</button>
+                    <button id="month-view-btn" class="btn-secondary" type="button" role="tab" aria-selected="false">Month</button>
+                </div>
+            </section>
+
+            <section id="tasks-week-view" class="tasks-surface" aria-label="Weekly tasks schedule">
+                <div class="tasks-grid-shell">
+                    <div class="tasks-week-header-row">
+                        <div class="tasks-time-header">TIME</div>
+                        <div id="tasks-week-header" class="tasks-week-header"></div>
                     </div>
 
-                    <button id="next-btn">></button>
+                    <div class="tasks-week-body-row">
+                        <div id="tasks-week-time-rail" class="tasks-time-rail" aria-hidden="true"></div>
+                        <div id="tasks-week-body" class="tasks-week-body"></div>
+                    </div>
                 </div>
-            </div>
-            
-            <hr>
-            <h2>Welcome, <span id="welcome-name"></span>.</h2> <!-- just a placeholder for now, will use a variable that stores the logged in user later to replace this -->
+            </section>
 
-            <!-- Today's Tasks & Assignments Due dashboard cards -->
-            <div class="dashboard-cards">
-                    <div class="today-tasks">
-                    <div class="today-tasks-header">
-                        <h2>TODAY'S TASKS</h2>
+            <template id="week-slot-template">
+                <div class="week-slot">
+                    <button type="button" class="slot-add-btn" aria-label="Add task">+</button>
+                    <div class="slot-quarter-grid">
+                        <div class="slot-quarter" data-quarter="0"></div>
+                        <div class="slot-quarter" data-quarter="1"></div>
+                        <div class="slot-quarter" data-quarter="2"></div>
+                        <div class="slot-quarter" data-quarter="3"></div>
+                    </div>
+                </div>
+            </template>
 
-                        <div class="today-tasks-controls">
-                            <button class="btn-primary" id="add-task-btn">+</button>
+            <section id="tasks-month-view" class="tasks-surface hidden" aria-label="Monthly tasks schedule">
+                <div class="tasks-month-layout">
+                    <div class="tasks-month-calendar">
+                        <div class="tasks-month-weekdays" aria-hidden="true">
+                            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                        </div>
+                        <div id="tasks-month-days" class="tasks-month-days" role="grid" aria-label="Month"></div>
+                    </div>
 
-                            <div class="controls-group">
-                                <label class="control-label" for="sort-select">Sort</label>
-                                <select id="sort-select" class="control-select">
-                                    <option value="az">A-Z</option>
-                                    <option value="za">Z-A</option>
-                                    <option value="priority">Priority</option>
-                                    <option value="lastUpdated">Last Updated</option>
-                                    <option value="createdNewOld">Created (new -> old)</option>
-                                    <option value="createdOldNew">Created (old -> new)</option>
-                                </select>
-                            </div>
+                    <div class="tasks-month-agenda">
+                        <h3 id="tasks-selected-date-label" class="tasks-selected-date-label">Selected date</h3>
+                        <div class="tasks-month-agenda-grid">
+                            <div id="tasks-month-time-rail" class="tasks-time-rail" aria-hidden="true"></div>
+                            <div id="tasks-month-body" class="tasks-month-body"></div>
                         </div>
                     </div>
-
-                    <!-- Task list rendered here via JS -->
-                    <ul id="task-list"></ul>
                 </div>
+            </section>
 
-                <div class="assignments-due">
-                    <div class="assignments-due-header">
-                        <h2>ASSIGNMENTS DUE TODAY</h2>
-                    </div>
-                    <ul id="assignments-due-list"></ul>
-                    <div id="assignments-due-more" class="assignments-due-more hidden"></div>
-                </div>
+            <div id="modal-backdrop" class="hidden"></div>
 
-                <div class="calendar-widget">
-                    <div class="calendar-widget-header">
-                        <h2 id="calendar-month-label">MONTH YEAR</h2>
-                    </div>
-                    <div class="calendar-weekdays" aria-hidden="true">
-                        <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
-                    </div>
-                    <div id="calendar-days" class="calendar-days" role="grid" aria-label="Calendar"></div>
-                </div>
-            </div>
-
-            <template id="assignment-due-item-template">
-                <li class="assignment-due-item">
-                    <div class="assignment-due-task"></div>
-                    <div class="assignment-due-subject"></div>
-                    <div class="assignment-due-meta">
-                        <span class="assignment-due-date-label"></span>
-                        <span class="assignment-priority-group">
-                            <span class="assignment-priority-dot" aria-hidden="true"></span>
-                            <span class="assignment-priority-label"></span>
-                        </span>
-                        <span class="assignment-status-label"></span>
-                    </div>
-                </li>
-            </template>
-
-            <template id="assignment-due-empty-template">
-                <li class="assignment-due-empty">No assignments due on this date.</li>
-            </template>
-
-            <template id="task-empty-template">
-                <li class="task-empty">No tasks to show yet.</li>
-            </template>
-
-             <div id="modal-backdrop" class="hidden"></div>
-
-             <!-- ADD TASK MODAL -->
-             <div id="add-task-modal" class="hidden" role="dialog" aria-modal="true">
+            <div id="add-task-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Add task">
                 <h3 id="task-modal-title" align="center">ADD TASK</h3>
-                <!-- Title -->
-                 <div class="form-row">
+
+                <div class="form-row">
                     <label for="task-title"><strong>Title</strong></label>
                     <input id="task-title" type="text" placeholder="e.g., Finish tutorial">
-                 </div>
+                </div>
 
-                <!-- Notes -->
                 <div class="form-row">
                     <label for="task-notes"><strong>Notes</strong></label>
                     <textarea id="task-notes" rows="3" placeholder="Optional..."></textarea>
                 </div>
 
-                <!-- Priority -->
                 <div class="form-row">
                     <label for="task-priority"><strong>Priority</strong></label>
                     <select id="task-priority">
@@ -141,19 +116,24 @@
                         <option value="medium" selected>Medium</option>
                         <option value="low">Low</option>
                     </select>
-                </div> 
-                
-                 <!-- success message (if added task successfully) -->
-                  <p id="task-status" class="task-status"></p>
+                </div>
 
-                 <div class="modal-actions">
+                <div class="form-row">
+                    <label for="task-time"><strong>Time</strong></label>
+                    <input id="task-time" type="time" step="60">
+                </div>
+
+                <p id="task-status" class="task-status"></p>
+                <p id="task-schedule-context" class="task-schedule-context"></p>
+
+                <div class="modal-actions">
                     <button class="btn-secondary" id="cancel-task-btn">Cancel</button>
                     <button class="btn-secondary hidden" id="delete-task-btn">Delete</button>
-                    <button class="btn-secondary" id="confirm-task-btn">Add</button> <!-- task adding confirmation -->
-                 </div>
-             </div>
+                    <button class="btn-secondary" id="confirm-task-btn">Add</button>
+                </div>
+            </div>
 
-             <!-- SYSTEM SETTINGS MODAL -->
+            <!-- SYSTEM SETTINGS MODAL -->
               <div id="system-settings-modal" class="hidden" role="dialog" aria-modal="true" aria-label="System Settings">
                 <div class="settings-layout">
                     <aside class="settings-sidebar">
@@ -175,14 +155,14 @@
                             <div class="settings-panel" data-panel="general">
                                 <div class="setting-row">
                                     <div>
-                                        <div class="setting-labels">Reset App Data?</div>
+                                        <div class="setting-labels">Reset App Data</div>
                                     </div>
                                     <button type="button" id="reset-app-data-btn" class="setting-action-btn danger">Reset</button>
                                 </div>
 
                                 <div class="setting-row">
                                     <div>
-                                        <div class="setting-labels">Load Demo Data?</div>
+                                        <div class="setting-labels">Load Demo Data</div>
                                     </div>
                                     <button type="button" id="load-demo-data-btn" class="setting-action-btn success">Load</button>
                                 </div>
@@ -234,6 +214,6 @@
              </div>
         </main>
         
-        <script src="/index.js"></script>
+        <script src="/client/features/Tasks/tasks.js"></script>
     </body>
 </html>

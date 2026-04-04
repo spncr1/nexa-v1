@@ -895,12 +895,12 @@ document.addEventListener("DOMContentLoaded", () => {
         assignmentsDueCard.setAttribute("role", "button");
         assignmentsDueCard.setAttribute("tabindex", "0");
         assignmentsDueCard.addEventListener("click", () => {
-            window.location.href = "/Assignments/assignments.html";
+            window.location.href = "/client/features/Assignments/assignments.html";
         });
         assignmentsDueCard.addEventListener("keydown", (e) => {
             if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                window.location.href = "/Assignments/assignments.html";
+                window.location.href = "/client/features/Assignments/assignments.html";
             }
         });
     }

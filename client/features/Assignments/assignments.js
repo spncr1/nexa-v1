@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const assignmentsSort = document.getElementById("assignments-sort");
     const assignmentsFilter = document.getElementById("assignments-filter");
     const resetAssignmentsBtn = document.getElementById("reset-btn");
-    const hoverSound = new Audio("/Sfx/omnitrixTurnOn.MP3");
+    const hoverSound = new Audio("/client/shared/assets/Sfx/omnitrixTurnOn.MP3");
 
     const ASSIGNMENTS_KEY = "studenthub_assignments";
     const TASKS_KEY = "tasksByDate";
