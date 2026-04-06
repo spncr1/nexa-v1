@@ -1240,8 +1240,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let dashIndex = 0;
     const dashSlides = ["status", "priority"];
 
+    // Swipe configuration (Assessment weightings + Assignment Dashboard cards for now):
+    const SWIPE_X_THRESHOLD = 45; // Minimum horizontal swipe distance before we treat a gesture as intentional navigation
+
     function statusLabel(s) {
-    // your stored values are: not-started, in-progress, completed
+    // stored values are: not-started, in-progress, completed
     if (s === "not-started") return "Not started";
     if (s === "in-progress") return "In progress";
     if (s === "completed") return "Completed";
@@ -1249,7 +1252,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function priorityLabel(s) {
-    // your stored values are: not-started, in-progress, completed
+    // stored values are: not-started, in-progress, completed
     if (s === "low") return "Low";
     if (s === "medium") return "Medium";
     if (s === "high") return "High";
@@ -1437,15 +1440,87 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     }
 
+    /* Swipe functionality implementation */
+    function goToPreviousDashboardSlide() {
+        dashIndex = (dashIndex - 1 + dashSlides.length) % dashSlides.length;
+        renderDashboard();
+    }
+
+    function goToNextDashboardSlide() {
+        dashIndex = (dashIndex + 1) % dashSlides.length;
+        renderDashboard();
+    }
+
+    function goToPreviousCarouselSlide() {
+        if (!carouselSubjects.length) return;
+        carouselIndex = (carouselIndex - 1 + carouselSubjects.length) % carouselSubjects.length;
+        renderCarousel();
+    }
+
+    function goToNextCarouselSlide() {
+        if (!carouselSubjects.length) return;
+        carouselIndex = (carouselIndex + 1) % carouselSubjects.length;
+        renderCarousel();
+    }
+
+    function attachHorizontalSwipeNavigation(container, { onPrev, onNext }) {
+        if (!container) return;
+
+        let accumulatedDeltaX = 0;
+        let gestureTriggered = false;
+        let gestureResetTimer = null;
+
+        container.addEventListener("wheel", (event) => {
+            // Keep buttons and other explicit controls behaving normally.
+            if (event.target.closest("button")) return; // basically, leave the button and existing behaviour alone IF it exists
+
+            const horizontalMovement = Math.abs(event.deltaX);
+            const verticalMovement = Math.abs(event.deltaY);
+
+            // Only treat clearly horizontal gestures as swipe navigation.
+            // This avoids overriding normal page scrolling (vertical).
+            if (horizontalMovement <= verticalMovement || horizontalMovement < 2) {
+                accumulatedDeltaX = 0;
+                return;
+            }
+
+            event.preventDefault();
+
+            // Every wheel event refreshes the current gesture window.
+            // We only allow a new swipe once wheel input has gone quiet.
+            if (gestureResetTimer) clearTimeout(gestureResetTimer);
+            gestureResetTimer = setTimeout(() => {
+                accumulatedDeltaX = 0;
+                gestureTriggered = false;
+            }, 220);
+
+            // If this gesture already changed slide once, ignore the rest
+            // of the same swipe burst, including aggressive momentum events.
+            if (gestureTriggered) return;
+
+            accumulatedDeltaX += event.deltaX;
+            if (Math.abs(accumulatedDeltaX) < SWIPE_X_THRESHOLD) return;
+
+            if (accumulatedDeltaX > 0) {
+                onNext();
+            } else {
+                onPrev();
+            }
+
+            // Mark this entire gesture as consumed so any remaining momentum
+            // from the same swipe cannot skip extra slides.
+            gestureTriggered = true;
+            accumulatedDeltaX = 0;
+        }, { passive: false });
+    }
+
     /* dashboard nav wiring */
     document.getElementById("dash-prev")?.addEventListener("click", () => {
-    dashIndex = (dashIndex - 1 + dashSlides.length) % dashSlides.length;
-    renderDashboard();
+        goToPreviousDashboardSlide();
     });
 
     document.getElementById("dash-next")?.addEventListener("click", () => {
-    dashIndex = (dashIndex + 1) % dashSlides.length;
-    renderDashboard();
+        goToNextDashboardSlide();
     });
 
     // Wiring up the events (subjects)
@@ -1529,15 +1604,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Wiring up the events (widgets)
     document.getElementById("carousel-prev")?.addEventListener("click", () => {
-        if (!carouselSubjects.length) return;
-        carouselIndex = (carouselIndex - 1 + carouselSubjects.length) % carouselSubjects.length;
-        renderCarousel();
+        goToPreviousCarouselSlide();
     });
 
     document.getElementById("carousel-next")?.addEventListener("click", () => {
-        if (!carouselSubjects.length) return;
-        carouselIndex = (carouselIndex + 1 + carouselSubjects.length) % carouselSubjects.length;
-        renderCarousel();
+        goToNextCarouselSlide();
+    });
+
+    // Adds a light trackpad/two-finger swipe layer on top of the existing prev/next functionality facilitated by buttons
+    // arrow-button navigation for the two carousel-like cards only.
+    attachHorizontalSwipeNavigation(document.getElementById("weighting-carousel"), {
+        onPrev: goToPreviousCarouselSlide,
+        onNext: goToNextCarouselSlide
+    });
+
+    attachHorizontalSwipeNavigation(document.querySelector(".dash-widget"), {
+        onPrev: goToPreviousDashboardSlide,
+        onNext: goToNextDashboardSlide
     });
 
      // Initial render
