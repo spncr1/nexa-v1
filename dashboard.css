@@ -731,13 +731,47 @@ h2 {
     border-radius: 10px;
     padding: 14px 12px;
     gap: 10px;
-    min-height: 260px;
+
 }
 
 .calendar-widget-header h2 {
     margin: 0;
     text-align: left;
     line-height: 1.05;
+}
+
+.calendar-widget-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.calendar-widget-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.calendar-nav {
+    font-size: 20px;
+    border-radius: 20px;
+    background-color: black;
+    border: 2px solid grey;
+    color: white;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-grid;
+    place-items: center;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.calendar-nav:hover {
+    background-color: rgb(80, 90, 80);
+    border-color: black;
+    color: black;
 }
 
 .calendar-weekdays {
@@ -756,6 +790,15 @@ h2 {
     gap: 6px;
 }
 
+.calendar-day-cell {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 3px;
+    min-height: 52px;
+}
+
 .calendar-day {
     border: none;
     background: transparent;
@@ -767,6 +810,63 @@ h2 {
     font-weight: 600;
     color: #111;
     cursor: pointer;
+}
+
+.calendar-day-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-height: 8px;
+}
+
+.calendar-day-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: rgb(3, 46, 8);
+}
+
+.calendar-day-tooltip {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%);
+    display: none;
+    min-width: 140px;
+    max-width: 180px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 2px solid rgb(3, 46, 8);
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+    text-align: left;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.calendar-day-cell:hover .calendar-day-tooltip,
+.calendar-day-cell:focus-within .calendar-day-tooltip {
+    display: grid;
+    gap: 6px;
+}
+
+.calendar-day-tooltip-item {
+    display: grid;
+    gap: 2px;
+}
+
+.calendar-day-tooltip-task {
+    font-size: 12px;
+    font-weight: 700;
+    color: #111;
+    line-height: 1.2;
+}
+
+.calendar-day-tooltip-subject {
+    font-size: 11px;
+    color: #555;
+    line-height: 1.2;
 }
 
 .calendar-day:hover {
@@ -1260,6 +1360,14 @@ body.nav-collapsed .system-settings {
         font-size: 17px;
     }
 
+    .calendar-widget-header {
+        gap: 10px;
+    }
+
+    .calendar-widget-nav {
+        gap: 6px;
+    }
+
     .calendar-widget-header h2 {
         font-size: 24px;
     }
@@ -1275,10 +1383,26 @@ body.nav-collapsed .system-settings {
         min-height: auto;
     }
 
+    .calendar-nav {
+        width: 30px;
+        height: 30px;
+        font-size: 18px;
+    }
+
+    .calendar-day-cell {
+        min-height: 48px;
+    }
+
     .calendar-day {
         width: 34px;
         height: 34px;
         font-size: 18px;
+    }
+
+    .calendar-day-tooltip {
+        min-width: 126px;
+        max-width: 156px;
+        padding: 7px 8px;
     }
 
     .system-settings {

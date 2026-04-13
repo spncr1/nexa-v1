@@ -600,6 +600,40 @@ body.dark-mode .calendar-widget-header h2 {
     color: #ddd;
 }
 
+body.dark-mode .calendar-widget-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+body.dark-mode .calendar-widget-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+body.dark-mode .calendar-nav {
+    font-size: 20px;
+    border-radius: 20px;
+    background-color: white;
+    border: rgba(64, 84, 64, 0.7) 2px solid;
+    color: rgb(64, 84, 64);
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-grid;
+    place-items: center;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+body.dark-mode .calendar-nav:hover {
+    background: rgb(64, 84, 64, 0.7);
+    color: white;
+    border: rgb(64, 84, 64) 2px solid;
+}
+
 body.dark-mode .calendar-weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -620,6 +654,15 @@ body.dark-mode .calendar-days {
     gap: 6px;
 }
 
+body.dark-mode .calendar-day-cell {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 3px;
+    min-height: 52px;
+}
+
 body.dark-mode .calendar-day {
     border: none;
     background: transparent;
@@ -631,6 +674,63 @@ body.dark-mode .calendar-day {
     font-weight: 600;
     color: #ddd;
     cursor: pointer;
+}
+
+body.dark-mode .calendar-day-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-height: 8px;
+}
+
+body.dark-mode .calendar-day-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: #ddd;
+}
+
+body.dark-mode .calendar-day-tooltip {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%);
+    display: none;
+    min-width: 140px;
+    max-width: 180px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 2px solid rgb(64, 84, 64);
+    background: #111;
+    box-shadow: 0 10px 24px rgba(255, 255, 255, 0.12);
+    text-align: left;
+    z-index: 5;
+    pointer-events: none;
+}
+
+body.dark-mode .calendar-day-cell:hover .calendar-day-tooltip,
+body.dark-mode .calendar-day-cell:focus-within .calendar-day-tooltip {
+    display: grid;
+    gap: 6px;
+}
+
+body.dark-mode .calendar-day-tooltip-item {
+    display: grid;
+    gap: 2px;
+}
+
+body.dark-mode .calendar-day-tooltip-task {
+    font-size: 12px;
+    font-weight: 700;
+    color: #e9e9ea;
+    line-height: 1.2;
+}
+
+body.dark-mode .calendar-day-tooltip-subject {
+    font-size: 11px;
+    color: #bbb;
+    line-height: 1.2;
 }
 
 body.dark-mode .calendar-day:hover {
@@ -2271,6 +2371,14 @@ body.dark-mode .task-card {
         font-size: 17px;
     }
 
+    body.dark-mode .calendar-widget-header {
+        gap: 10px;
+    }
+
+    body.dark-mode .calendar-widget-nav {
+        gap: 6px;
+    }
+
     body.dark-mode #task-list,
     body.dark-mode #assignments-due-list {
         max-height: none;
@@ -2289,10 +2397,26 @@ body.dark-mode .task-card {
         min-height: auto;
     }
 
+    body.dark-mode .calendar-nav {
+        width: 30px;
+        height: 30px;
+        font-size: 18px;
+    }
+
+    body.dark-mode .calendar-day-cell {
+        min-height: 48px;
+    }
+
     body.dark-mode .calendar-day {
         width: 34px;
         height: 34px;
         font-size: 18px;
+    }
+
+    body.dark-mode .calendar-day-tooltip {
+        min-width: 126px;
+        max-width: 156px;
+        padding: 7px 8px;
     }
 
     body.dark-mode .system-settings {

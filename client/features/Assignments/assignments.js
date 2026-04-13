@@ -409,6 +409,23 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem(ASSIGNMENTS_KEY, JSON.stringify(assignments));
     }
 
+    function getSubjectWeightingTotal(courseId, excludeAssignmentId = null) {
+        return loadAssignments()
+            .filter(a => a.courseId === courseId && a.id !== excludeAssignmentId)
+            .reduce((total, assignment) => total + (Number(assignment.weighting) || 0), 0);
+    }
+
+    function getMissingRequiredAssignmentFields() {
+        const missingFields = [];
+
+        if (!assignmentCourse.value) missingFields.push("subject");
+        if (!assignmentTask.value.trim()) missingFields.push("task");
+        if (!assignmentWeight.value.trim()) missingFields.push("weighting");
+        if (!assignmentDue.value) missingFields.push("due date");
+
+        return missingFields;
+    }
+
     function formatDueDate(iso) {
         if (!iso) return "";
 
@@ -651,16 +668,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function addAssignment() {
         if (assignmentCourse.disabled) {
-            assignmentStatusText.textContent = "Add a subject first.";
+            window.alert("Add a subject first.");
+            return;
+        }
+
+        const missingFields = getMissingRequiredAssignmentFields();
+        if (missingFields.length === 1) {
+            window.alert(`You must enter a ${missingFields[0]} before saving this assignment.`);
+            return;
+        }
+
+        if (missingFields.length > 1) {
+            window.alert(`You must enter the following before saving this assignment: ${missingFields.join(", ")}.`);
             return;
         }
 
         const task = assignmentTask.value.trim();
-        if (!task) {
-            assignmentStatusText.textContent = "Task name is required.";
-            return;
-        }
-
         const desc = assignmentDesc.value.trim();
         if (wordCount(desc) > 500) {
             assignmentStatusText.textContent = "Description exceeds 500 words. Please enter less characters.";
@@ -672,6 +695,19 @@ document.addEventListener("DOMContentLoaded", () => {
         if (weighting !== null && !Number.isFinite(weighting)) {
             assignmentStatusText.textContent = "Weighting must be a number.";
             return;
+        }
+
+        const currentSubjectTotal = getSubjectWeightingTotal(assignmentCourse.value);
+        if (weighting !== null) {
+            const remaining = Math.max(0, 100 - currentSubjectTotal);
+
+            if (remaining === 0) {
+                window.alert(`This subject already has 100% allocated. No more assignments can be added.`);
+                return;
+            } else if (currentSubjectTotal + weighting > 100) {
+                window.alert(`This subject already has ${currentSubjectTotal}% allocated. You can only add up to ${remaining}% more.`);
+                return;
+            }
         }
 
         const now = Date.now();
@@ -701,12 +737,18 @@ document.addEventListener("DOMContentLoaded", () => {
     function saveAssignmentEdits() {
         if (!editingAssignmentId) return;
 
-        const task = assignmentTask.value.trim();
-        if (!task) {
-            assignmentStatusText.textContent = "Task name is required.";
+        const missingFields = getMissingRequiredAssignmentFields();
+        if (missingFields.length === 1) {
+            window.alert(`You must enter a ${missingFields[0]} before saving this assignment.`);
             return;
         }
 
+        if (missingFields.length > 1) {
+            window.alert(`You must enter the following before saving this assignment: ${missingFields.join(", ")}.`);
+            return;
+        }
+
+        const task = assignmentTask.value.trim();
         const desc = assignmentDesc.value.trim();
         if (wordCount(desc) > 500) {
             assignmentStatusText.textContent = "Description exceeds 500 words. Please enter less characters.";
@@ -722,6 +764,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const assignments = loadAssignments();
         const idx = assignments.findIndex(a => a.id === editingAssignmentId);
         if (idx === -1) return;
+
+        const currentSubjectTotal = getSubjectWeightingTotal(assignmentCourse.value, editingAssignmentId);
+        if (weighting !== null && currentSubjectTotal + weighting > 100) {
+            // From my POV, when editing I need to ignore this assignment's current weight,
+            // so the user can keep or reduce it without being blocked unfairly.
+            window.alert(`This subject already has ${currentSubjectTotal}% allocated outside this assignment. You can only set this assignment up to ${Math.max(0, 100 - currentSubjectTotal)}%.`);
+            return;
+        }
 
         assignments[idx] = {
             ...assignments[idx],

@@ -57,6 +57,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const upcomingAssignmentsWidget = document.querySelector(".upcoming-assignments-widget");
     const calendarMonthLabelEl = document.getElementById("calendar-month-label");
     const calendarDaysEl = document.getElementById("calendar-days");
+    const calendarPrevMonthBtn = document.getElementById("calendar-prev-month");
+    const calendarNextMonthBtn = document.getElementById("calendar-next-month");
 
     const sortSelect = document.getElementById("sort-select");
     let currentSortMode = localStorage.getItem("taskSortMode") || "createdNewOld"; // load saved sort mode (default: createdNewOld)
@@ -79,6 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Normalise the time to midday to avoid timezone issues
     selectedDate.setHours(12, 0, 0, 0);
+    let calendarViewDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1, 12, 0, 0, 0);
 
     let editingTaskId = null;
     const TASKS_KEY = "tasksByDate";
@@ -276,18 +279,63 @@ document.addEventListener("DOMContentLoaded", () => {
         return dateObj.toLocaleString("en-AU", { month: "long", year: "numeric" }).toUpperCase();
     }
 
+    function getCalendarAssignmentsByDate() {
+        const subjectsMap = loadSubjectsMap();
+        const assignmentsByDate = new Map();
+
+        loadAssignments().forEach((assignment) => {
+            const iso = (assignment?.dueDate || "").trim();
+            if (!iso) return;
+
+            const entries = assignmentsByDate.get(iso) || [];
+            entries.push({
+                id: assignment.id,
+                task: (assignment.task || "").trim() || "Assignment",
+                subject: subjectsMap.get(assignment.courseId) || "Unknown subject"
+            });
+            assignmentsByDate.set(iso, entries);
+        });
+
+        return assignmentsByDate;
+    }
+
+    function createCalendarTooltip(assignments) {
+        const tooltip = document.createElement("div");
+        tooltip.className = "calendar-day-tooltip";
+
+        assignments.forEach((assignment) => {
+            const item = document.createElement("div");
+            item.className = "calendar-day-tooltip-item";
+
+            const task = document.createElement("div");
+            task.className = "calendar-day-tooltip-task";
+            task.textContent = assignment.task;
+
+            const subject = document.createElement("div");
+            subject.className = "calendar-day-tooltip-subject";
+            subject.textContent = assignment.subject;
+
+            item.appendChild(task);
+            item.appendChild(subject);
+            tooltip.appendChild(item);
+        });
+
+        return tooltip;
+    }
+
     function renderCalendarWidget() {
         if (!calendarMonthLabelEl || !calendarDaysEl) return;
 
-        const viewYear = selectedDate.getFullYear();
-        const viewMonth = selectedDate.getMonth();
+        const viewYear = calendarViewDate.getFullYear();
+        const viewMonth = calendarViewDate.getMonth();
         const firstOfMonth = dateAtNoon(viewYear, viewMonth, 1);
-        const monthStartOffset = firstOfMonth.getDay(); // Sunday-first calendar
+        const monthStartOffset = (firstOfMonth.getDay() + 6) % 7; // Monday-first calendar
         const gridStart = dateAtNoon(viewYear, viewMonth, 1 - monthStartOffset);
         const today = new Date();
         today.setHours(12, 0, 0, 0);
+        const assignmentsByDate = getCalendarAssignmentsByDate();
 
-        calendarMonthLabelEl.textContent = formatCalendarMonthYear(selectedDate);
+        calendarMonthLabelEl.textContent = formatCalendarMonthYear(calendarViewDate);
         calendarDaysEl.innerHTML = "";
 
         for (let i = 0; i < 42; i += 1) {
@@ -296,6 +344,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 gridStart.getMonth(),
                 gridStart.getDate() + i
             );
+
+            const dayCell = document.createElement("div");
+            dayCell.className = "calendar-day-cell";
 
             const dayBtn = document.createElement("button");
             dayBtn.type = "button";
@@ -326,10 +377,30 @@ document.addEventListener("DOMContentLoaded", () => {
             dayBtn.addEventListener("click", () => {
                 selectedDate = new Date(cellDate);
                 selectedDate.setHours(12, 0, 0, 0);
+                calendarViewDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1, 12, 0, 0, 0);
                 renderDate();
             });
 
-            calendarDaysEl.appendChild(dayBtn);
+            dayCell.appendChild(dayBtn);
+
+            const assignments = assignmentsByDate.get(dayBtn.dataset.iso) || [];
+            if (assignments.length) {
+                // From my POV, the calendar dots should quietly hint at due work,
+                // then let the hover details do the heavier lifting when needed.
+                const dots = document.createElement("div");
+                dots.className = "calendar-day-dots";
+
+                for (let dotIndex = 0; dotIndex < Math.min(assignments.length, 3); dotIndex += 1) {
+                    const dot = document.createElement("span");
+                    dot.className = "calendar-day-dot";
+                    dots.appendChild(dot);
+                }
+
+                dayCell.appendChild(dots);
+                dayCell.appendChild(createCalendarTooltip(assignments));
+            }
+
+            calendarDaysEl.appendChild(dayCell);
         }
     }
 
@@ -507,6 +578,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderDate() {
         dateDisplay.textContent = formatFullDate(selectedDate);
         dayDisplay.textContent = formatDayOfTheWeek(selectedDate);
+        calendarViewDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1, 12, 0, 0, 0);
 
         renderTasksForSelectedDate(); // keeps tasks synced with the displayed date
         renderAssignmentsDueForSelectedDate();
@@ -536,6 +608,13 @@ document.addEventListener("DOMContentLoaded", () => {
         selectedDate = new Date();
         selectedDate.setHours(12, 0, 0, 0);
         renderDate();
+    }
+
+    function changeCalendarMonth(amount) {
+        // From my POV, month arrows should browse the widget first,
+        // and only change the main selected date once the user clicks a specific day.
+        calendarViewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() + amount, 1, 12, 0, 0, 0);
+        renderCalendarWidget();
     }
 
     /* modal open/close */
@@ -1009,6 +1088,8 @@ document.addEventListener("DOMContentLoaded", () => {
     todayBtn.addEventListener("click", goToToday);
     previousBtn.addEventListener("click", () => changeDay(-1));
     nextBtn.addEventListener("click", () => changeDay(+1));
+    calendarPrevMonthBtn?.addEventListener("click", () => changeCalendarMonth(-1));
+    calendarNextMonthBtn?.addEventListener("click", () => changeCalendarMonth(1));
 
     // introduces logic that gives the "confirm" button uses other than just to add a task to a date. so now it handles for editing tasks, adding tasks, and deleting tasks
     confirmBtn.addEventListener("click", () => {
