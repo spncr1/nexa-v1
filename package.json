@@ -1,0 +1,13 @@
+{
+  "name": "nexa-v1",
+  "version": "1.0.0",
+  "description": "A browser-based productivity web app designed to help students manage tasks, assignments, and schedules all in the one place.",
+  "main": "index.js",
+  "scripts": {
+    "devStart": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

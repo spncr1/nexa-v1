@@ -1,0 +1,20 @@
+// utilises REST client extension to make REST requests from within VS Code
+GET http://localhost:3000/users
+
+POST http://localhost:3000/users
+Content-Type: application/json
+
+// JSON defining how the data should be structured when sent to the server
+{
+    "name": "Kyle",
+    "password": "password" // the password is password
+}
+
+POST http://localhost:3000/users/login
+Content-Type: application/json
+
+{
+    "name": "Kyle",
+    "password": "password" // the password is password
+}
+
