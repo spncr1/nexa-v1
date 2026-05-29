@@ -16,3 +16,11 @@ CREATE TABLE IF NOT EXISTS user_app_state (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS "session" (
+    sid VARCHAR PRIMARY KEY,
+    sess JSON NOT NULL,
+    expire TIMESTAMP(6) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" (expire);

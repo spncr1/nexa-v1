@@ -43,6 +43,18 @@ const userAppStateTableSql = `
     );
 `;
 
+const sessionTableSql = `
+    CREATE TABLE IF NOT EXISTS "session" (
+        sid VARCHAR PRIMARY KEY,
+        sess JSON NOT NULL,
+        expire TIMESTAMP(6) NOT NULL
+    );
+`;
+
+const sessionExpireIndexSql = `
+    CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" (expire);
+`;
+
 function formatDbError(error) {
     return error.detail || error.message || error.code || 'Unknown database error';
 }
@@ -54,6 +66,8 @@ async function testDatabaseConnection() {
 async function ensureDatabaseSchema() {
     await pool.query(usersTableSql);
     await pool.query(userAppStateTableSql);
+    await pool.query(sessionTableSql);
+    await pool.query(sessionExpireIndexSql);
 }
 
 async function findUserByEmail(email) {

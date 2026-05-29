@@ -12,6 +12,7 @@ const bcrypt = require('bcrypt') // needed to facilitate password hashing
 const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
+const PgSession = require('connect-pg-simple')(session)
 const methodOverride = require('method-override')
 const {
     createUser,
@@ -20,6 +21,7 @@ const {
     findUserById,
     formatDbError,
     getUserAppState,
+    pool,
     saveUserAppState,
     testDatabaseConnection,
     updateUserById
@@ -51,11 +53,21 @@ function ensureAppReady() {
 }
 
 app.set('view engine', 'ejs')
+app.set('trust proxy', 1)
 app.use(express.urlencoded( { extended: false })) // allows us to take the forms in our ejs files and then be able to access them inside of our request variable inside of our POST method
 app.use(session({
+    store: new PgSession({
+        pool,
+        tableName: 'session',
+        createTableIfMissing: true
+    }),
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    cookie: {
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production'
+    }
 }));
 app.use(flash())
 app.use(passport.initialize())
