@@ -52,6 +52,7 @@ function ensureAppReady() {
     return startupPromise
 }
 
+app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
 app.set('trust proxy', 1)
 app.use(express.urlencoded( { extended: false })) // allows us to take the forms in our ejs files and then be able to access them inside of our request variable inside of our POST method
