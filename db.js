@@ -11,14 +11,16 @@ const pool = new Pool(
     hasConnectionString
         ? {
             connectionString: process.env.DATABASE_URL,
-            ssl: isProduction ? { rejectUnauthorized: false } : false
+            ssl: isProduction ? { rejectUnauthorized: false } : false,
+            connectionTimeoutMillis: Number(process.env.PGCONNECT_TIMEOUT_MS || 5000)
         }
         : {
             host: process.env.PGHOST || 'localhost',
             port: Number(process.env.PGPORT || 5432), // default port assigned to PostgreSQL
             user: process.env.PGUSER || process.env.USER,
             password: process.env.PGPASSWORD || '',
-            database: process.env.PGDATABASE || 'nexa_v1'
+            database: process.env.PGDATABASE || 'nexa_v1',
+            connectionTimeoutMillis: Number(process.env.PGCONNECT_TIMEOUT_MS || 5000)
         }
 );
 

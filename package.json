@@ -4,7 +4,10 @@
   "description": "A browser-based productivity web app designed to help students manage tasks, assignments, and schedules all in the one place.",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon server.js",
+    "dev": "node scripts/start-local.js",
+    "devStart": "node scripts/start-local.js",
+    "local": "node scripts/start-local.js",
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

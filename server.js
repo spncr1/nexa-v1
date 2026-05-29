@@ -74,7 +74,7 @@ app.use(async (req, res, next) => {
 
 app.get('/', (req, res) => {
     if (req.isAuthenticated()) {
-        return res.redirect('/index.html')
+        return res.render('index.ejs')
     }
 
     res.redirect('/login')
@@ -89,7 +89,7 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
 });
 
 app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
-    successRedirect: '/index.html',
+    successRedirect: '/',
     failureRedirect: '/login',
     failureFlash: true
 }))
@@ -212,7 +212,9 @@ app.put('/api/app-state', checkAuthenticatedApi, async (req, res) => {
     }
 })
 
-app.get('/index.html', checkAuthenticated, sendProtectedHtml)
+app.get('/index.html', checkAuthenticated, (req, res) => {
+    res.redirect('/')
+})
 app.get('/client/features/:featureName/:pageName.html', checkAuthenticated, sendProtectedHtml)
 app.use(express.static(path.join(__dirname, 'public')))
 
@@ -245,13 +247,14 @@ function sendProtectedHtml(req, res) {
 }
 
 const PORT = process.env.PORT || 3000
+const LOCAL_LOGIN_URL = `http://localhost:${PORT}/login`
 
 async function startServer() {
     try {
         await ensureAppReady()
 
         app.listen(PORT, () => {
-          console.log(`Server running at http://localhost:${PORT}`)
+          console.log(`Nexa is running at ${LOCAL_LOGIN_URL}`)
         })
     } catch (error) {
         console.error('Database startup check failed:', formatDbError(error))

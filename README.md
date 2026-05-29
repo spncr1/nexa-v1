@@ -1,5 +1,4 @@
 # NEXA - Student Workload Management Tool
-
 A student-focused web application designed to centralise assignment tracking, task management, and academic workload within a single interface.
 
 My motivation behind building this project was to address how overwhelming managing academic work across multiple disconnected productivity platforms can be. Rather than splitting workflows across different apps, I wanted to create a cleaner, more structured interface that makes it easier to track assignments, organise smaller tasks, and visualise day-to-day workload more effectively. The project has also become a way for me to explore how a practical student-facing tool can evolve from a frontend-driven application initially, into a more complete, full-stack system.
@@ -70,7 +69,12 @@ Run the development server:
 npm run dev
 ```
 
-Then open the local URL shown in the terminal by clicking on it.
+Then open the local URL shown in the terminal:
+```bash
+http://localhost:3000/login
+```
+
+This command starts the Express app with `nodemon`. The app also needs a reachable PostgreSQL database using the values in `.env`.
 
 ---
 
