@@ -1,1 +1,76 @@
-/* Shared App Design Tokens */
+/*
+  ==========================
+  SHARED APP DESIGN TOKENS
+  ==========================
+*/
+
+:root {
+    /* Base */
+    --color-bg: #ffffff;
+    --color-text: #111111;
+    --color-surface: #ffffff;
+
+    /* Core accent */
+    --color-primary: #4d9eff;
+    --color-primary-hover: rgba(77, 159, 255, 0.742);
+    --color-primary-active: rgba(100, 185, 255, 0.66);
+    --color-primary-soft: rgba(77, 159, 255, 0.3);
+    --color-primary-subtle: rgba(77, 159, 255, 0.32);
+    --color-accent-warm: #ffbe3d;
+    --color-accent-warm-soft: rgba(255, 190, 61, 0.22);
+    --color-accent-warm-border: rgba(255, 190, 61, 0.65);
+
+    /* Panels and borders */
+    --color-panel: rgb(100, 149, 237);
+    --color-panel-dark: rgb(60, 80, 130);
+    --color-border: rgb(2, 30, 80);
+    --color-border-strong: rgba(2, 30, 80, 0.7);
+    --color-border-focus: rgba(2, 30, 80, 0.4);
+    --color-border-soft: rgba(45, 65, 110, 0.7);
+    --color-border-root: rgba(100, 185, 255, 0.35);
+    --color-scroll-fade-start: rgba(100, 149, 237, 0);
+    --color-scroll-fade-end: rgba(100, 149, 237, 1);
+
+    /* Controls */
+    --color-control-hover: rgb(60, 80, 120);
+    --color-control-dark: rgb(45, 65, 110);
+    --color-control-dark-fill: rgba(45, 65, 110, 0.7);
+    --color-slot-hover: #2d4070;
+
+    /* Calendar and date accents */
+    --color-today: rgba(77, 159, 255, 0.6);
+    --color-today-dark: rgba(90, 170, 255, 0.85);
+    --color-focus: rgba(90, 170, 255, 0.5);
+    --color-month-day-current-dark: rgb(140, 185, 240);
+
+    /* Task accents */
+    --color-task-week-header: rgba(77, 159, 255, 0.6);
+    --color-task-week-header-dark: rgba(60, 130, 220, 0.6);
+    --color-task-week-today-dark: rgba(77, 159, 255, 0.26);
+    --color-task-tbd-hover: rgb(185, 210, 245);
+    --color-priority-medium: #c0d4f5;
+    --color-priority-medium-dark: #88aee0;
+    --color-priority-low: #b8d8f7;
+    --color-priority-low-dark: #7aaee8;
+    --color-tile-dark: #2d3a5a;
+    --color-tile-border-dark: #1e2a4a;
+
+    /* Assignments and tables */
+    --color-table-header: rgba(100, 140, 210, 0.6);
+    --color-table-header-dark: rgba(100, 140, 210, 0.7);
+    --color-assignment-reset: rgba(100, 170, 240, 0.6);
+    --color-shadow: rgb(80, 140, 210);
+
+    /* Auth */
+    --color-auth-bg: #b0d0f0;
+    --color-auth-border: #1a2440;
+    --color-auth-button: #90b8e8;
+    --color-auth-input: #b0c4e8;
+
+    /* Temporary aliases for existing page styles */
+    --bg: var(--color-bg);
+    --text: var(--color-text);
+    --panel: var(--color-panel);
+    --border: var(--color-border);
+    --surface: var(--color-surface);
+}

@@ -9,12 +9,16 @@
   - System settings button + modal
 */
 
+@import url("/client/shared/styles/tokens.css");
+@import url("/client/shared/styles/base.css");
+@import url("/client/shared/styles/components.css");
+
 :root {
-    --bg: #ffffff;
-    --text: #111111;
-    --panel: rgb(141, 157, 141);
-    --border: rgb(3, 46, 8);
-    --surface: #ffffff;
+    --bg: var(--color-bg);
+    --text: var(--color-text);
+    --panel: var(--color-panel);
+    --border: var(--color-border);
+    --surface: var(--color-surface);
     --nav-width: 180px;
     --content-max: 1280px;
     --content-pad: 24px;
@@ -80,11 +84,11 @@ ul {
 }
 
 .navbar a:hover {
-    background: rgba(4, 255, 0, 0.742);
+    background: var(--color-primary-hover);
 }
 
 .navbar a.active {
-    background: rgba(124, 255, 122, 0.66);
+    background: var(--color-primary-active);
     font-weight: 700;
 }
 
@@ -348,7 +352,7 @@ body.nav-collapsed .system-settings {
 }
 
 .switch input:checked + .slider {
-    background: rgba(124, 255, 122, 0.66);
+    background: var(--color-primary-active);
 }
 
 .switch input:checked + .slider::before {
@@ -391,8 +395,8 @@ body.nav-collapsed .system-settings {
 .subjects-panel { position: relative; }
 
 .subjects-panel {
-    border: 2px solid rgb(3, 46, 8);
-    background-color: rgb(141, 157, 141);
+    border: 2px solid var(--color-border);
+    background-color: var(--color-panel);
     border-radius: 10px;
     padding: 14px 12px;
     text-align: left;
@@ -413,7 +417,7 @@ body.nav-collapsed .system-settings {
     height: 28px;
     pointer-events: none;
     border-radius: 8px;
-    background: linear-gradient(to bottom, rgba(141, 157, 141, 0), rgba(141, 157, 141, 1));
+    background: linear-gradient(to bottom, var(--color-scroll-fade-start), var(--color-scroll-fade-end));
 }
 
 .panel-title {
@@ -452,7 +456,7 @@ body.nav-collapsed .system-settings {
 
 #subjects-list .subject-item {
     background: rgba(255, 255, 255, 0.6);
-    border: rgb(3, 46, 8) 2px solid;
+    border: var(--color-border) 2px solid;
     border-radius: 8px;
     padding: 10px 12px;
     display: block;
@@ -484,8 +488,8 @@ body.nav-collapsed .system-settings {
 
 /* Left column */
 .assignments-table-card {
-    border: 2px solid rgb(3, 46, 8);
-    background-color: rgb(141, 157, 141);
+    border: 2px solid var(--color-border);
+    background-color: var(--color-panel);
     border-radius: 10px;
     padding: 14px 12px;
 
@@ -526,7 +530,7 @@ body.nav-collapsed .system-settings {
 
 /* ALL ASSIGNMENTS table header */
 .assignments-table th {
-    background: rgba(139, 163, 133, 0.6);
+    background: var(--color-table-header);
     border-right: 1px solid rgba(0,0,0,0.12);
     border-bottom: 1px solid rgba(0,0,0,0.12);
     padding: 10px 12px;
@@ -690,7 +694,7 @@ body.nav-collapsed .system-settings {
 }
 
 .carousel-nav:hover {
-    background-color: rgb(80, 90, 80);
+    background-color: var(--color-control-hover);
     cursor: pointer;
     border-color: black;
     color: black;
@@ -725,8 +729,8 @@ body.nav-collapsed .system-settings {
     justify-content: flex-start;
     justify-self: center;
     padding: 14px 12px;
-    background: rgb(141, 157, 141);
-    border: 2px solid rgb(3, 46, 8);
+    background: var(--color-panel);
+    border: 2px solid var(--color-border);
     border-radius: 10px;
     width: 100%;
     max-width: 180px;
@@ -756,7 +760,7 @@ body.nav-collapsed .system-settings {
 }
 
 .btn-primary:hover {
-    background-color: rgb(80, 90, 80);
+    background-color: var(--color-control-hover);
     cursor: pointer;
     border-color: black;
     color: black;
@@ -765,7 +769,7 @@ body.nav-collapsed .system-settings {
 .btn-secondary {
     font-size: 14px;
     border-radius: 5px;
-    background-color: rgb(141, 157, 141);
+    background-color: var(--color-panel);
     border: 2px solid black;
     color: black;
     width: 70px;
@@ -775,18 +779,18 @@ body.nav-collapsed .system-settings {
 }
 
 .btn-secondary:hover {
-    background-color: rgb(80, 90, 80);
+    background-color: var(--color-control-hover);
     cursor: pointer;
     border-color: grey;
     color: black;
 }
 
 #reset-btn {
-    background-color: rgba(144, 190, 144, 0.6);
+    background-color: var(--color-assignment-reset);
 }
 
 #reset-btn:hover {
-    background-color: rgb(80, 90, 80);
+    background-color: var(--color-control-hover);
     cursor: pointer;
     border-color: grey;
     color: black;
@@ -976,7 +980,7 @@ body.nav-collapsed .system-settings {
 }
 
 .dash-nav:hover {
-    background-color: rgb(80, 90, 80);
+    background-color: var(--color-control-hover);
     cursor: pointer;
     border-color: black;
     color: black;

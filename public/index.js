@@ -581,6 +581,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (linkEl) {
                 // Clicking an upcoming card should take the user straight to the exact assignment it came from
                 linkEl.href = getAssignmentDetailsHref(assignment.id);
+                linkEl.classList.toggle("is-urgent", daysUntil <= 3);
                 linkEl.setAttribute(
                     "aria-label",
                     `${assignment.task || "Assignment"}, due ${formatFullDate(assignment.dueDateObj)}`

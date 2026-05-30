@@ -3,11 +3,18 @@
     =========================================
 */
 
-:root {
+@import url("/client/shared/styles/tokens.css");
+
+body.dark-mode {
+    --color-bg: #0f0f0f;
+    --color-text: #e9e9ea;
+    --color-surface: #121213;
+    --color-panel: var(--color-panel-dark);
+    --color-border: var(--color-control-dark);
     --bg: #0f0f0f;
     --text: #e9e9ea;
-    --panel: #17181a;
-    --border: rgba(124, 255, 122, 0.35);
+    --panel: var(--color-panel-dark);
+    --border: var(--color-border-root);
     --surface: #121213;
 }
 
@@ -64,13 +71,13 @@ body.dark-mode .navbar a {
 }
 
 body.dark-mode .navbar a:hover {
-    background: rgba(4, 255, 0, 0.742);
+    background: var(--color-primary-hover);
     color: white;
     font-weight: 700;
 }
 
 body.dark-mode .navbar a.active {
-    background: rgba(124, 255, 122, 0.66);
+    background: var(--color-primary-active);
     font-weight: 700;
 }
 
@@ -153,8 +160,8 @@ body.dark-mode .date-text h1, body.dark-mode .date-text h2 {
 
 body.dark-mode #today-btn, body.dark-mode #previous-btn, body.dark-mode #next-btn {
     background-color: white;
-    color: rgb(64, 84, 64);
-    border: rgba(64, 84, 64, 0.7) 2px solid;
+    color: var(--color-control-dark);
+    border: var(--color-border-soft) 2px solid;
 }
 
 body.dark-mode #today-btn {
@@ -170,9 +177,9 @@ body.dark-mode #previous-btn, body.dark-mode #next-btn {
 }
 
 body.dark-mode #today-btn:hover, body.dark-mode #previous-btn:hover, body.dark-mode #next-btn:hover {
-    background-color: rgb(64, 84, 64, 0.7);
+    background-color: var(--color-control-dark-fill);
     color: white;
-    border: rgb(64, 84, 64) 2px solid;
+    border: var(--color-control-dark) 2px solid;
     cursor: pointer;
 }
 
@@ -202,8 +209,8 @@ body.dark-mode .calendar-widget { grid-column: 3; }
 body.dark-mode .today-tasks, body.dark-mode .assignments-due {
     display: grid;
     align-content: start;
-    background-color: rgb(141, 157, 141);
-    border: rgb(64, 84, 64) 2px solid;
+    background-color: var(--color-panel);
+    border: var(--color-control-dark) 2px solid;
     width: 100%;
     box-sizing: border-box;
     border-radius: 10px;
@@ -262,8 +269,8 @@ body.dark-mode .today-tasks #add-task-btn {
     font-size: 18px;
     border-radius: 20px;
     background-color: white;
-    color: rgb(64, 84, 64);
-    border: rgba(64, 84, 64, 0.7) 2px solid;
+    color: var(--color-control-dark);
+    border: var(--color-border-soft) 2px solid;
     width: 30px;
     height: 30px;
     align-self: center;
@@ -283,8 +290,8 @@ body.dark-mode #task-list {
 }
 
 body.dark-mode #task-list .task-list-item {
-    background: rgb(84, 99, 84);
-    border: rgb(64, 84, 64) 2px solid;
+    background: var(--color-panel-dark);
+    border: var(--color-control-dark) 2px solid;
     border-radius: 10px;
     padding: 10px 12px;
     margin-top: 10px;
@@ -296,9 +303,9 @@ body.dark-mode #task-list .task-list-item {
 }
 
 body.dark-mode .today-tasks #add-task-btn:hover {
-    background: rgb(64, 84, 64, 0.7);
+    background: var(--color-control-dark-fill);
     color: white;
-    border: rgb(64, 84, 64) 2px solid;
+    border: var(--color-control-dark) 2px solid;
     cursor: pointer;
 }
 
@@ -393,7 +400,7 @@ body.dark-mode #assignments-due-list {
 
 body.dark-mode .assignment-due-item {
     background: rgba(255, 255, 255, 0.75);
-    border: rgb(3, 46, 8) 1px solid;
+    border: var(--color-border) 1px solid;
     border-radius: 10px;
     padding: 10px 12px;
     text-align: left;
@@ -441,7 +448,7 @@ body.dark-mode .assignment-priority-dot {
 
 body.dark-mode .assignment-priority-dot.priority-high { background: #e74c3c; }
 body.dark-mode .assignment-priority-dot.priority-medium { background: #f2c94c; }
-body.dark-mode .assignment-priority-dot.priority-low { background: #27ae60; }
+body.dark-mode .assignment-priority-dot.priority-low { background: var(--color-accent-warm); }
 body.dark-mode .assignment-priority-dot:not(.priority-high):not(.priority-medium):not(.priority-low) { background: #9e9e9e; }
 
 body.dark-mode .assignments-due-more {
@@ -461,8 +468,8 @@ body.dark-mode .upcoming-assignments-widget {
     grid-template-rows: auto minmax(0, 1fr);
     align-content: start;
     justify-self: end;
-    background-color: rgb(141, 157, 141);
-    border: rgb(64, 84, 64) 2px solid;
+    background-color: var(--color-panel);
+    border: var(--color-control-dark) 2px solid;
     max-width: 210px;
     max-height: 210px;
     box-sizing: border-box;
@@ -472,7 +479,7 @@ body.dark-mode .upcoming-assignments-widget {
     overflow: visible;
     position: relative;
     grid-column: 3;
-    box-shadow: 4px 4px 6px rgb(110, 160, 115);
+    box-shadow: 4px 4px 6px var(--color-shadow);
 }
 
 body.dark-mode .today-tasks.has-more::after, body.dark-mode .upcoming-assignments-widget.has-more::after {
@@ -484,7 +491,7 @@ body.dark-mode .today-tasks.has-more::after, body.dark-mode .upcoming-assignment
     height: 28px;
     pointer-events: none;
     border-radius: 8px;
-    background: linear-gradient(to bottom, rgba(141, 157, 141, 0), rgba(141, 157, 141, 1));
+    background: linear-gradient(to bottom, var(--color-scroll-fade-start), var(--color-scroll-fade-end));
 }
 
 body.dark-mode .upcoming-assignments-widget.has-more::after {
@@ -521,11 +528,15 @@ body.dark-mode .upcoming-assignment-link {
     grid-template-columns: 56px minmax(0, 1fr);
     gap: 0;
     align-items: center;
-    background: rgb(84, 99, 84);
+    background: var(--color-panel-dark);
     border-radius: 10px;
     padding: 0 8px 0 0;
     text-decoration: none;
     color: inherit;
+}
+
+body.dark-mode .upcoming-assignment-link.is-urgent {
+    border: 1px solid var(--color-accent-warm-border);
 }
 
 body.dark-mode .upcoming-assignment-countdown {
@@ -536,7 +547,12 @@ body.dark-mode .upcoming-assignment-countdown {
     min-height: 100%;
     align-self: stretch;
     border-radius: 8px;
-    background: rgba(124, 255, 122, 0.3);
+    background: var(--color-primary-soft);
+}
+
+body.dark-mode .upcoming-assignment-link.is-urgent .upcoming-assignment-countdown {
+    background: var(--color-accent-warm-soft);
+    box-shadow: inset -2px 0 0 var(--color-accent-warm-border);
 }
 
 body.dark-mode .upcoming-assignment-days-value {
@@ -583,8 +599,8 @@ body.dark-mode .upcoming-assignment-empty {
 body.dark-mode .calendar-widget {
     display: grid;
     align-content: start;
-    background-color: rgb(141, 157, 141);
-    border: rgb(64, 84, 64) 2px solid;
+    background-color: var(--color-panel);
+    border: var(--color-control-dark) 2px solid;
     width: 100%;
     box-sizing: border-box;
     border-radius: 10px;
@@ -617,8 +633,8 @@ body.dark-mode .calendar-nav {
     font-size: 20px;
     border-radius: 20px;
     background-color: white;
-    border: rgba(64, 84, 64, 0.7) 2px solid;
-    color: rgb(64, 84, 64);
+    border: var(--color-border-soft) 2px solid;
+    color: var(--color-control-dark);
     width: 32px;
     height: 32px;
     padding: 0;
@@ -629,9 +645,9 @@ body.dark-mode .calendar-nav {
 }
 
 body.dark-mode .calendar-nav:hover {
-    background: rgb(64, 84, 64, 0.7);
+    background: var(--color-control-dark-fill);
     color: white;
-    border: rgb(64, 84, 64) 2px solid;
+    border: var(--color-control-dark) 2px solid;
 }
 
 body.dark-mode .calendar-weekdays {
@@ -688,7 +704,7 @@ body.dark-mode .calendar-day-dot {
     width: 5px;
     height: 5px;
     border-radius: 999px;
-    background: #ddd;
+    background: var(--color-accent-warm);
 }
 
 body.dark-mode .calendar-day-tooltip {
@@ -701,7 +717,7 @@ body.dark-mode .calendar-day-tooltip {
     max-width: 180px;
     padding: 8px 10px;
     border-radius: 10px;
-    border: 2px solid rgb(64, 84, 64);
+    border: 2px solid var(--color-control-dark);
     background: #111;
     box-shadow: 0 10px 24px rgba(255, 255, 255, 0.12);
     text-align: left;
@@ -742,11 +758,11 @@ body.dark-mode .calendar-day.outside-month {
 }
 
 body.dark-mode .calendar-day.is-today {
-    box-shadow: inset 0 0 0 2px rgba(115, 228, 111, 0.6);
+    box-shadow: inset 0 0 0 2px var(--color-today);
 }
 
 body.dark-mode .calendar-day.selected {
-    background: rgba(115, 228, 111, 0.6);
+    background: var(--color-today);
     color: #111;
 }
 
@@ -964,7 +980,7 @@ body.dark-mode .slider::before {
 }
 
 body.dark-mode .switch input:checked + .slider {
-    background: rgba(124, 255, 122, 0.66);
+    background: var(--color-primary-active);
 }
 
 body.dark-mode .switch input:checked + .slider::before {
@@ -1014,19 +1030,19 @@ body.dark-mode .carousel-nav {
   font-size: 18px;
   border-radius: 20px;
   background-color: white;
-  color: rgb(64, 84, 64);
+  color: var(--color-control-dark);
   width: 30px;
   height: 30px;
   align-self: center;
   justify-self: center;
   cursor: pointer;
-  border: rgba(64, 84, 64, 0.7) 2px solid;
+  border: var(--color-border-soft) 2px solid;
 }
 
 body.dark-mode .carousel-nav:hover {
-  background: rgb(64, 84, 64, 0.7);
+  background: var(--color-control-dark-fill);
   color: white;
-  border: rgb(64, 84, 64) 2px solid;
+  border: var(--color-control-dark) 2px solid;
   cursor: pointer;
 }
 
@@ -1057,7 +1073,7 @@ body.dark-mode .assignments-controls {
   justify-content: flex-start;
 
   padding: 10px 12px;
-  background-color: rgb(141, 157, 141);
+  background-color: var(--color-panel);
   border: 2px solid grey;
   border-radius: 10px;
   width: 70%;
@@ -1069,7 +1085,7 @@ body.dark-mode .btn-primary {
   font-size: 18px;
   border-radius: 999px;
   background-color: white;
-  color: rgb(64, 84, 64);
+  color: var(--color-control-dark);
   width: 30px;
   height: 30px;
   padding: 0;
@@ -1080,15 +1096,15 @@ body.dark-mode .btn-primary {
   align-self: center;
   justify-self: center;
   cursor: pointer;
-  border: rgba(64, 84, 64, 0.7) 2px solid;
+  border: var(--color-border-soft) 2px solid;
   appearance: none;
   -webkit-appearance: none;
 }
 
 body.dark-mode .btn-primary:hover {
-  background: rgb(64, 84, 64, 0.7);
+  background: var(--color-control-dark-fill);
   color: white;
-  border: rgb(64, 84, 64) 2px solid;
+  border: var(--color-control-dark) 2px solid;
   cursor: pointer;
 }
 
@@ -1106,7 +1122,7 @@ body.dark-mode .btn-secondary {
 }
 
 body.dark-mode .btn-secondary:hover {
-    background-color: rgb(80, 90, 80);
+    background-color: var(--color-control-hover);
     cursor: pointer;
     border-color: white;
     color: white;
@@ -1131,8 +1147,8 @@ body.dark-mode .control-select {
   font-size: 12px;
   padding: 8px 10px;
   border-radius: 8px;
-  background: rgb(64, 84, 64, 0.7);
-  border: rgb(64, 84, 64) 2px solid;
+  background: var(--color-control-dark-fill);
+  border: var(--color-control-dark) 2px solid;
   box-sizing: border-box;
   color: #e9e9ea;
 }
@@ -1271,19 +1287,19 @@ body.dark-mode .dash-nav {
   font-size: 18px;
   border-radius: 20px;
   background-color: white;
-  color: rgb(64, 84, 64);           
+  color: var(--color-control-dark);           
   width: 30px;
   height: 30px;
   align-self: center;
   justify-self: center;
   cursor: pointer;
-  border: rgba(64, 84, 64, 0.7) 2px solid;
+  border: var(--color-border-soft) 2px solid;
 }
 
 body.dark-mode .dash-nav:hover {
-  background: rgb(64, 84, 64, 0.7);
+  background: var(--color-control-dark-fill);
   color: white;
-  border: rgb(64, 84, 64) 2px solid;
+  border: var(--color-control-dark) 2px solid;
   cursor: pointer;
 }
 
@@ -1434,8 +1450,8 @@ body.dark-mode .assignments-main {
 }
 
 body.dark-mode .subjects-panel {
-    border: rgb(64, 84, 64) 2px solid;
-    background-color: rgb(141, 157, 141);
+    border: var(--color-control-dark) 2px solid;
+    background-color: var(--color-panel);
     border-radius: 10px;
     padding: 14px 12px;
     text-align: left;
@@ -1455,7 +1471,7 @@ body.dark-mode .subjects-panel.has-more::after {
     height: 28px;
     pointer-events: none;
     border-radius: 8px;
-    background: linear-gradient(to bottom, rgba(141, 157, 141, 0), rgba(141, 157, 141, 1));
+    background: linear-gradient(to bottom, var(--color-scroll-fade-start), var(--color-scroll-fade-end));
 }
 
 body.dark-mode .subjects-panel-header {
@@ -1519,7 +1535,7 @@ body.dark-mode #subjects-list li {
 
 body.dark-mode #subjects-list .subject-item {
     background: rgba(255, 255, 255, 0.75);
-    border: rgb(3, 46, 8) 2px solid;
+    border: var(--color-border) 2px solid;
     border-radius: 8px;
     padding: 10px 12px;
     display: block;
@@ -1549,8 +1565,8 @@ body.dark-mode #subjects-list .subject-item:disabled {
 }
 
 body.dark-mode .assignments-table-card {
-    border: rgb(64, 84, 64) 2px solid;
-    background-color: rgb(141, 157, 141);
+    border: var(--color-control-dark) 2px solid;
+    background-color: var(--color-panel);
     border-radius: 10px;
     padding: 14px 12px;
     grid-column: 1 / 4;
@@ -1582,7 +1598,7 @@ body.dark-mode .assignments-table-wrap {
 }
 
 body.dark-mode .assignments-table th {
-    background: rgba(139, 163, 133, 0.7);
+    background: var(--color-table-header-dark);
     border-right: 1px solid rgba(255,255,255,0.18);
     border-bottom: 1px solid rgba(255,255,255,0.18);
     padding: 10px 12px;
@@ -1732,7 +1748,7 @@ body.dark-mode .pie-breakdown-task {
 }
 
 .carousel-nav:hover {
-    background-color: rgb(80, 90, 80);
+    background-color: var(--color-control-hover);
     cursor: pointer;
     border-color: black;
     color: black;
@@ -1767,8 +1783,8 @@ body.dark-mode .assignments-controls {
     justify-content: flex-start;
     justify-self: center;
     padding: 14px 12px;
-    background: rgb(141, 157, 141);
-    border: rgb(64, 84, 64) 2px solid;
+    background: var(--color-panel);
+    border: var(--color-control-dark) 2px solid;
     border-radius: 10px;
     width: 100%;
     max-width: 180px;
@@ -2079,12 +2095,12 @@ body.dark-mode .month-slot {
 }
 
 body.dark-mode .week-day-header {
-    background: rgba(92, 152, 92, 0.6);
+    background: var(--color-task-week-header-dark);
 }
 
 body.dark-mode .week-day-header.today {
-    background: rgba(115, 228, 111, 0.26);
-    border-bottom: 2px solid rgba(129, 239, 126, 0.85);
+    background: var(--color-task-week-today-dark);
+    border-bottom: 2px solid var(--color-today-dark);
 }
 
 body.dark-mode .tasks-month-calendar,
@@ -2094,17 +2110,17 @@ body.dark-mode .tasks-month-agenda {
 }
 
 body.dark-mode .tasks-month-day {
-    background: #485448;
+    background: var(--color-tile-dark);
     color: #e9e9ea;
-    border-color: #2f3441;
+    border-color: var(--color-tile-border-dark);
 }
 
 body.dark-mode .tasks-month-day.today {
-    border: 3px solid rgb(176, 206, 176);
+    border: 3px solid var(--color-month-day-current-dark);
 }
 
 body.dark-mode .tasks-month-day.selected {
-    outline: 2px solid rgba(129, 239, 126, 0.85);
+    outline: 2px solid var(--color-today-dark);
 }
 
 body.dark-mode .tasks-month-day.outside {
@@ -2118,8 +2134,8 @@ body.dark-mode .slot-add-btn {
 }
 
 body.dark-mode .slot-add-btn:hover {
-    background: #405040;
-    border-color: #405040;
+    background: var(--color-slot-hover);
+    border-color: var(--color-slot-hover);
     color: #111;
 }
 
@@ -2525,14 +2541,15 @@ body.dark-mode .task-card {
 
 body.dark-mode .task-card.priority-high {
     background: #d78882;
+    border-left: 4px solid var(--color-accent-warm);
 }
 
 body.dark-mode .task-card.priority-medium {
-    background: #98b69b;
+    background: var(--color-priority-medium-dark);
 }
 
 body.dark-mode .task-card.priority-low {
-    background: #7fbe94;
+    background: var(--color-priority-low-dark);
 }
 
 body.dark-mode .tbd-chip {
@@ -2563,7 +2580,7 @@ body.dark-mode #task-time {
 }
 
 body.dark-mode #task-time:focus {
-    outline: 2px solid rgba(129, 239, 126, 0.5);
+    outline: 2px solid var(--color-focus);
 }
 
 body.dark-mode #task-time::-webkit-calendar-picker-indicator {
