@@ -5,6 +5,8 @@
         <title>NEXA - Habits</title>
         
         <!-- CSS stylesheet -->
+        <link rel="stylesheet" href="/dashboard.css">
+        <link rel="stylesheet" href="/client/shared/styles/dark-mode.css">
 
         <!-- Primary Font (Headers & Titles - Manrope) -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -111,6 +113,13 @@
                                     </div>
                                     <button type="button" id="logout-btn" class="setting-action-btn neutral">Logout</button>
                                 </div>
+
+                                <div class="setting-row">
+                                    <div>
+                                        <div class="setting-labels">Delete account?</div>
+                                    </div>
+                                    <button type="button" id="delete-account-btn" class="setting-action-btn danger">Delete</button>
+                                </div>
                             </div>
 
                             <div class="settings-panel" data-panel="customise">
@@ -137,5 +146,6 @@
         </main>
         
         <script src="/client/shared/app-storage.js"></script>
+        <script src="/client/shared/settings-modal.js"></script>
     </body>
 </html>

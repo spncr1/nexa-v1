@@ -17,6 +17,7 @@ const PgSession = require('connect-pg-simple')(session)
 const methodOverride = require('method-override')
 const {
     createUser,
+    deleteUserById,
     ensureDatabaseSchema,
     findUserByEmail,
     findUserById,
@@ -79,6 +80,8 @@ function getEmailDomain(email) {
     return String(email || '').split('@')[1] || ''
 }
 
+const DEFINITE_EMAIL_DOMAIN_FAILURE_CODES = new Set(['ENOTFOUND', 'ENODATA', 'ENODOMAIN'])
+
 async function validateEmailDomain(email) {
     const domain = getEmailDomain(email)
 
@@ -95,12 +98,12 @@ async function validateEmailDomain(email) {
 
         return null
     } catch (error) {
-        if (['ENOTFOUND', 'ENODATA', 'ENODOMAIN'].includes(error.code)) {
+        if (DEFINITE_EMAIL_DOMAIN_FAILURE_CODES.has(error.code)) {
             return 'Email domain cannot receive mail.'
         }
 
         console.error('Email domain verification failed:', error.code || error.message)
-        return 'Could not verify email domain right now. Please try again.'
+        return null
     }
 }
 
@@ -316,6 +319,33 @@ app.patch('/api/me', checkAuthenticatedApi, async (req, res) => {
     } catch (error) {
         console.error('Failed to update user account:', formatDbError(error))
         res.status(500).json({ error: 'Could not update account right now' })
+    }
+})
+
+app.delete('/api/me', checkAuthenticatedApi, async (req, res, next) => {
+    try {
+        const deletedUser = await deleteUserById(req.user.id)
+        if (!deletedUser) {
+            return res.status(404).json({ error: 'User not found' })
+        }
+
+        req.logout(function(logoutError) {
+            if (logoutError) {
+                return next(logoutError)
+            }
+
+            req.session.destroy((sessionError) => {
+                if (sessionError) {
+                    return next(sessionError)
+                }
+
+                res.clearCookie('connect.sid')
+                res.status(200).json({ success: true })
+            })
+        })
+    } catch (error) {
+        console.error('Failed to delete user account:', formatDbError(error))
+        res.status(500).json({ error: 'Could not delete account right now' })
     }
 })
 

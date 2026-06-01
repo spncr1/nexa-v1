@@ -953,6 +953,10 @@ body.dark-mode .setting-account-input {
     box-sizing: border-box;
 }
 
+body.dark-mode .account-delete-notice {
+    color: #39c35e;
+}
+
 body.dark-mode .switch {
     position: relative;
     display: inline-block;

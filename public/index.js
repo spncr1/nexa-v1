@@ -81,6 +81,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const accountSemesterInput = document.getElementById("account-semester-input");
     const saveAccountBtn = document.getElementById("save-account-btn");
     const logoutBtn = document.getElementById("logout-btn");
+    const deleteAccountBtn = document.getElementById("delete-account-btn");
 
     let selectedDate = new Date();
 
@@ -195,6 +196,34 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         window.location.href = "/login";
+    }
+
+    function showAccountDeletedNotice() {
+        const notice = document.createElement("div");
+        notice.className = "account-delete-notice";
+        notice.textContent = "Account deleted successfully.";
+        document.body.appendChild(notice);
+    }
+
+    async function deleteCurrentUserAccount() {
+        const confirmed = window.confirm("Are you sure you want to delete this account? This cannot be undone.");
+        if (!confirmed) return;
+
+        const response = await fetch("/api/me", {
+            method: "DELETE",
+            credentials: "same-origin"
+        });
+
+        if (!response.ok) {
+            const payload = await response.json().catch(() => ({}));
+            window.alert(payload.error || "Could not delete account right now.");
+            return;
+        }
+
+        showAccountDeletedNotice();
+        window.setTimeout(() => {
+            window.location.href = "/login";
+        }, 900);
     }
 
     // converts selectedDate to YYYY-MM-DD
@@ -1243,6 +1272,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             logoutCurrentUser().catch((error) => {
                 console.error("Failed to log out:", error);
                 window.alert("Could not log out right now.");
+            });
+        });
+    }
+
+    if (deleteAccountBtn) {
+        deleteAccountBtn.addEventListener("click", () => {
+            deleteCurrentUserAccount().catch((error) => {
+                console.error("Failed to delete account:", error);
+                window.alert("Could not delete account right now.");
             });
         });
     }

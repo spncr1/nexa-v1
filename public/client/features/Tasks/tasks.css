@@ -870,6 +870,24 @@ body.nav-collapsed .system-settings {
     box-sizing: border-box;
 }
 
+.account-delete-notice {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+    width: min(100%, 380px);
+    margin: 0;
+    padding: 0;
+    color: #39c35e;
+    text-align: center;
+    font-family: "Noto Sans";
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+    box-sizing: border-box;
+}
+
 .switch {
     position: relative;
     display: inline-block;

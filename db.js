@@ -121,6 +121,17 @@ async function updateUserById(id, { name, email }) {
     return result.rows[0] || null;
 }
 
+async function deleteUserById(id) {
+    const result = await pool.query(
+        `DELETE FROM users
+         WHERE id = $1
+         RETURNING id`,
+        [id]
+    );
+
+    return result.rows[0] || null;
+}
+
 async function getUserAppState(userId) {
     const result = await pool.query(
         `SELECT storage
@@ -169,6 +180,7 @@ module.exports = {
     findUserById,
     createUser,
     updateUserById,
+    deleteUserById,
     getUserAppState,
     saveUserAppState
 };
