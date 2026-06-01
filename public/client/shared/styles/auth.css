@@ -45,29 +45,24 @@ html, body {
     max-width: 150px;
 }
 
-.auth-message {
+.auth-status {
     width: min(100%, 380px);
     margin: 0 auto 18px;
-    padding: 6px 8px;
-    border: 2px solid var(--color-auth-border);
-    border-radius: 6px;
+    padding: 0;
     text-align: center;
     font-family: "Noto Sans", sans-serif;
-    font-size: 15px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 700;
     line-height: 1.4;
     box-sizing: border-box;
 }
 
-.auth-message.success {
-    background: var(--color-auth-bg);
-    color: var(--color-auth-border);
+.auth-status.success {
+    color: #39c35e;
 }
 
-.auth-message.error {
-    background: #edacac;
-    color: #5a1f1f;
-    border-color: #5a1f1f;
+.auth-status.error {
+    color: #ed5959;
 }
 
 .auth-form {
@@ -94,6 +89,20 @@ html, body {
     border-radius: 10px;
     font-family: "Noto Sans", sans-serif;
     font-size: 16px;
+}
+
+.form-row.has-error input {
+    border-color: #ed5959;
+    box-shadow: 0 0 0 3px rgba(140, 47, 47, 0.12);
+}
+
+.field-error {
+    margin: 0;
+    color: #ed5959;
+    font-family: "Noto Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.35;
 }
 
 /* login / register (action) */

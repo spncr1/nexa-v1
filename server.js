@@ -7,6 +7,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 const express = require('express')
 const path = require('path')
+const dns = require('dns').promises
 const app = express()
 const bcrypt = require('bcrypt') // needed to facilitate password hashing
 const passport = require('passport')
@@ -26,6 +27,11 @@ const {
     testDatabaseConnection,
     updateUserById
 } = require('./db')
+const {
+    validateAccountInput,
+    validateLoginInput,
+    validateRegistrationInput
+} = require('./auth-validation')
 
 const initialisePassport = require('./passport.config')
 initialisePassport(
@@ -50,6 +56,52 @@ function ensureAppReady() {
     }
 
     return startupPromise
+}
+
+function renderLogin(res, options = {}) {
+    res.status(options.status || 200).render('login.ejs', {
+        values: options.values || {},
+        errors: options.errors || {},
+        formError: options.formError || null,
+        successMessage: options.successMessage || null
+    })
+}
+
+function renderRegister(res, options = {}) {
+    res.status(options.status || 200).render('register.ejs', {
+        values: options.values || {},
+        errors: options.errors || {},
+        formError: options.formError || null
+    })
+}
+
+function getEmailDomain(email) {
+    return String(email || '').split('@')[1] || ''
+}
+
+async function validateEmailDomain(email) {
+    const domain = getEmailDomain(email)
+
+    if (!domain) {
+        return 'Enter a valid email address.'
+    }
+
+    try {
+        const records = await dns.resolveMx(domain)
+
+        if (!records.length) {
+            return 'Email domain cannot receive mail.'
+        }
+
+        return null
+    } catch (error) {
+        if (['ENOTFOUND', 'ENODATA', 'ENODOMAIN'].includes(error.code)) {
+            return 'Email domain cannot receive mail.'
+        }
+
+        console.error('Email domain verification failed:', error.code || error.message)
+        return 'Could not verify email domain right now. Please try again.'
+    }
 }
 
 app.set('views', path.join(__dirname, 'views'))
@@ -94,32 +146,91 @@ app.get('/', (req, res) => {
 });
 
 app.get('/login', checkNotAuthenticated, (req, res) => {
-    res.render('login.ejs')
+    renderLogin(res, {
+        successMessage: req.flash('success')[0],
+        formError: req.flash('error')[0]
+    })
 });
 
 app.get('/register', checkNotAuthenticated, (req, res) => {
-    res.render('register.ejs')
+    renderRegister(res, {
+        formError: req.flash('error')[0]
+    })
 });
 
-app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
-    successRedirect: '/',
-    failureRedirect: '/login',
-    failureFlash: true
-}))
+app.post('/login', checkNotAuthenticated, (req, res, next) => {
+    const validation = validateLoginInput(req.body)
+
+    if (!validation.isValid) {
+        return renderLogin(res, {
+            status: 422,
+            values: validation.values,
+            errors: validation.errors,
+            formError: 'Please fix the highlighted fields.'
+        })
+    }
+
+    passport.authenticate('local', (error, user, info) => {
+        if (error) {
+            return next(error)
+        }
+
+        if (!user) {
+            return renderLogin(res, {
+                status: 401,
+                values: validation.values,
+                formError: info?.message || 'Email or password is incorrect.'
+            })
+        }
+
+        req.login(user, (loginError) => {
+            if (loginError) {
+                return next(loginError)
+            }
+
+            return res.redirect('/')
+        })
+    })(req, res, next)
+})
 
 app.post('/register', checkNotAuthenticated, async (req, res) => {
     try {
-        const existingUser = await findUserByEmail(req.body.email)
+        const validation = validateRegistrationInput(req.body)
+
+        if (!validation.isValid) {
+            return renderRegister(res, {
+                status: 422,
+                values: validation.values,
+                errors: validation.errors,
+                formError: 'Please fix the highlighted fields.'
+            })
+        }
+
+        const emailDomainError = await validateEmailDomain(validation.values.email)
+        if (emailDomainError) {
+            return renderRegister(res, {
+                status: 422,
+                values: validation.values,
+                errors: { email: emailDomainError },
+                formError: 'Please fix the highlighted fields.'
+            })
+        }
+
+        const existingUser = await findUserByEmail(validation.values.email)
         if (existingUser) {
-            req.flash('error', 'An account with that email already exists')
-            return res.redirect('/register')
+            return renderRegister(res, {
+                status: 409,
+                values: validation.values,
+                errors: { email: 'An account with that email already exists.' },
+                formError: 'Please fix the highlighted fields.'
+            })
         }
 
         const hashed_password = await bcrypt.hash(req.body.password, 10);
 
         await createUser({
-            name: req.body.name,
-            email: req.body.email,
+            name: validation.values.name,
+            email: validation.values.email,
             passwordHash: hashed_password
         })
 
@@ -158,19 +269,34 @@ app.get('/api/me', checkAuthenticatedApi, (req, res) => {
 
 app.patch('/api/me', checkAuthenticatedApi, async (req, res) => {
     try {
-        const name = (req.body?.name || '').trim()
-        const email = (req.body?.email || '').trim().toLowerCase()
+        const validation = validateAccountInput(req.body)
 
-        if (!name || !email) {
-            return res.status(400).json({ error: 'Name and email are required' })
+        if (!validation.isValid) {
+            return res.status(422).json({
+                error: 'Name and email must be valid.',
+                errors: validation.errors
+            })
         }
 
-        const existingUser = await findUserByEmail(email)
+        if (validation.values.email !== req.user.email) {
+            const emailDomainError = await validateEmailDomain(validation.values.email)
+            if (emailDomainError) {
+                return res.status(422).json({
+                    error: 'Name and email must be valid.',
+                    errors: { email: emailDomainError }
+                })
+            }
+        }
+
+        const existingUser = await findUserByEmail(validation.values.email)
         if (existingUser && String(existingUser.id) !== String(req.user.id)) {
-            return res.status(409).json({ error: 'That email is already in use' })
+            return res.status(409).json({
+                error: 'That email is already in use',
+                errors: { email: 'That email is already in use.' }
+            })
         }
 
-        const updatedUser = await updateUserById(req.user.id, { name, email })
+        const updatedUser = await updateUserById(req.user.id, validation.values)
         if (!updatedUser) {
             return res.status(404).json({ error: 'User not found' })
         }

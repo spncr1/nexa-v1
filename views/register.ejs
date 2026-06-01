@@ -24,27 +24,70 @@
 <body>
 
     <main class="content">
+        <% const formValues = typeof values !== 'undefined' ? values : {}; %>
+        <% const fieldErrors = typeof errors !== 'undefined' ? errors : {}; %>
+        <% const alertError = typeof formError !== 'undefined' ? formError : null; %>
+
         <img id="nexa-logo" src="/client/shared/assets/Images/nexa-v1.png">
         <h1>NEXA Register</h1>
 
-        <% if (messages.error) { %>
-            <p class="auth-message error"><%= messages.error %></p>
+        <% if (alertError) { %>
+            <p class="auth-status error"><%= alertError %></p>
         <% } %>
 
-        <form class="auth-form" action="/register" method="POST">
-            <div class="form-row">
+        <form class="auth-form" action="/register" method="POST" novalidate>
+            <div class="form-row <%= fieldErrors.name ? 'has-error' : '' %>">
                 <label for="name">Name</label>
-                <input type="text" id="name" name="name" required>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value="<%= formValues.name || '' %>"
+                    autocomplete="name"
+                    minlength="2"
+                    maxlength="100"
+                    required
+                    aria-invalid="<%= fieldErrors.name ? 'true' : 'false' %>"
+                    <%= fieldErrors.name ? 'aria-describedby="name-error"' : '' %>
+                >
+                <% if (fieldErrors.name) { %>
+                    <p class="field-error" id="name-error"><%= fieldErrors.name %></p>
+                <% } %>
             </div>
 
-            <div class="form-row">
+            <div class="form-row <%= fieldErrors.email ? 'has-error' : '' %>">
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value="<%= formValues.email || '' %>"
+                    autocomplete="email"
+                    required
+                    aria-invalid="<%= fieldErrors.email ? 'true' : 'false' %>"
+                    <%= fieldErrors.email ? 'aria-describedby="email-error"' : '' %>
+                >
+                <% if (fieldErrors.email) { %>
+                    <p class="field-error" id="email-error"><%= fieldErrors.email %></p>
+                <% } %>
             </div>
 
-            <div class="form-row">
+            <div class="form-row <%= fieldErrors.password ? 'has-error' : '' %>">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    autocomplete="new-password"
+                    minlength="12"
+                    maxlength="64"
+                    required
+                    aria-invalid="<%= fieldErrors.password ? 'true' : 'false' %>"
+                    <%= fieldErrors.password ? 'aria-describedby="password-error"' : '' %>
+                >
+                <% if (fieldErrors.password) { %>
+                    <p class="field-error" id="password-error"><%= fieldErrors.password %></p>
+                <% } %>
             </div>
 
             <button type="submit">Register</button>

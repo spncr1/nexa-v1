@@ -24,26 +24,55 @@
 <body>
 
     <main class="content">
+        <% const formValues = typeof values !== 'undefined' ? values : {}; %>
+        <% const fieldErrors = typeof errors !== 'undefined' ? errors : {}; %>
+        <% const alertError = typeof formError !== 'undefined' ? formError : null; %>
+        <% const alertSuccess = typeof successMessage !== 'undefined' ? successMessage : null; %>
+
         <img id="nexa-logo" src="/client/shared/assets/Images/nexa-v1.png">
         <h1>NEXA Login</h1>
 
-        <% if (messages.success) { %>
-            <p class="auth-message success"><%= messages.success %></p>
+        <% if (alertSuccess) { %>
+            <p class="auth-status success"><%= alertSuccess %></p>
         <% } %>
 
-        <% if (messages.error) { %>
-            <p class="auth-message error"><%= messages.error %></p>
+        <% if (alertError) { %>
+            <p class="auth-status error"><%= alertError %></p>
         <% } %>
 
-        <form class="auth-form" action="/login" method="POST">
-            <div class="form-row">
+        <form class="auth-form" action="/login" method="POST" novalidate>
+            <div class="form-row <%= fieldErrors.email ? 'has-error' : '' %>">
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value="<%= formValues.email || '' %>"
+                    autocomplete="email"
+                    required
+                    aria-invalid="<%= fieldErrors.email ? 'true' : 'false' %>"
+                    <%= fieldErrors.email ? 'aria-describedby="email-error"' : '' %>
+                >
+                <% if (fieldErrors.email) { %>
+                    <p class="field-error" id="email-error"><%= fieldErrors.email %></p>
+                <% } %>
             </div>
 
-            <div class="form-row">
+            <div class="form-row <%= fieldErrors.password ? 'has-error' : '' %>">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    autocomplete="current-password"
+                    maxlength="64"
+                    required
+                    aria-invalid="<%= fieldErrors.password ? 'true' : 'false' %>"
+                    <%= fieldErrors.password ? 'aria-describedby="password-error"' : '' %>
+                >
+                <% if (fieldErrors.password) { %>
+                    <p class="field-error" id="password-error"><%= fieldErrors.password %></p>
+                <% } %>
             </div>
 
             <button type="submit">Login</button>

@@ -4,19 +4,22 @@
 
 const localStrategy = require('passport-local').Strategy
 const bcrypt = require('bcrypt')
+const { normalizeEmail } = require('./auth-validation')
+
+const INVALID_LOGIN_MESSAGE = 'Email or password is incorrect.'
 
 function initialize(passport, getUserByEmail, getUserById) {
     const authenticateUser = async (email, password, done) => { // call "done" when we're done authenticating our user
         try {
-            const user = await getUserByEmail(email)
+            const user = await getUserByEmail(normalizeEmail(email))
             if (user == null) {
-                return done(null, false, { message: "No user with that email" })
+                return done(null, false, { message: INVALID_LOGIN_MESSAGE })
             }
 
             if (await bcrypt.compare(password, user.password)) {
                 return done(null, user)
             } else {
-                return done(null, false, { message: "Password incorrect" }) // false for no user found (passwords did not match)
+                return done(null, false, { message: INVALID_LOGIN_MESSAGE }) // false for no user found (passwords did not match)
             }
         } catch (e) {
             return done(e)
