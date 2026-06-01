@@ -119,3 +119,8 @@ html, body {
     font-weight: 700;
     cursor: pointer;
 }
+
+.auth-form button:hover {
+    transform: scale(1.03);
+    filter: brightness(1.15);
+}

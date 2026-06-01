@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
     await window.NexaAppStorage.ready;
     const storage = window.NexaAppStorage;
-    const currentUser = storage.getCurrentUser();
+    let currentUser = storage.getCurrentUser();
     const menuToggle = document.querySelector(".menu-toggle");
     const NAV_COLLAPSED_KEY = "studenthub_nav_collapsed";
     const mobileNavQuery = window.matchMedia("(max-width: 768px)");
@@ -56,8 +56,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const resetAppDataBtn = document.getElementById("reset-app-data-btn");
     const loadDemoDataBtn = document.getElementById("load-demo-data-btn");
     const accountNameInput = document.getElementById("account-name-input");
+    const accountEmailInput = document.getElementById("account-email-input");
     const accountSemesterInput = document.getElementById("account-semester-input");
     const saveAccountBtn = document.getElementById("save-account-btn");
+    const logoutBtn = document.getElementById("logout-btn");
 
     let viewMode = "week";
     let activeDate = atNoon(new Date());
@@ -789,18 +791,66 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (accountNameInput) {
             accountNameInput.value = loadUserName();
         }
+        if (accountEmailInput) {
+            accountEmailInput.value = currentUser?.email || "";
+        }
         if (accountSemesterInput) {
             accountSemesterInput.value = loadSemesterLabel();
         }
     }
 
-    function saveAccountSettings() {
+    async function saveAccountSettings() {
         const nameValue = (accountNameInput?.value || "").trim() || DEFAULT_USER_NAME;
+        const emailValue = (accountEmailInput?.value || "").trim().toLowerCase();
         const semesterValue = (accountSemesterInput?.value || "").trim() || DEFAULT_SEMESTER_LABEL;
 
+        if (!emailValue) {
+            window.alert("Email cannot be blank.");
+            populateAccountInputs();
+            return;
+        }
+
+        const response = await fetch("/api/me", {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({
+                name: nameValue,
+                email: emailValue
+            })
+        });
+
+        if (!response.ok) {
+            const payload = await response.json().catch(() => ({}));
+            window.alert(payload.error || "Could not update account details right now.");
+            populateAccountInputs();
+            return;
+        }
+
+        currentUser = await response.json();
+        storage.setCurrentUser(currentUser);
         storage.setItem(USER_NAME_KEY, nameValue);
         storage.setItem(SEMESTER_KEY, semesterValue);
         populateAccountInputs();
+    }
+
+    async function logoutCurrentUser() {
+        const confirmed = window.confirm("Are you sure you want to log out?");
+        if (!confirmed) return;
+
+        const response = await fetch("/logout", {
+            method: "DELETE",
+            credentials: "same-origin"
+        });
+
+        if (!response.ok) {
+            window.alert("Could not log out right now.");
+            return;
+        }
+
+        window.location.href = "/login";
     }
 
     function randomInt(min, max) {
@@ -1173,7 +1223,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (saveAccountBtn) {
-        saveAccountBtn.addEventListener("click", saveAccountSettings);
+        saveAccountBtn.addEventListener("click", () => {
+            saveAccountSettings().catch((error) => {
+                console.error("Failed to save account settings:", error);
+                window.alert("Could not update account details right now.");
+            });
+        });
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+            logoutCurrentUser().catch((error) => {
+                console.error("Failed to log out:", error);
+                window.alert("Could not log out right now.");
+            });
+        });
     }
 
     populateAccountInputs();

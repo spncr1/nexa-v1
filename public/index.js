@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
     await window.NexaAppStorage.ready;
     const storage = window.NexaAppStorage;
-    const currentUser = storage.getCurrentUser();
+    let currentUser = storage.getCurrentUser();
     const menuToggle = document.querySelector(".menu-toggle");
     const NAV_COLLAPSED_KEY = "studenthub_nav_collapsed";
     const mobileNavQuery = window.matchMedia("(max-width: 768px)");
