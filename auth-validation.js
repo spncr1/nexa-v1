@@ -20,6 +20,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001f\u007f]/;
 const NUMBER_PATTERN = /\d/;
 const LETTER_PATTERN = /[A-Za-z]/;
+const PASSWORD_UPPERCASE_PATTERN = /[A-Z]/;
 const PASSWORD_NUMBER_PATTERN = /\d/;
 const PASSWORD_SPECIAL_CHARACTER_PATTERN = /[^A-Za-z0-9]/;
 
@@ -97,6 +98,10 @@ function validatePassword(password) {
 
     if (rawPassword.length > MAX_PASSWORD_LENGTH) {
         return `Password must be ${MAX_PASSWORD_LENGTH} characters or fewer.`;
+    }
+
+    if (!PASSWORD_UPPERCASE_PATTERN.test(rawPassword)) {
+        return 'Password must include at least one uppercase letter.';
     }
 
     if (!PASSWORD_NUMBER_PATTERN.test(rawPassword)) {

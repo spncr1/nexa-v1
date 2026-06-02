@@ -88,12 +88,77 @@ html, body {
     border: 1px solid var(--color-auth-input);
     border-radius: 10px;
     font-family: "Noto Sans", sans-serif;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .form-row.has-error input {
     border-color: #ed5959;
     box-shadow: 0 0 0 3px rgba(140, 47, 47, 0.12);
+}
+
+.password-input-group {
+    position: relative;
+    width: 100%;
+}
+
+.password-input-group input {
+    width: 100%;
+}
+
+/* Show button */
+.password-inline-btn {
+    border: 1px solid var(--color-task-tbd-hover);
+    border-radius: 8px;
+    background: var(--color-primary-soft);
+    color: var(--color-panel-dark);
+    font-family: "Manrope", sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    height: 34px;
+}
+
+/* Generate button */
+.password-helper-btn {
+    border: 2px solid var(--color-panel-dark);
+    border-radius: 9px;
+    background: var(--color-primary-active);
+    color: var(--color-border);
+    font-family: "Manrope", sans-serif;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    height: 33px;
+}
+
+.password-inline-btn {
+    position: absolute;
+    top: 8px;
+    left: calc(100% + 8px);
+    width: 52px;
+    padding: 0 2px;
+}
+
+.password-suggestion {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    font-family: "Noto Sans", sans-serif;
+    font-size: 11.5px;
+    line-height: 1.35;
+}
+
+.password-helper-btn {
+    width: 82px;
+    padding: 5px 9px;
+}
+
+.password-inline-btn:hover,
+.password-helper-btn:hover {
+    transform: scale(1.03);
+    filter: brightness(1.15);
 }
 
 .field-error {
@@ -106,7 +171,7 @@ html, body {
 }
 
 /* login / register (action) */
-.auth-form button {
+.auth-form > button[type="submit"] {
     align-self: center;
     width: 100px;
     padding: 8px 12px;
@@ -120,7 +185,7 @@ html, body {
     cursor: pointer;
 }
 
-.auth-form button:hover {
+.auth-form > button[type="submit"]:hover {
     transform: scale(1.03);
     filter: brightness(1.15);
 }
