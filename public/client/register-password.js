@@ -1,6 +1,7 @@
 /* Suggested password lists & randomiser logic for suggested password feature on register page */
 
 const passwordInput = document.querySelector("#password");
+const confirmPasswordInput = document.querySelector("#confirmPassword");
 const generatePasswordButton = document.querySelector("#generate-password-btn");
 const togglePasswordButton = document.querySelector("#toggle-password-btn");
 
@@ -105,13 +106,21 @@ function setPasswordVisibility(isVisible) {
     if (!passwordInput || !togglePasswordButton) return;
 
     passwordInput.type = isVisible ? "text" : "password";
+    if (confirmPasswordInput) {
+        confirmPasswordInput.type = isVisible ? "text" : "password";
+    }
     togglePasswordButton.textContent = isVisible ? "Hide" : "Show";
     togglePasswordButton.setAttribute("aria-pressed", String(isVisible));
 }
 
 if (generatePasswordButton && passwordInput) {
     generatePasswordButton.addEventListener("click", () => {
-        passwordInput.value = generateSuggestedPassword();
+        const suggestedPassword = generateSuggestedPassword();
+
+        passwordInput.value = suggestedPassword;
+        if (confirmPasswordInput) {
+            confirmPasswordInput.value = suggestedPassword;
+        }
         setPasswordVisibility(true);
         passwordInput.focus();
     });

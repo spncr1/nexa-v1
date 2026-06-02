@@ -340,6 +340,23 @@ body.nav-collapsed .system-settings {
     box-sizing: border-box;
 }
 
+.settings-status {
+    position: fixed;
+    transform: translateX(-50%);
+    z-index: 11;
+    width: min(100%, 360px);
+    margin: 0;
+    padding: 0;
+    color: #0ee848;
+    text-align: center;
+    font-family: "Noto Sans";
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.4;
+    pointer-events: none;
+    box-sizing: border-box;
+}
+
 .switch {
     position: relative;
     display: inline-block;

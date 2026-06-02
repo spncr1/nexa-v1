@@ -8,6 +8,7 @@ if (process.env.NODE_ENV !== 'production') {
 const express = require('express')
 const path = require('path')
 const dns = require('dns').promises
+const crypto = require('crypto')
 const app = express()
 const bcrypt = require('bcrypt') // needed to facilitate password hashing
 const passport = require('passport')
@@ -16,23 +17,33 @@ const session = require('express-session')
 const PgSession = require('connect-pg-simple')(session)
 const methodOverride = require('method-override')
 const {
+    createAuthToken,
     createUser,
     deleteUserById,
     ensureDatabaseSchema,
     findUserByEmail,
     findUserById,
+    findValidAuthToken,
     formatDbError,
     getUserAppState,
+    invalidateAuthTokens,
     pool,
+    resetPasswordWithAuthToken,
     saveUserAppState,
     testDatabaseConnection,
     updateUserById
 } = require('./db')
 const {
     validateAccountInput,
+    validateForgotPasswordInput,
     validateLoginInput,
+    validatePasswordResetInput,
     validateRegistrationInput
 } = require('./auth-validation')
+const {
+    assertEmailConfiguration,
+    sendPasswordResetEmail
+} = require('./mailer')
 
 const initialisePassport = require('./passport.config')
 initialisePassport(
@@ -40,6 +51,10 @@ initialisePassport(
     findUserByEmail,
     findUserById
 )
+
+const PASSWORD_RESET_PURPOSE = 'password_reset'
+const PASSWORD_RESET_TTL_MS = 60 * 60 * 1000
+const FORGOT_PASSWORD_SUCCESS_MESSAGE = 'If an account exists for that email, a password reset link has been sent.'
 
 let startupPromise = null
 
@@ -76,8 +91,48 @@ function renderRegister(res, options = {}) {
     })
 }
 
+function renderForgotPassword(res, options = {}) {
+    res.status(options.status || 200).render('forgot-password.ejs', {
+        values: options.values || {},
+        errors: options.errors || {},
+        formError: options.formError || null,
+        successMessage: options.successMessage || null
+    })
+}
+
+function renderResetPassword(res, options = {}) {
+    res.status(options.status || 200).render('reset-password.ejs', {
+        token: options.token || '',
+        errors: options.errors || {},
+        formError: options.formError || null,
+        canReset: options.canReset !== false
+    })
+}
+
 function getEmailDomain(email) {
     return String(email || '').split('@')[1] || ''
+}
+
+function hashAuthToken(token) {
+    return crypto.createHash('sha256').update(token).digest('hex')
+}
+
+function createRawAuthToken() {
+    return crypto.randomBytes(32).toString('hex')
+}
+
+function getAppBaseUrl() {
+    if (!process.env.APP_BASE_URL) {
+        const error = new Error('Missing APP_BASE_URL configuration')
+        error.code = 'APP_BASE_URL_MISSING'
+        throw error
+    }
+
+    return process.env.APP_BASE_URL
+}
+
+function createPasswordResetUrl(token) {
+    return new URL(`/reset-password/${token}`, getAppBaseUrl()).toString()
 }
 
 const DEFINITE_EMAIL_DOMAIN_FAILURE_CODES = new Set(['ENOTFOUND', 'ENODATA', 'ENODOMAIN'])
@@ -161,6 +216,36 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
     })
 });
 
+app.get('/forgot-password', checkNotAuthenticated, (req, res) => {
+    renderForgotPassword(res)
+});
+
+app.get('/reset-password/:token', checkNotAuthenticated, async (req, res) => {
+    try {
+        const tokenHash = hashAuthToken(req.params.token)
+        const resetToken = await findValidAuthToken(PASSWORD_RESET_PURPOSE, tokenHash)
+
+        if (!resetToken) {
+            return renderResetPassword(res, {
+                status: 400,
+                token: req.params.token,
+                formError: 'This password reset link is invalid or has expired.',
+                canReset: false
+            })
+        }
+
+        renderResetPassword(res, { token: req.params.token })
+    } catch (error) {
+        console.error('Failed to load password reset page:', formatDbError(error))
+        renderResetPassword(res, {
+            status: 500,
+            token: req.params.token,
+            formError: 'Could not load password reset right now.',
+            canReset: false
+        })
+    }
+});
+
 app.post('/login', checkNotAuthenticated, (req, res, next) => {
     const validation = validateLoginInput(req.body)
 
@@ -194,6 +279,103 @@ app.post('/login', checkNotAuthenticated, (req, res, next) => {
             return res.redirect('/')
         })
     })(req, res, next)
+})
+
+app.post('/forgot-password', checkNotAuthenticated, async (req, res) => {
+    const validation = validateForgotPasswordInput(req.body)
+
+    if (!validation.isValid) {
+        return renderForgotPassword(res, {
+            status: 422,
+            values: validation.values,
+            errors: validation.errors,
+            formError: 'Please fix the highlighted fields.'
+        })
+    }
+
+    try {
+        assertEmailConfiguration()
+        const user = await findUserByEmail(validation.values.email)
+
+        if (!user) {
+            return renderForgotPassword(res, {
+                successMessage: FORGOT_PASSWORD_SUCCESS_MESSAGE
+            })
+        }
+
+        const rawToken = createRawAuthToken()
+        const tokenHash = hashAuthToken(rawToken)
+        const expiresAt = new Date(Date.now() + PASSWORD_RESET_TTL_MS)
+
+        await createAuthToken({
+            userId: user.id,
+            purpose: PASSWORD_RESET_PURPOSE,
+            tokenHash,
+            expiresAt
+        })
+
+        try {
+            await sendPasswordResetEmail({
+                to: user.email,
+                name: user.name,
+                resetUrl: createPasswordResetUrl(rawToken)
+            })
+        } catch (error) {
+            await invalidateAuthTokens(user.id, PASSWORD_RESET_PURPOSE)
+            throw error
+        }
+
+        renderForgotPassword(res, {
+            successMessage: FORGOT_PASSWORD_SUCCESS_MESSAGE
+        })
+    } catch (error) {
+        console.error('Failed to send password reset email:', formatDbError(error))
+        renderForgotPassword(res, {
+            status: 500,
+            values: validation.values,
+            formError: 'Could not send a password reset email right now.'
+        })
+    }
+})
+
+app.post('/reset-password/:token', checkNotAuthenticated, async (req, res) => {
+    const validation = validatePasswordResetInput(req.body)
+
+    if (!validation.isValid) {
+        return renderResetPassword(res, {
+            status: 422,
+            token: req.params.token,
+            errors: validation.errors
+        })
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(req.body.password, 10)
+        const updatedUser = await resetPasswordWithAuthToken({
+            purpose: PASSWORD_RESET_PURPOSE,
+            tokenHash: hashAuthToken(req.params.token),
+            passwordHash: hashedPassword
+        })
+
+        if (!updatedUser) {
+            return renderResetPassword(res, {
+                status: 400,
+                token: req.params.token,
+                formError: 'This password reset link is invalid or has expired.',
+                canReset: false
+            })
+        }
+
+        req.flash('success', 'Password updated successfully. You can log in now.')
+        res.redirect('/login')
+    } catch (error) {
+        console.error('Failed to reset password:', formatDbError(error))
+        renderResetPassword(res, {
+            status: 500,
+            token: req.params.token,
+            formError: 'Could not reset your password right now.'
+        })
+    }
 })
 
 app.post('/register', checkNotAuthenticated, async (req, res) => {

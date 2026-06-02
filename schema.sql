@@ -17,6 +17,23 @@ CREATE TABLE IF NOT EXISTS user_app_state (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS auth_tokens (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    purpose VARCHAR(64) NOT NULL,
+    token_hash CHAR(64) NOT NULL UNIQUE,
+    expires_at TIMESTAMPTZ NOT NULL,
+    used_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_auth_tokens_user_purpose
+ON auth_tokens (user_id, purpose, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_auth_tokens_active_hash
+ON auth_tokens (purpose, token_hash)
+WHERE used_at IS NULL;
+
 CREATE TABLE IF NOT EXISTS "session" (
     sid VARCHAR PRIMARY KEY,
     sess JSON NOT NULL,

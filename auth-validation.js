@@ -174,6 +174,34 @@ function validateLoginInput(input = {}) {
     return buildResult(errors, values);
 }
 
+function validateForgotPasswordInput(input = {}) {
+    const values = {
+        email: normalizeEmail(input.email)
+    };
+    const errors = {};
+
+    const emailError = validateEmail(input.email);
+
+    if (emailError) errors.email = emailError;
+
+    return buildResult(errors, values);
+}
+
+function validatePasswordResetInput(input = {}) {
+    const errors = {};
+
+    const passwordError = validatePassword(input.password);
+    if (passwordError) errors.password = passwordError;
+
+    if (!String(input.confirmPassword || '')) {
+        errors.confirmPassword = 'Confirm your new password.';
+    } else if (String(input.password || '') !== String(input.confirmPassword || '')) {
+        errors.confirmPassword = 'Passwords do not match.';
+    }
+
+    return buildResult(errors, {});
+}
+
 function validateAccountInput(input = {}) {
     const values = {
         name: normalizeName(input.name),
@@ -199,6 +227,9 @@ module.exports = {
     normalizeEmail,
     normalizeName,
     validateAccountInput,
+    validateForgotPasswordInput,
     validateLoginInput,
+    validatePassword,
+    validatePasswordResetInput,
     validateRegistrationInput
 };

@@ -146,7 +146,7 @@ html, body {
     gap: 10px;
     width: 100%;
     font-family: "Noto Sans", sans-serif;
-    font-size: 11.5px;
+    font-size: 12px;
     line-height: 1.35;
 }
 
@@ -188,4 +188,23 @@ html, body {
 .auth-form > button[type="submit"]:hover {
     transform: scale(1.03);
     filter: brightness(1.15);
+}
+
+.auth-link {
+    display: inline-block;
+    margin-top: 12px;
+    color: var(--color-primary-active);
+    font-family: "Noto Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.auth-link.secondary {
+    margin-top: 16px;
+    font-size: 13px;
+}
+
+.auth-link:hover {
+    text-decoration: underline;
 }

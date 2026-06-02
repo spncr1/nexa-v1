@@ -54,6 +54,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const saveAccountBtn = document.getElementById("save-account-btn");
     const logoutBtn = document.getElementById("logout-btn");
     const deleteAccountBtn = document.getElementById("delete-account-btn");
+    let settingsStatusEl = null;
+    let settingsStatusTimer = null;
 
     /* Add Assignment elements */
     const addAssignmentBtn = document.getElementById("add-assignment-btn");
@@ -129,6 +131,45 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    function ensureSettingsStatus() {
+        if (settingsStatusEl) return settingsStatusEl;
+
+        settingsStatusEl = document.createElement("p");
+        settingsStatusEl.className = "settings-status hidden";
+        settingsStatusEl.setAttribute("role", "status");
+        systemSettingsModal?.insertAdjacentElement("afterend", settingsStatusEl);
+
+        return settingsStatusEl;
+    }
+
+    function positionSettingsStatus() {
+        const statusEl = ensureSettingsStatus();
+        if (!systemSettingsModal) return;
+
+        const modalRect = systemSettingsModal.getBoundingClientRect();
+        statusEl.style.left = `${modalRect.left + modalRect.width / 2}px`;
+        statusEl.style.top = `${modalRect.bottom + 12}px`;
+    }
+
+    function clearSettingsStatus() {
+        window.clearTimeout(settingsStatusTimer);
+        settingsStatusTimer = null;
+        if (!settingsStatusEl) return;
+
+        settingsStatusEl.classList.add("hidden");
+        settingsStatusEl.textContent = "";
+    }
+
+    function showSettingsStatus(message) {
+        const statusEl = ensureSettingsStatus();
+
+        statusEl.textContent = message;
+        positionSettingsStatus();
+        statusEl.classList.remove("hidden");
+        window.clearTimeout(settingsStatusTimer);
+        settingsStatusTimer = window.setTimeout(clearSettingsStatus, 2500);
+    }
+
     async function saveAccountSettings() {
         const nameValue = (accountNameInput?.value || "").trim() || DEFAULT_USER_NAME;
         const emailValue = (accountEmailInput?.value || "").trim().toLowerCase();
@@ -165,6 +206,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         storage.setItem(SEMESTER_KEY, semesterValue);
         populateAccountInputs();
         renderSemesterLabel();
+        showSettingsStatus("Account details saved successfully.");
     }
 
     async function logoutCurrentUser() {
@@ -403,11 +445,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function openSystemSettings() {
         backdrop.classList.remove("hidden");
+        clearSettingsStatus();
         systemSettingsModal.classList.remove("hidden");
     }
 
     function closeSystemSettings() {
         systemSettingsModal.classList.add("hidden");
+        clearSettingsStatus();
 
         const subjectOpen = subjectModal && !subjectModal.classList.contains("hidden");
         const assignmentOpen = assignmentModal && !assignmentModal.classList.contains("hidden");
@@ -1753,6 +1797,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         closeAssignmentModal();
         closeViewAssignmentModal();
         closeSystemSettings();
+    });
+    window.addEventListener("resize", () => {
+        if (settingsStatusEl && !settingsStatusEl.classList.contains("hidden")) {
+            positionSettingsStatus();
+        }
     });
     
     function updateSubjectsOverflowHint() {
