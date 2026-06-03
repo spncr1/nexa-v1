@@ -29,14 +29,42 @@
                 ☰
             </button>
             
-            <ul>
+            <ul class="nav-list">
                 <li><a href="/">Home</a></li>
-                <li><a href="/client/features/Tasks/tasks.html" class="active">Tasks</a></li>
-                <li><a href="/client/features/Assignments/assignments.html">Assignments</a></li>
-                <li><a href="/client/features/StudyPlanner/study-planner.html">Study Planner</a>
-                <li><a href="/client/features/Habits/habits.html">Habits</a>
-                <li><a href="/client/features/JobApplications/job-applications.html">Job Applications</a>
-                <li><a href="/client/features/Finances/finances.html">Finances</a>
+                <li>
+                    <details class="nav-group" open>
+                        <summary>Study</summary>
+                        <ul class="nav-submenu">
+                            <li><a href="/client/features/Tasks/tasks.html" class="active">Tasks</a></li>
+                            <li><a href="/client/features/Assignments/assignments.html">Assignments</a></li>
+                            <li><a href="/client/features/StudyPlanner/study-planner.html">Study Planner</a></li>
+                        </ul>
+                    </details>
+                </li>
+                <li>
+                    <details class="nav-group">
+                        <summary>Life</summary>
+                        <ul class="nav-submenu">
+                            <li><a href="/client/features/Habits/habits.html">Habits</a></li>
+                        </ul>
+                    </details>
+                </li>
+                <li>
+                    <details class="nav-group">
+                        <summary>Career</summary>
+                        <ul class="nav-submenu">
+                            <li><a href="/client/features/JobApplications/job-applications.html">Job Applications</a></li>
+                        </ul>
+                    </details>
+                </li>
+                <li>
+                    <details class="nav-group">
+                        <summary>Money</summary>
+                        <ul class="nav-submenu">
+                            <li><a href="/client/features/Finances/finances.html">Finances</a></li>
+                        </ul>
+                    </details>
+                </li>
             </ul>
         </nav>
 
