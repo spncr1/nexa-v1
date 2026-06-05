@@ -25,7 +25,7 @@ My motivation behind building this project was to address how overwhelming manag
 - **Dark Mode**
     - Toggle between light and dark mode interfaces to account for different user preferences
 - **Data Storage**
-    - The current version utilises a Node.js, Express, and PostgreSQLL backend to support user authentication, persistent data storage, and multi-user scalability
+    - The current version utilises a Node.js, Express, and PostgreSQL backend to support user authentication, persistent data storage, and multi-user scalability
 ---
 
 ## Screenshots
@@ -59,7 +59,7 @@ My motivation behind building this project was to address how overwhelming manag
 ---
 
 ## Running the Project (locally)
-Clone the repoistory:
+Clone the repository:
 ```bash
 https://github.com/spncr1/nexa-v1.git
 ```
@@ -82,5 +82,5 @@ This command starts the Express app with `nodemon`. The app also needs a reachab
 - Continued refinement of the interface and overall user workflow
 - Mobile optimisation
 - Notifications & reminder systems
-- Additional producitivity analytics & visuals
+- Additional productivity analytics & visuals
 - Additional features with practical usage beyond a solely school/university focus

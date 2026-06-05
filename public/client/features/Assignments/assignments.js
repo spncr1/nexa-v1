@@ -100,6 +100,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const DEFAULT_USER_NAME = currentUser?.name || "Student"; // if for whatever reason an issue occurs with the name loading, the default should just be "student"
     const DEFAULT_SEMESTER_LABEL = "Untitled Semester";
     const APP_DATA_KEYS = [TASKS_KEY, STORAGE_KEY, ASSIGNMENTS_KEY, USER_NAME_KEY, SEMESTER_KEY];
+    const PIE_ASSIGNMENT_LABEL_MAX = 12;
 
     function loadUserName() {
         const saved = storage.getItem(USER_NAME_KEY);
@@ -396,9 +397,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         subjects.push(newSubject);
         saveSubjects(subjects);
-        renderSubjects(subjects);
+        refreshSubjectViews();
         showSubjectStatus("Subject added successfully.", { closeAfter: true });
-        renderTotalCourseAssignmentsWidget();
     }
 
     function saveSubjectEdits() {
@@ -427,9 +427,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         subjects[idx].updatedAt = Date.now();
 
         saveSubjects(subjects);
-        renderSubjects(subjects);
+        refreshSubjectViews();
         showSubjectStatus("Subject updated.", { closeAfter: true });
-        renderTotalCourseAssignmentsWidget();
     }
 
     function deleteSubject() {
@@ -438,9 +437,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const subjects = loadSubjects().filter(s => s.id !== editingSubjectId);
 
         saveSubjects(subjects);
-        renderSubjects(subjects);
+        refreshSubjectViews();
         showSubjectStatus("Subject deleted.", { closeAfter: true });
-        renderTotalCourseAssignmentsWidget();
     }
 
     function openSystemSettings() {
@@ -478,6 +476,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     function setDarkMode(isOn) {
         document.body.classList.toggle("dark-mode", isOn);
         storage.setItem("darkMode", isOn ? "1" : "0");
+        document.cookie = `nexa_dark_mode=${isOn ? "1" : "0"}; path=/; max-age=31536000; SameSite=Lax`;
     }
 
     if (systemSettingsBtn && systemSettingsModal && backdrop) {
@@ -854,10 +853,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         assignments.push(newAssignment);
         saveAssignments(assignments);
-        renderAssignments();
+        refreshAssignmentViews();
         closeAssignmentModal();
-        renderTotalCourseAssignmentsWidget();
-        renderDashboard();
     }
 
     function saveAssignmentEdits() {
@@ -912,20 +909,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
 
         saveAssignments(assignments);
-        renderAssignments();
+        refreshAssignmentViews();
         closeAssignmentModal();
-        renderTotalCourseAssignmentsWidget();
-        renderDashboard();
     }
 
     function deleteAssignment() {
         if (!editingAssignmentId) return;
         const assignments = loadAssignments().filter(a => a.id !== editingAssignmentId);
         saveAssignments(assignments);
-        renderAssignments();
+        refreshAssignmentViews();
         closeAssignmentModal();
-        renderTotalCourseAssignmentsWidget();
-        renderDashboard();
     }
 
     function resetAllAssignments() {
@@ -944,10 +937,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         editingAssignmentId = null;
 
         closeAssignmentModal();
-        renderAssignments();
-        rebuildCarousel();
-        renderTotalCourseAssignmentsWidget();
-        renderDashboard();
+        refreshAssignmentViews();
     }
 
     function randomInt(min, max) {
@@ -1003,13 +993,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             closeSubjectModal();
         }
         closeViewAssignmentModal();
-        renderSubjects(loadSubjects());
-        populateCourseOptions();
-        renderAssignments();
-        rebuildCarousel();
+        refreshSubjectViews();
         renderSemesterLabel();
         populateAccountInputs();
-        renderTotalCourseAssignmentsWidget();
         renderDashboard();
         updateSubjectsOverflowHint();
     }
@@ -1148,13 +1134,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         editingAssignmentId = null;
         editingSubjectId = null;
-        renderSubjects(loadSubjects());
-        populateCourseOptions();
-        renderAssignments();
-        rebuildCarousel();
+        refreshSubjectViews();
         renderSemesterLabel();
         populateAccountInputs();
-        renderTotalCourseAssignmentsWidget();
         renderDashboard();
         updateSubjectsOverflowHint();
     }
@@ -1259,10 +1241,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             label.setAttribute("dominant-baseline", "middle");
             label.classList.add("pie-label");
 
+            const fullTaskName = (slice.assignment.task || "Task").trim() || "Task";
+            const title = document.createElementNS(svgNS, "title");
+            title.textContent = fullTaskName;
+            label.appendChild(title);
+
             const line1 = document.createElementNS(svgNS, "tspan");
             line1.setAttribute("x", tx);
             line1.setAttribute("dy", "-0.45em");
-            line1.textContent = (slice.assignment.task || "Task").trim().slice(0, 11);
+            line1.textContent = truncatePieAssignmentLabel(fullTaskName);
 
             const line2 = document.createElementNS(svgNS, "tspan");
             line2.setAttribute("x", tx);
@@ -1278,6 +1265,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         wrapper.appendChild(svg);
         return wrapper;
+    }
+
+    function truncatePieAssignmentLabel(value) {
+        const text = (value || "Task").trim() || "Task";
+        if (text.length <= PIE_ASSIGNMENT_LABEL_MAX) return text;
+
+        return `${text.slice(0, PIE_ASSIGNMENT_LABEL_MAX - 3).trimEnd()}...`;
     }
 
     function renderCarousel() {
@@ -1312,6 +1306,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function rebuildCarousel() {
+        const currentSubjectId = carouselSubjects[carouselIndex]?.id || null;
         const assignments = loadAssignments();
         const subjects = loadSubjects();
         const grouped = groupAssignmentsBySubject(assignments);
@@ -1330,8 +1325,24 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         });
 
-        carouselIndex = 0;
+        const preservedIndex = carouselSubjects.findIndex(s => s.id === currentSubjectId);
+        carouselIndex = preservedIndex >= 0 ? preservedIndex : 0;
         renderCarousel();
+    }
+
+    function refreshAssignmentViews() {
+        renderAssignments();
+        rebuildCarousel();
+        renderTotalCourseAssignmentsWidget();
+        renderDashboard();
+    }
+
+    function refreshSubjectViews() {
+        renderSubjects(loadSubjects());
+        populateCourseOptions();
+        renderAssignments();
+        rebuildCarousel();
+        renderTotalCourseAssignmentsWidget();
     }
 
     function getSubjectColour(i) {
@@ -1833,13 +1844,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
      // Initial render
-    renderSubjects(loadSubjects());
-    populateCourseOptions();
-    renderAssignments();
-    rebuildCarousel();
+    refreshSubjectViews();
     renderSemesterLabel();
     populateAccountInputs();
-    renderTotalCourseAssignmentsWidget();
     renderDashboard();
     openAssignmentFromHomeWidget();
     subjectsListEl.addEventListener("scroll", updateSubjectsOverflowHint);

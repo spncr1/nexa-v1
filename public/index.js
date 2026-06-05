@@ -961,6 +961,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     function setDarkMode(isOn) {
         document.body.classList.toggle("dark-mode", isOn);
         storage.setItem("darkMode", isOn ? "1" : "0");
+        document.cookie = `nexa_dark_mode=${isOn ? "1" : "0"}; path=/; max-age=31536000; SameSite=Lax`;
     }
 
     function randomInt(min, max) {
