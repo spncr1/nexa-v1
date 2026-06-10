@@ -14,6 +14,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    function stopCollapsedNavActivation(event) {
+        if (!document.body.classList.contains("nav-collapsed")) return;
+
+        const target = event.target.closest(".navbar .nav-list a, .navbar .nav-group summary");
+        if (!target) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
     if (menuToggle) {
         const savedCollapsed = storage.getItem(NAV_COLLAPSED_KEY) === "1";
         setNavCollapsed(mobileNavQuery.matches ? true : savedCollapsed);
@@ -22,6 +32,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             setNavCollapsed(next);
         });
     }
+
+    document.querySelector(".navbar .nav-list")?.addEventListener("click", stopCollapsedNavActivation, true);
+    document.querySelector(".navbar .nav-list")?.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+            stopCollapsedNavActivation(event);
+        }
+    }, true);
 
     /* Date Buttons Interactivity */
     const todayBtn = document.getElementById("today-btn");
@@ -40,6 +57,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const titleInput = document.getElementById("task-title");
     const notesInput = document.getElementById("task-notes");
     const prioritySelect = document.getElementById("task-priority");
+    const taskWorkflowStatusSelect = document.getElementById("task-workflow-status");
 
     const cancelBtn = document.getElementById("cancel-task-btn");
     const confirmBtn = document.getElementById("confirm-task-btn");
@@ -320,6 +338,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         storage.setItem(TASKS_KEY, JSON.stringify(tasksByDate));
     }
 
+    function normalizeTaskStatus(task) {
+        const status = (task?.status || "").trim().toLowerCase();
+        if (status === "completed" || task?.done === true) return "completed";
+        if (status === "in-progress") return "in-progress";
+        return "not-started";
+    }
+
+    function taskStatusLabel(task) {
+        return toLabelCase(normalizeTaskStatus(task).replaceAll("-", " "));
+    }
+
     // render tasks for the currently selected date
     function renderTasksForSelectedDate() {
         const tasksByDate = loadAllTasks();
@@ -338,10 +367,46 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         sortedTasks.forEach((t) => {
+            const priority = (t.priority || "medium").toLowerCase();
+            const status = normalizeTaskStatus(t);
             const li = document.createElement("li");
-            li.className = "task-list-item";
-            li.textContent = `${t.title} (${t.priority})`;
+            li.className = `task-list-item priority-${priority} status-${status}`;
+            if (status === "completed") {
+                li.classList.add("is-completed");
+            }
             li.dataset.taskId = t.id; // attach the task id to the element (so clicks can find the correct task)
+
+            const contentBtn = document.createElement("button");
+            contentBtn.type = "button";
+            contentBtn.className = "task-list-main";
+            contentBtn.setAttribute("aria-label", `Edit ${t.title || "task"}`);
+
+            const title = document.createElement("span");
+            title.className = "task-list-title";
+            title.textContent = t.title || "Task";
+
+            const meta = document.createElement("span");
+            meta.className = "task-list-meta";
+            meta.textContent = `${toLabelCase(priority)} priority - ${taskStatusLabel(t)}`;
+
+            contentBtn.appendChild(title);
+            contentBtn.appendChild(meta);
+
+            const checkBtn = document.createElement("button");
+            checkBtn.type = "button";
+            checkBtn.className = "task-check-btn";
+            checkBtn.setAttribute("aria-pressed", status === "completed" ? "true" : "false");
+            checkBtn.setAttribute("aria-label", `${status === "completed" ? "Mark incomplete" : "Mark complete"}: ${t.title || "Task"}`);
+
+            const checkIcon = document.createElement("img");
+            checkIcon.className = "app-icon";
+            checkIcon.src = status === "completed" ? "/client/shared/assets/Icons/check.svg" : "/client/shared/assets/Icons/check-box.svg";
+            checkIcon.alt = "";
+            checkIcon.setAttribute("aria-hidden", "true");
+
+            checkBtn.appendChild(checkIcon);
+            li.appendChild(contentBtn);
+            li.appendChild(checkBtn);
             taskListEl.appendChild(li);
         });
 
@@ -742,12 +807,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         renderCalendarWidget();
     }
 
+    function setButtonLabel(button, label) {
+        const labelEl = button?.querySelector(".ui-btn-label");
+        if (labelEl) {
+            labelEl.textContent = label;
+            return;
+        }
+        if (button) button.textContent = label;
+    }
+
     /* modal open/close */
     function openModal() {
         editingTaskId = null; // force add-mode
         
         document.getElementById("task-modal-title").textContent = "ADD TASK";
-        confirmBtn.textContent = "Add";
+        setButtonLabel(confirmBtn, "Add");
         document.getElementById("delete-task-btn").classList.add("hidden");
 
         backdrop.classList.remove("hidden");
@@ -755,6 +829,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         titleInput.value = "";
         notesInput.value = "";
         prioritySelect.value = "medium";
+        if (taskWorkflowStatusSelect) taskWorkflowStatusSelect.value = "not-started";
         statusEl.textContent = "";
         titleInput.focus(); // subtle UX improvement
     }
@@ -773,6 +848,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const title = titleInput.value.trim();
         const notes = notesInput.value.trim();
         const priority = prioritySelect.value;
+        const workflowStatus = taskWorkflowStatusSelect?.value || "not-started";
 
         // Simple input validation so far
         if (!title) {
@@ -793,7 +869,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             title,
             notes,
             priority,
-            done: false,
+            status: workflowStatus,
+            done: workflowStatus === "completed",
             createdAt: now,
             updatedAt: now // so "last updated" works from day one
         }
@@ -821,10 +898,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         titleInput.value = task.title;
         notesInput.value = task.notes || "";
         prioritySelect.value = task.priority;
+        if (taskWorkflowStatusSelect) taskWorkflowStatusSelect.value = normalizeTaskStatus(task);
 
         // update modal heading + buttons
         document.getElementById("task-modal-title").textContent = "EDIT TASK";
-        document.getElementById("confirm-task-btn").textContent = "Save";
+        setButtonLabel(document.getElementById("confirm-task-btn"), "Save");
         document.getElementById("delete-task-btn").classList.remove("hidden");
 
         backdrop.classList.remove("hidden");
@@ -846,6 +924,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         tasks[idx].title = title;
         tasks[idx].notes = notesInput.value.trim();
         tasks[idx].priority = prioritySelect.value;
+        tasks[idx].status = taskWorkflowStatusSelect?.value || normalizeTaskStatus(tasks[idx]);
+        tasks[idx].done = tasks[idx].status === "completed";
         tasks[idx].updatedAt = Date.now();
 
         saveAllTasks(tasksByDate);
@@ -867,6 +947,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         renderTasksForSelectedDate();
 
         showStatus("Task deleted.", { closeAfter: true });
+    }
+
+    function toggleTaskCompletion(taskId) {
+        const tasksByDate = loadAllTasks();
+        const key = dateKey(selectedDate);
+        const tasks = tasksByDate[key] || [];
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) return;
+
+        const nextStatus = normalizeTaskStatus(task) === "completed" ? "not-started" : "completed";
+        task.status = nextStatus;
+        task.done = nextStatus === "completed";
+        task.updatedAt = Date.now();
+
+        saveAllTasks(tasksByDate);
+        renderTasksForSelectedDate();
     }
 
     function clearStatus() {
@@ -892,16 +988,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         const normalise = (s) => (s || "").trim().toLowerCase(); // small helper to normalise strings for consistent A-Z sorting
 
         const priorityRank = {high: 3, medium: 2, low: 1}; // priority ranking: highest should always come first
+        const completionRank = (task) => normalizeTaskStatus(task) === "completed" ? 1 : 0;
+        const completedLast = (a, b) => completionRank(a) - completionRank(b);
 
         switch (mode) {
             case "az":
-                copy.sort((a, b) => normalise(a.title).localeCompare(normalise(b.title)));
+                copy.sort((a, b) => completedLast(a, b) || normalise(a.title).localeCompare(normalise(b.title)));
                 break;
             case "za":
-                copy.sort((a, b) => normalise(b.title).localeCompare(normalise(a.title)));
+                copy.sort((a, b) => completedLast(a, b) || normalise(b.title).localeCompare(normalise(a.title)));
                 break;
             case "priority":
                 copy.sort((a, b) => {
+                    const doneDiff = completedLast(a, b);
+                    if (doneDiff) return doneDiff;
+
                     const pa = priorityRank[a.priority] || 0;
                     const pb = priorityRank[b.priority] || 0;
 
@@ -911,14 +1012,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                 });
                 break;
             case "lastUpdated":
-                copy.sort((a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0)); // most recently updated first. if no updatedAt exists, fall back to createdAt
+                copy.sort((a, b) => completedLast(a, b) || (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0)); // most recently updated first. if no updatedAt exists, fall back to createdAt
                 break;
             case "createdNewOld":
-                copy.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                copy.sort((a, b) => completedLast(a, b) || (b.createdAt || 0) - (a.createdAt || 0));
                 break;
             case "createdOldNew":
             default:
-                copy.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+                copy.sort((a, b) => completedLast(a, b) || (a.createdAt || 0) - (b.createdAt || 0));
                 break;
         }
 
@@ -1017,6 +1118,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             "Prioritize this before dinner."
         ];
         const priorities = ["low", "medium", "high"];
+        const statuses = ["not-started", "in-progress", "completed"];
         const baseDate = new Date();
         baseDate.setHours(12, 0, 0, 0);
 
@@ -1028,13 +1130,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             const dateObj = new Date(baseDate);
             dateObj.setDate(baseDate.getDate() + randomInt(-10, 40));
             const key = dateKey(dateObj);
+            const status = pick(statuses);
 
             const task = {
                 id: now + i,
                 title: pick(titles),
                 notes: pick(notes),
                 priority: pick(priorities),
-                done: false,
+                status,
+                done: status === "completed",
                 createdAt: now - randomInt(0, 8) * 86400000,
                 updatedAt: now - randomInt(0, 3) * 3600000
             };
@@ -1229,6 +1333,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     
     taskListEl.addEventListener("click", (e) => {
+        const checkBtn = e.target.closest(".task-check-btn");
+        if (checkBtn) {
+            const li = checkBtn.closest("li");
+            if (!li) return;
+            toggleTaskCompletion(Number(li.dataset.taskId));
+            return;
+        }
+
         const li = e.target.closest("li");
         if (!li) return;
 

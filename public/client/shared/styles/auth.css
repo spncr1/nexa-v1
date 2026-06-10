@@ -105,17 +105,19 @@ html, body {
     width: 100%;
 }
 
-/* Show button */
+/* Show / hide password button */
 .password-inline-btn {
     border: 1px solid var(--color-task-tbd-hover);
     border-radius: 8px;
     background: var(--color-primary-soft);
     color: var(--color-panel-dark);
     font-family: "Manrope", sans-serif;
-    font-size: 12.5px;
     font-weight: 600;
     cursor: pointer;
     height: 34px;
+    display: inline-grid;
+    place-items: center;
+    padding: 0;
 }
 
 /* Generate button */
@@ -135,8 +137,12 @@ html, body {
     position: absolute;
     top: 8px;
     left: calc(100% + 8px);
-    width: 52px;
-    padding: 0 2px;
+    width: 38px;
+}
+
+.password-visibility-icon {
+    width: 20px;
+    height: 20px;
 }
 
 .password-suggestion {

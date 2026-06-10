@@ -6,24 +6,6 @@
 
 @import url("/client/shared/styles/tokens.css");
 
-.navbar a:hover {
-    background: var(--color-primary-hover);
-}
-
-.navbar a.active {
-    background: var(--color-primary-active);
-    font-weight: 700;
-}
-
-.btn-primary:hover,
-.btn-secondary:hover {
-    background-color: var(--color-control-hover);
-}
-
-.btn-secondary {
-    background-color: var(--color-panel);
-}
-
 .switch input:checked + .slider {
     background: var(--color-primary-active);
 }

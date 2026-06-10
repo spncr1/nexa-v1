@@ -14,6 +14,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    function stopCollapsedNavActivation(event) {
+        if (!document.body.classList.contains("nav-collapsed")) return;
+
+        const target = event.target.closest(".navbar .nav-list a, .navbar .nav-group summary");
+        if (!target) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
     if (menuToggle) {
         const savedCollapsed = storage.getItem(NAV_COLLAPSED_KEY) === "1";
         setNavCollapsed(mobileNavQuery.matches ? true : savedCollapsed);
@@ -22,6 +32,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             setNavCollapsed(next);
         });
     }
+
+    document.querySelector(".navbar .nav-list")?.addEventListener("click", stopCollapsedNavActivation, true);
+    document.querySelector(".navbar .nav-list")?.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+            stopCollapsedNavActivation(event);
+        }
+    }, true);
 
     /* ==== Elements ==== */
     const subjectsListEl = document.getElementById("subjects-list");
@@ -115,7 +132,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const labels = document.querySelectorAll(".semester-label");
         if (!labels.length) return;
         labels.forEach((el) => {
-            el.textContent = `(${loadSemesterLabel()})`;
+            el.textContent = `${loadSemesterLabel()}`;
         });
     }
 
@@ -292,6 +309,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         }, STATUS_MS);
     }
 
+    function setButtonLabel(button, label) {
+        const labelEl = button?.querySelector(".ui-btn-label");
+        if (labelEl) {
+            labelEl.textContent = label;
+            return;
+        }
+        if (button) button.textContent = label;
+    }
+
     // RENDER
     function renderSubjects(subjects) {
         subjectsListEl.innerHTML = "";
@@ -322,7 +348,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         editingSubjectId = null;
 
         subjectModalTitle.textContent = "ADD SUBJECT";
-        confirmSubjectBtn.textContent = "Add";
+        setButtonLabel(confirmSubjectBtn, "Add");
         subjectStatus.textContent = "";
         subjectNameInput.value = "";
         subjectBackdrop.classList.remove("hidden");
@@ -339,7 +365,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         editingSubjectId = subjectId;
 
         subjectModalTitle.textContent = "EDIT SUBJECT";
-        confirmSubjectBtn.textContent = "Save";
+        setButtonLabel(confirmSubjectBtn, "Save");
         deleteSubjectBtn.classList.remove("hidden");
         subjectStatus.textContent = "";
         subjectNameInput.value = subject.name;
@@ -713,7 +739,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         populateCourseOptions();
 
         assignmentModalTitle.textContent = "ADD ASSIGNMENT";
-        confirmAssignmentBtn.textContent = "Add";
+        setButtonLabel(confirmAssignmentBtn, "Add");
         deleteAssignmentBtn.classList.add("hidden");
         assignmentStatusText.textContent = "";
 
@@ -739,7 +765,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         populateCourseOptions();
 
         assignmentModalTitle.textContent = "EDIT ASSIGNMENT";
-        confirmAssignmentBtn.textContent = "Save";
+        setButtonLabel(confirmAssignmentBtn, "Save");
         deleteAssignmentBtn.classList.remove("hidden");
         assignmentStatusText.textContent = "";
 

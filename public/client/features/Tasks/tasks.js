@@ -41,6 +41,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const titleInput = document.getElementById("task-title");
     const notesInput = document.getElementById("task-notes");
     const prioritySelect = document.getElementById("task-priority");
+    const taskWorkflowStatusSelect = document.getElementById("task-workflow-status");
     const timeInput = document.getElementById("task-time");
     const statusEl = document.getElementById("task-status");
     const cancelBtn = document.getElementById("cancel-task-btn");
@@ -93,6 +94,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (menuToggle) {
             menuToggle.setAttribute("aria-expanded", (!isCollapsed).toString());
         }
+    }
+
+    function stopCollapsedNavActivation(event) {
+        if (!document.body.classList.contains("nav-collapsed")) return;
+
+        const target = event.target.closest(".navbar .nav-list a, .navbar .nav-group summary");
+        if (!target) return;
+
+        event.preventDefault();
+        event.stopPropagation();
     }
 
     function startOfWeekMonday(dateObj) {
@@ -210,6 +221,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         storage.setItem(TASKS_KEY, JSON.stringify(tasksByDate));
     }
 
+    function normalizeTaskStatus(task) {
+        const status = (task?.status || "").trim().toLowerCase();
+        if (status === "completed" || task?.done === true) return "completed";
+        if (status === "in-progress") return "in-progress";
+        return "not-started";
+    }
+
     function getTasksForDate(key) {
         const tasksByDate = loadAllTasks();
         const tasks = tasksByDate[key];
@@ -312,9 +330,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             if (tbd.length) {
                 tbd.slice(0, 2).forEach((task) => {
+                    const status = normalizeTaskStatus(task);
                     const chip = document.createElement("button");
                     chip.type = "button";
-                    chip.className = "tbd-chip";
+                    chip.className = `tbd-chip status-${status}`;
+                    if (status === "completed") {
+                        chip.classList.add("is-completed");
+                    }
                     chip.textContent = task.title || "Task";
                     chip.draggable = true;
                     chip.addEventListener("click", () => openEditModal(key, task.id));
@@ -354,6 +376,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 .sort((a, b) => (a.time.hour - b.time.hour) || (a.time.minute - b.time.minute) || ((a.task.createdAt || 0) - (b.task.createdAt || 0)));
 
             timedTasks.forEach(({ task, time }) => {
+                const status = normalizeTaskStatus(task);
                 const selector = `.week-slot[data-date-key="${key}"][data-hour="${time.hour}"]`;
                 const slot = weekBodyEl.querySelector(selector);
                 if (!slot) return;
@@ -363,7 +386,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 const card = document.createElement("button");
                 card.type = "button";
-                card.className = `task-card priority-${(task.priority || "medium").toLowerCase()}`;
+                card.className = `task-card priority-${(task.priority || "medium").toLowerCase()} status-${status}`;
+                if (status === "completed") {
+                    card.classList.add("is-completed");
+                }
                 card.textContent = task.title || "Task";
                 card.title = `${task.title || "Task"}\n${time.normalized}`;
                 card.dataset.timeLabel = time.normalized;
@@ -495,9 +521,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                 .sort((a, b) => (a.time.minute - b.time.minute) || ((a.task.createdAt || 0) - (b.task.createdAt || 0)));
 
             timedTasks.forEach(({ task, time }) => {
+                const status = normalizeTaskStatus(task);
                 const card = document.createElement("button");
                 card.type = "button";
-                card.className = `task-card priority-${(task.priority || "medium").toLowerCase()}`;
+                card.className = `task-card priority-${(task.priority || "medium").toLowerCase()} status-${status}`;
+                if (status === "completed") {
+                    card.classList.add("is-completed");
+                }
                 card.textContent = task.title || "Task";
                 card.dataset.timeLabel = time.normalized;
                 card.addEventListener("click", (e) => {
@@ -521,9 +551,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             const chips = document.createElement("div");
             chips.className = "month-tbd-chips";
             tbd.forEach((task) => {
+                const status = normalizeTaskStatus(task);
                 const chip = document.createElement("button");
                 chip.type = "button";
-                chip.className = "tbd-chip";
+                chip.className = `tbd-chip status-${status}`;
+                if (status === "completed") {
+                    chip.classList.add("is-completed");
+                }
                 chip.textContent = task.title || "Task";
                 chip.addEventListener("click", () => openEditModal(key, task.id));
                 chips.appendChild(chip);
@@ -635,18 +669,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    function setButtonLabel(button, label) {
+        const labelEl = button?.querySelector(".ui-btn-label");
+        if (labelEl) {
+            labelEl.textContent = label;
+            return;
+        }
+        if (button) button.textContent = label;
+    }
+
     function openAddModal(targetDateKey, targetHour) {
         editingTaskId = null;
         modalDateKey = targetDateKey;
         modalHour = targetHour;
 
         modalTitleEl.textContent = "ADD TASK";
-        confirmBtn.textContent = "Add";
+        setButtonLabel(confirmBtn, "Add");
         deleteBtn.classList.add("hidden");
 
         titleInput.value = "";
         notesInput.value = "";
         prioritySelect.value = "medium";
+        if (taskWorkflowStatusSelect) taskWorkflowStatusSelect.value = "not-started";
         timeInput.value = hourToTimeInput(targetHour);
         statusEl.textContent = "";
 
@@ -667,12 +711,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         const taskTime = getTaskTimeParts(task);
 
         modalTitleEl.textContent = "EDIT TASK";
-        confirmBtn.textContent = "Save";
+        setButtonLabel(confirmBtn, "Save");
         deleteBtn.classList.remove("hidden");
 
         titleInput.value = task.title || "";
         notesInput.value = task.notes || "";
         prioritySelect.value = task.priority || "medium";
+        if (taskWorkflowStatusSelect) taskWorkflowStatusSelect.value = normalizeTaskStatus(task);
         timeInput.value = taskTime ? taskTime.normalized : "";
         statusEl.textContent = "";
 
@@ -686,6 +731,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const title = titleInput.value.trim();
         const notes = notesInput.value.trim();
         const priority = prioritySelect.value;
+        const workflowStatus = taskWorkflowStatusSelect?.value || "not-started";
         const normalizedTime = normalizeTimeInput(timeInput.value);
         const chosenHour = parseHourFromTimeInput(timeInput.value);
         const chosenMinute = parseMinuteFromTimeInput(timeInput.value);
@@ -706,6 +752,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             list[index].title = title;
             list[index].notes = notes;
             list[index].priority = priority;
+            list[index].status = workflowStatus;
+            list[index].done = workflowStatus === "completed";
             list[index].scheduledHour = chosenHour;
             list[index].scheduledMinute = chosenMinute;
             list[index].scheduledTime = normalizedTime;
@@ -717,6 +765,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 title,
                 notes,
                 priority,
+                status: workflowStatus,
+                done: workflowStatus === "completed",
                 scheduledHour: chosenHour,
                 scheduledMinute: chosenMinute,
                 scheduledTime: normalizedTime,
@@ -1007,6 +1057,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             "Leave 10 minutes for review."
         ];
         const priorities = ["low", "medium", "high"];
+        const statuses = ["not-started", "in-progress", "completed"];
         const quarterMinutes = [0, 15, 30, 45];
         const baseDate = atNoon(new Date());
         const tasksByDate = {};
@@ -1024,12 +1075,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             const scheduledTime = withTime
                 ? `${String(scheduledHour).padStart(2, "0")}:${String(scheduledMinute).padStart(2, "0")}`
                 : null;
+            const status = pick(statuses);
 
             const task = {
                 id: now + i,
                 title: pick(titles),
                 notes: pick(notes),
                 priority: pick(priorities),
+                status,
+                done: status === "completed",
                 scheduledHour,
                 scheduledMinute,
                 scheduledTime,
@@ -1200,6 +1254,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             setNavCollapsed(next);
         });
     }
+
+    document.querySelector(".navbar .nav-list")?.addEventListener("click", stopCollapsedNavActivation, true);
+    document.querySelector(".navbar .nav-list")?.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+            stopCollapsedNavActivation(event);
+        }
+    }, true);
 
     if (todayBtn) {
         todayBtn.addEventListener("click", goToToday);

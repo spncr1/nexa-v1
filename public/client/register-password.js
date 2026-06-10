@@ -109,7 +109,13 @@ function setPasswordVisibility(isVisible) {
     if (confirmPasswordInput) {
         confirmPasswordInput.type = isVisible ? "text" : "password";
     }
-    togglePasswordButton.textContent = isVisible ? "Hide" : "Show";
+    const visibilityIcon = togglePasswordButton.querySelector(".password-visibility-icon");
+    if (visibilityIcon) {
+        visibilityIcon.src = isVisible
+            ? "/client/shared/assets/Icons/visibility-off.svg"
+            : "/client/shared/assets/Icons/visibility-on.svg";
+    }
+    togglePasswordButton.setAttribute("aria-label", isVisible ? "Hide password" : "Show password");
     togglePasswordButton.setAttribute("aria-pressed", String(isVisible));
 }
 

@@ -86,7 +86,9 @@
                         aria-invalid="<%= fieldErrors.password ? 'true' : 'false' %>"
                         <%= fieldErrors.password ? 'aria-describedby="password-error"' : '' %>
                     >
-                    <button id="toggle-password-btn" class="password-inline-btn" type="button" aria-pressed="false">Show</button>
+                    <button id="toggle-password-btn" class="password-inline-btn" type="button" aria-label="Show password" aria-pressed="false">
+                        <img class="app-icon password-visibility-icon" src="/client/shared/assets/Icons/visibility-on.svg" alt="" aria-hidden="true">
+                    </button>
                 </div>
                 <% if (fieldErrors.password) { %>
                     <p class="field-error" id="password-error"><%= fieldErrors.password %></p>

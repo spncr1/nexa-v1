@@ -33,6 +33,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         menuToggle?.setAttribute("aria-expanded", (!isCollapsed).toString());
     }
 
+    function stopCollapsedNavActivation(event) {
+        if (!document.body.classList.contains("nav-collapsed")) return;
+
+        const target = event.target.closest(".navbar .nav-list a, .navbar .nav-group summary");
+        if (!target) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
     function loadUserName() {
         const saved = storage.getItem(USER_NAME_KEY);
         return saved && saved.trim() ? saved : DEFAULT_USER_NAME;
@@ -210,6 +220,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         const next = !document.body.classList.contains("nav-collapsed");
         setNavCollapsed(next);
     });
+
+    document.querySelector(".navbar .nav-list")?.addEventListener("click", stopCollapsedNavActivation, true);
+    document.querySelector(".navbar .nav-list")?.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+            stopCollapsedNavActivation(event);
+        }
+    }, true);
 
     systemSettingsBtn?.addEventListener("click", openSystemSettings);
     document.addEventListener("keydown", (event) => {

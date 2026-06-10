@@ -47,186 +47,6 @@ ul {
 .hidden { display: none; }
 
 /* NAVBAR */
-.navbar {
-    width: 220px;
-    border-right: 1px solid #ddd;
-    padding: 16px;
-    align-self: stretch;
-    margin-top: 0;
-    text-align: left;
-    transition: width 0.24s ease, padding 0.24s ease;
-}
-
-.nav-brand {
-    display: grid;
-    grid-template-columns: max-content 52px;
-    align-items: center;
-    justify-content: start;
-    gap: 16px;
-    min-height: 52px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid #ddd;
-}
-
-.nav-brand-main {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-    transition: opacity 0.2s ease, transform 0.2s ease, width 0.2s ease;
-}
-
-.nav-logo {
-    width: 34px;
-    height: 34px;
-    object-fit: contain;
-    flex: 0 0 auto;
-}
-
-.nav-title {
-    color: black;
-    font-family: "Manrope", sans-serif;
-    font-size: 31px;
-    font-weight: 800;
-    line-height: 1;
-    white-space: nowrap;
-}
-
-.navbar .nav-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    font-family: "Noto Sans";
-    gap: 8px;
-    padding: 0;
-    margin-top: 14px;
-    font-size: 17px;
-    text-align: left;
-    transition: opacity 0.2s ease, transform 0.2s ease, margin-top 0.2s ease;
-}
-
-.nav-group {
-    width: 100%;
-}
-
-.nav-group summary {
-    border-radius: 6px;
-    display: block;
-    width: 100%;
-    padding: 4px 10px;
-    color: black;
-    font-weight: 800;
-    cursor: pointer;
-    list-style: none;
-    text-align: left;
-    box-sizing: border-box;
-}
-
-.nav-group summary::-webkit-details-marker {
-    display: none;
-}
-
-.nav-group summary::after {
-    content: none;
-}
-
-.nav-group summary::before {
-    content: ">";
-    display: inline-block;
-    margin-right: 6px;
-    font-size: 13px;
-    font-weight: 800;
-    transform: rotate(90deg);
-    transition: transform 0.18s ease;
-}
-
-.nav-group:not([open]) summary::before {
-    transform: none;
-}
-
-.nav-group summary:hover {
-    background: var(--color-primary-hover);
-}
-
-.navbar .nav-submenu {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 4px 0 2px 20px;
-    margin: 0;
-    font-size: 15px;
-    text-align: left;
-}
-
-.navbar a {
-    border-radius: 6px;
-    display: block;
-    width: 100%;
-    padding: 4px 10px;
-    text-decoration: none;
-    color: black;
-    box-sizing: border-box;
-}
-
-.navbar a:hover {
-    background: var(--color-primary-hover);
-}
-
-.navbar a.active {
-    background: var(--color-primary-active);
-    font-weight: 700;
-}
-
-.menu-toggle {
-    display: inline-grid;
-    place-items: center;
-    background: none;
-    border: none;
-    font-size: 50px;
-    cursor: pointer;
-    margin: 0;
-    width: 52px;
-    height: 52px;
-    padding: 0;
-    text-align: center;
-    line-height: 1;
-    transform: translateY(-4px);
-    transition: margin-left 0.24s ease, transform 0.2s ease;
-}
-
-body.nav-collapsed .navbar {
-    width: 72px;
-    padding: 16px 10px;
-    overflow: hidden;
-}
-
-body.nav-collapsed .navbar .nav-list {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateX(-12px);
-    margin-top: 0;
-    height: 0;
-}
-
-body.nav-collapsed .nav-brand {
-    grid-template-columns: 52px;
-    justify-content: center;
-    justify-items: center;
-    border-bottom-color: transparent;
-    padding-bottom: 0;
-}
-
-body.nav-collapsed .nav-brand-main {
-    display: none;
-}
-
-body.nav-collapsed .menu-toggle {
-    grid-column: 1;
-    grid-row: 1;
-    justify-self: center;
-    margin: 0;
-}
 
 h1 {
     color: black;
@@ -250,44 +70,6 @@ h2 {
     font-weight: 700;
 }
 
-.btn-primary {
-    font-size: 18px;
-    border-radius: 20px;
-    background-color: black;
-    border: 2px solid grey;
-    color: white;
-    width: 30px;
-    height: 30px;
-    align-self: center;
-    justify-self: center;
-}
-
-.btn-primary:hover {
-    background-color: var(--color-control-hover);
-    cursor: pointer;
-    border-color: black;
-    color: black;
-}
-
-.btn-secondary {
-    font-size: 14px;
-    border-radius: 5px;
-    background-color: var(--color-panel);
-    border: 2px solid black;
-    color: black;
-    width: 70px;
-    height: 30px;
-    align-self: center;
-    justify-self: center;
-}
-
-.btn-secondary:hover {
-    background-color: var(--color-control-hover);
-    cursor: pointer;
-    border-color: grey;
-    color: black;
-}
-
 /* Controls */
 .tasks-controls {
     display: grid;
@@ -304,53 +86,17 @@ h2 {
     justify-content: flex-start;
 }
 
-#today-btn {
-    font-size: 20px;
-    border-radius: 5px;
-    background-color: black;
-    border: 2px solid grey;
-    color: white;
-    width: 100px;
-    height: 38px;
-}
-
-.tasks-nav-btn {
-    font-size: 25px;
-    border-radius: 20px;
-    background-color: black;
-    border: 2px solid grey;
-    color: white;
-    width: 40px;
-    height: 38px;
-}
-
-#today-btn:hover,
-.tasks-nav-btn:hover {
-    background-color: var(--color-control-hover);
-    cursor: pointer;
-    border-color: black;
-    color: black;
-}
-
 .tasks-view-toggle {
     display: flex;
     gap: 8px;
     justify-content: flex-end;
 }
 
-.tasks-view-toggle .btn-secondary {
-    width: 78px;
-}
-
-.tasks-view-toggle .btn-secondary.active {
-    background: black;
-    color: white;
-    border-color: grey;
-}
+.tasks-view-toggle
 
 .tasks-surface {
     border: 2px solid var(--tasks-surface-border);
-    background: var(--tasks-surface);
+    background: var(--color-scroll-fade-start);
     border-radius: 10px;
     padding: 12px;
     box-sizing: border-box;
@@ -463,12 +209,9 @@ h2 {
     left: 4px;
     width: 22px;
     height: 22px;
-    border-radius: 50%;
-    border: 1.5px solid grey;
-    background: black;
-    color: white;
-    font-size: 15px;
-    line-height: 1;
+    border: 0;
+    background: transparent;
+    color: inherit;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -485,9 +228,13 @@ h2 {
 }
 
 .slot-add-btn:hover {
-    background-color: var(--color-control-hover);
-    border-color: black;
-    color: black;
+    background: transparent;
+    border-color: transparent;
+}
+
+.slot-add-btn .app-icon {
+    width: 22px;
+    height: 22px;
 }
 
 .task-card {
@@ -521,6 +268,13 @@ h2 {
 
 .task-card.priority-low {
     background: var(--color-priority-low);
+}
+
+.task-card.is-completed {
+    background: rgba(210, 216, 228, 0.92);
+    border-left-color: rgba(17, 17, 17, 0.4);
+    opacity: 0.78;
+    text-decoration: line-through;
 }
 
 .tbd-chip-wrap {
@@ -575,6 +329,11 @@ h2 {
     background-color: var(--color-task-tbd-hover);
 }
 
+.tbd-chip.is-completed {
+    opacity: 0.72;
+    text-decoration: line-through;
+}
+
 .tbd-more {
     font-size: 11px;
     font-weight: 700;
@@ -592,7 +351,7 @@ h2 {
 
 .tasks-month-calendar,
 .tasks-month-agenda {
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--color-scroll-fade-start);
     border-radius: 8px;
     border: 1px solid rgba(0, 0, 0, 0.15);
     padding: 10px;
@@ -808,180 +567,6 @@ h2 {
     display: flex;
     justify-content: space-between;
     gap: 12px;
-}
-
-/* SYSTEM SETTINGS */
-.system-settings {
-    position: fixed;
-    bottom: 50px;
-    left: 50px;
-    transition: transform 0.24s ease, opacity 0.2s ease;
-}
-
-body.nav-collapsed .system-settings {
-    transform: translateX(-120px);
-    opacity: 0;
-    pointer-events: none;
-}
-
-#system-settings-btn {
-    appearance: none;
-    background: transparent;
-    font-size: 40px;
-    align-self: center;
-    justify-self: center;
-    border: none;
-    cursor: pointer;
-}
-
-#system-settings-btn:hover {
-    transition: transform 0.3s ease, filter 0.3s ease;
-    transform: scale(1.15) rotate(8deg);
-    filter: brightness(1.05);
-}
-
-#system-settings-modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 360px;
-    font-family: "Noto Sans";
-    background: white;
-    border-radius: 12px;
-    padding: 0;
-    border: 1px solid #ddd;
-    z-index: 10;
-    text-align: left;
-    overflow: hidden;
-}
-
-.settings-layout {
-    display: grid;
-    grid-template-columns: 120px 1fr;
-    height: auto;
-}
-
-.settings-sidebar {
-    border-right: 1px solid #ddd;
-    padding: 12px;
-    background: #f7f7f7;
-}
-
-.settings-sidebar-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    gap: 8px;
-}
-
-.settings-nav {
-    width: 100%;
-    text-align: left;
-    border: 1px solid #ccc;
-    background: white;
-    border-radius: 8px;
-    padding: 8px 10px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 13px;
-    transition: transform 0.2s ease, filter 0.2s ease;
-}
-
-.settings-nav:hover {
-    transform: scale(1.03);
-    filter: brightness(1.02);
-}
-
-.settings-nav.active {
-    border-color: #111;
-    font-weight: 700;
-}
-
-.settings-header {
-    padding-bottom: 10px;
-    margin-bottom: 12px;
-    border-bottom: 1px solid #ddd;
-}
-
-.settings-title {
-    margin: 5px;
-    text-align: center;
-    font-size: 16px;
-    font-weight: 800;
-}
-
-.settings-subtitle {
-    margin-top: 6px;
-    text-align: center;
-    font-size: 13px;
-    font-weight: 700;
-    opacity: 0.85;
-}
-
-.settings-panel p {
-    margin-left: 10px;
-}
-
-.settings-panel.hidden { display: none; }
-
-.settings-content {
-    padding-bottom: 16px;
-}
-
-.setting-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 14px;
-    margin-top: 6px;
-}
-
-.setting-labels { text-align: left; margin-left: 10px; }
-
-.setting-action-btn {
-    min-width: 84px;
-    padding: 7px 12px;
-    border-radius: 8px;
-    border: 1px solid transparent;
-    color: #fff;
-    font-weight: 700;
-    cursor: pointer;
-    margin-right: 10px;
-    transition: transform 0.2s ease, filter 0.2s ease;
-}
-
-.setting-action-btn:hover {
-    transform: scale(1.03);
-    filter: brightness(1.15);
-}
-
-.setting-action-btn.danger {
-    background: #d84c4c;
-    border-color: #b63b3b;
-}
-
-.setting-action-btn.success {
-    background: #2f9a4a;
-    border-color: #227738;
-}
-
-.setting-action-btn.neutral {
-    background: #2f5d9a;
-    border-color: #132a4896;
-}
-
-.setting-account-input {
-    width: 130px;
-    max-width: 100%;
-    padding: 7px 10px;
-    border-radius: 8px;
-    border: 1px solid #b9b9b9;
-    font-family: inherit;
-    font-size: 13px;
-    margin-right: 10px;
-    box-sizing: border-box;
 }
 
 .account-delete-notice {

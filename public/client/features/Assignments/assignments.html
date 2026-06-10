@@ -32,15 +32,15 @@
                 </div>
 
                 <button class="menu-toggle" aria-label="Toggle navigation">
-                    ☰
+                    <img class="app-icon" src="/client/shared/assets/Icons/menu.svg" alt="" aria-hidden="true">
                 </button>
             </div>
             
             <ul class="nav-list">
-                <li><a href="/">Home</a></li>
+                <li><a href="/" class="nav-item" aria-label="Home"><img class="app-icon nav-item-icon" src="/client/shared/assets/Icons/home.svg" alt="" aria-hidden="true"> <span class="nav-item-label">Home</span></a></li>
                 <li>
                     <details class="nav-group" open>
-                        <summary>Study</summary>
+                        <summary class="active" aria-label="Study"><span class="nav-summary-main"><img class="app-icon nav-summary-icon" src="/client/shared/assets/Icons/school.svg" alt="" aria-hidden="true"> <span class="nav-summary-label">Study</span></span><img class="app-icon nav-chevron" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></summary>
                         <ul class="nav-submenu">
                             <li><a href="/client/features/Assignments/assignments.html" class="active">Assignments</a></li>
                             <li><a href="/client/features/StudyPlanner/study-planner.html">Study Planner</a></li>
@@ -50,7 +50,7 @@
                 </li>
                 <li>
                     <details class="nav-group">
-                        <summary>Life</summary>
+                        <summary aria-label="Life"><span class="nav-summary-main"><img class="app-icon nav-summary-icon" src="/client/shared/assets/Icons/habits.svg" alt="" aria-hidden="true"> <span class="nav-summary-label">Life</span></span><img class="app-icon nav-chevron" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></summary>
                         <ul class="nav-submenu">
                             <li><a href="/client/features/Habits/habits.html">Habits</a></li>
                         </ul>
@@ -58,7 +58,7 @@
                 </li>
                 <li>
                     <details class="nav-group">
-                        <summary>Career</summary>
+                        <summary aria-label="Career"><span class="nav-summary-main"><img class="app-icon nav-summary-icon" src="/client/shared/assets/Icons/career.svg" alt="" aria-hidden="true"> <span class="nav-summary-label">Career</span></span><img class="app-icon nav-chevron" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></summary>
                         <ul class="nav-submenu">
                             <li><a href="/client/features/JobApplications/job-applications.html">Job Applications</a></li>
                         </ul>
@@ -66,7 +66,7 @@
                 </li>
                 <li>
                     <details class="nav-group">
-                        <summary>Money</summary>
+                        <summary aria-label="Financial"><span class="nav-summary-main"><img class="app-icon nav-summary-icon" src="/client/shared/assets/Icons/financial.svg" alt="" aria-hidden="true"> <span class="nav-summary-label">Financial</span></span><img class="app-icon nav-chevron" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></summary>
                         <ul class="nav-submenu">
                             <li><a href="/client/features/Finances/finances.html">Finances</a></li>
                         </ul>
@@ -87,9 +87,7 @@
                     <div class="subjects-panel-header">
                         <h3 class="panel-title">Subjects <span class="panel-subtitle semester-label"></span></h3>
 
-                        <button type="button" class="btn-primary" id="add-subject-btn" aria-label="Add Subject">
-                            +
-                        </button>
+                        <button type="button" class="btn-primary" id="add-subject-btn" aria-label="Add Subject"><img class="app-icon" src="/client/shared/assets/Icons/add-circle.svg" alt="" aria-hidden="true"></button>
                     </div>
 
                     <!-- Subjects list rendered here via JS -->
@@ -108,9 +106,9 @@
                                 <!-- content here -->
                             </div>
                             <div class="carousel-footer">
-                                <button class="carousel-nav" id="carousel-prev"><</button>
+                                <button class="carousel-nav" id="carousel-prev" aria-label="Previous subject"><img class="app-icon" src="/client/shared/assets/Icons/prev(circle).svg" alt="" aria-hidden="true"></button>
                                 <div class="carousel-subject" id="carousel-subject"></div>
-                                <button class="carousel-nav" id="carousel-next">></button>
+                                <button class="carousel-nav" id="carousel-next" aria-label="Next subject"><img class="app-icon" src="/client/shared/assets/Icons/next(circle).svg" alt="" aria-hidden="true"></button>
                             </div>
                         </div>
 
@@ -123,7 +121,7 @@
                 <aside class="assignments-controls" aria-label="Assignments controls">
                     <div class="controls-group">
                         <label class="control-label" for="add-assignment-btn">Add Assignments</label>
-                        <button type="button" class="btn-primary" id="add-assignment-btn">+</button>
+                        <button type="button" class="btn-primary" id="add-assignment-btn"><img class="app-icon" src="/client/shared/assets/Icons/add-circle.svg" alt="" aria-hidden="true"></button>
                     </div>
 
                     <div class="controls-group">
@@ -177,9 +175,9 @@
 
                         <div class="dash-widget">
                             <div class="dash-tabs">
-                                <button type="button" class="dash-nav" id="dash-prev" aria-label="Prev"><</button>
+                                <button type="button" class="dash-nav" id="dash-prev" aria-label="Previous dashboard"><img class="app-icon" src="/client/shared/assets/Icons/prev(circle).svg" alt="" aria-hidden="true"></button>
                                 <div class="dash-label" id="dash-label">Status</div>
-                                <button type="button" class="dash-nav" id="dash-next" aria-label="Next">></button>
+                                <button type="button" class="dash-nav" id="dash-next" aria-label="Next dashboard"><img class="app-icon" src="/client/shared/assets/Icons/next(circle).svg" alt="" aria-hidden="true"></button>
                             </div>
 
                             <div class="dash-slide" id="dash-slide">
@@ -194,7 +192,7 @@
                  <div class="assignments-table-card" aria-label="All Assignments table">
                     <div class="assignments-table-header">
                         <h2 class="table-title">All Assignments <span class="page-subtitle semester-label"></span></h2>
-                        <button class="btn-secondary" id="reset-btn">Reset</button> <!-- would "clear all assignments" be more suitable here? -->
+                        <button class="btn-secondary" id="reset-btn"><span class="ui-btn-label">Reset</span><img class="app-icon" src="/client/shared/assets/Icons/delete.svg" alt="" aria-hidden="true"></button> <!-- would "clear all assignments" be more suitable here? -->
                     </div>
 
                     <div class="assignments-table-wrap">
@@ -243,14 +241,14 @@
                                     <div>
                                         <div class="setting-labels">Reset App Data?</div>
                                     </div>
-                                    <button type="button" id="reset-app-data-btn" class="setting-action-btn danger">Reset</button>
+                                    <button type="button" id="reset-app-data-btn" class="setting-action-btn danger"><span class="ui-btn-label">Reset</span><img class="app-icon" src="/client/shared/assets/Icons/delete.svg" alt="" aria-hidden="true"></button>
                                 </div>
 
                                 <div class="setting-row">
                                     <div>
                                         <div class="setting-labels">Load Demo Data?</div>
                                     </div>
-                                    <button type="button" id="load-demo-data-btn" class="setting-action-btn success">Load</button>
+                                    <button type="button" id="load-demo-data-btn" class="setting-action-btn success"><span class="ui-btn-label">Load</span><img class="app-icon" src="/client/shared/assets/Icons/add-circle.svg" alt="" aria-hidden="true"></button>
                                 </div>
                             </div>
 
@@ -280,21 +278,21 @@
                                     <div>
                                         <div class="setting-labels">Save account details</div>
                                     </div>
-                                    <button type="button" id="save-account-btn" class="setting-action-btn success">Save</button>
+                                    <button type="button" id="save-account-btn" class="setting-action-btn success"><span class="ui-btn-label">Save</span><img class="app-icon" src="/client/shared/assets/Icons/check.svg" alt="" aria-hidden="true"></button>
                                 </div>
 
                                 <div class="setting-row">
                                     <div>
                                         <div class="setting-labels">Logout?</div>
                                     </div>
-                                    <button type="button" id="logout-btn" class="setting-action-btn neutral">Logout</button>
+                                    <button type="button" id="logout-btn" class="setting-action-btn neutral"><span class="ui-btn-label">Logout</span><img class="app-icon" src="/client/shared/assets/Icons/logout.svg" alt="" aria-hidden="true"></button>
                                 </div>
 
                                 <div class="setting-row">
                                     <div>
                                         <div class="setting-labels">Delete account?</div>
                                     </div>
-                                    <button type="button" id="delete-account-btn" class="setting-action-btn danger">Delete</button>
+                                    <button type="button" id="delete-account-btn" class="setting-action-btn danger"><span class="ui-btn-label">Delete</span><img class="app-icon" src="/client/shared/assets/Icons/delete.svg" alt="" aria-hidden="true"></button>
                                 </div>
                             </div>
 
@@ -317,7 +315,7 @@
               
               <!-- System Settings Button (placement)-->
              <div class="system-settings">
-                <button id="system-settings-btn">⚙️</button>
+                <button id="system-settings-btn" aria-label="System settings"><img class="app-icon" src="/client/shared/assets/Icons/system-settings.svg" alt="" aria-hidden="true"></button>
              </div>
 
              <div id="modal-backdrop" class="hidden"></div>
@@ -337,9 +335,9 @@
                 <p id="subject-status" class="task-status"></p>
 
                 <div class="modal-actions">
-                    <button class="btn-secondary" id="cancel-subject-btn">Cancel</button>
-                    <button class="btn-secondary hidden" id="delete-subject-btn">Delete</button>
-                    <button class="btn-secondary" id="confirm-subject-btn">Add</button>
+                    <button class="btn-secondary" id="cancel-subject-btn"><span class="ui-btn-label">Cancel</span><img class="app-icon" src="/client/shared/assets/Icons/cancel.svg" alt="" aria-hidden="true"></button>
+                    <button class="btn-secondary hidden" id="delete-subject-btn"><span class="ui-btn-label">Delete</span><img class="app-icon" src="/client/shared/assets/Icons/delete.svg" alt="" aria-hidden="true"></button>
+                    <button class="btn-secondary" id="confirm-subject-btn"><span class="ui-btn-label">Add</span><img class="app-icon" src="/client/shared/assets/Icons/check.svg" alt="" aria-hidden="true"></button>
                 </div>
                </div>
                <!-- ADD/EDIT ASSIGNMENT MODAL -->
@@ -399,9 +397,9 @@
                  <p id="assignment-status-text" class="task-status"></p>
 
                  <div class="modal-actions">
-                    <button class="btn-secondary" id="cancel-assignment-btn">Cancel</button>
-                    <button class="btn-secondary" id="delete-assignment-btn">Delete</button>
-                    <button class="btn-secondary" id="confirm-assignment-btn">Add</button>
+                    <button class="btn-secondary" id="cancel-assignment-btn"><span class="ui-btn-label">Cancel</span><img class="app-icon" src="/client/shared/assets/Icons/cancel.svg" alt="" aria-hidden="true"></button>
+                    <button class="btn-secondary" id="delete-assignment-btn"><span class="ui-btn-label">Delete</span><img class="app-icon" src="/client/shared/assets/Icons/delete.svg" alt="" aria-hidden="true"></button>
+                    <button class="btn-secondary" id="confirm-assignment-btn"><span class="ui-btn-label">Add</span><img class="app-icon" src="/client/shared/assets/Icons/check.svg" alt="" aria-hidden="true"></button>
                  </div>
                </div>
 
