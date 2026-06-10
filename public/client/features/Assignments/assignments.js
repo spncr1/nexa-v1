@@ -83,7 +83,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const assignmentsSort = document.getElementById("assignments-sort");
     const assignmentsFilter = document.getElementById("assignments-filter");
     const resetAssignmentsBtn = document.getElementById("reset-btn");
-    const hoverSound = new Audio("/client/shared/assets/Sfx/omnitrixTurnOn.MP3");
 
     const ASSIGNMENTS_KEY = "studenthub_assignments";
     const TASKS_KEY = "tasksByDate";
@@ -1182,11 +1181,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         let startAngle = 0;
 
-        function playSliceHoverSound() {
-            hoverSound.currentTime = 0;
-            hoverSound.play().catch(() => {});
-        }
-
         slices.forEach((slice) => {
             const ratio = totalWeight > 0 ? (slice.rawWeight / totalWeight) : equalShare;
             const sliceAngle = ratio * 2 * Math.PI;
@@ -1205,7 +1199,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 circle.setAttribute("fill", `hsl(${hue}, 70%, 55%)`);
                 circle.classList.add("pie-slice");
                 circle.addEventListener("click", () => openViewAssignmentModal(slice.assignment));
-                circle.addEventListener("mouseenter", playSliceHoverSound);
                 svg.appendChild(circle);
             } else {
                 const x1 = radius + radius * Math.cos(startAngle);
@@ -1225,7 +1218,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 path.setAttribute("fill", `hsl(${hue}, 70%, 55%)`);
                 path.classList.add("pie-slice");
                 path.addEventListener("click", () => openViewAssignmentModal(slice.assignment));
-                path.addEventListener("mouseenter", playSliceHoverSound);
                 svg.appendChild(path);
             }
 

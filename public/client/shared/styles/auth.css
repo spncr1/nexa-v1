@@ -190,9 +190,20 @@ html, body {
     filter: brightness(1.15);
 }
 
+.auth-footer {
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+    margin-top: 16px;
+}
+
+.auth-footer p {
+    margin: 0;
+}
+
 .auth-link {
     display: inline-block;
-    margin-top: 12px;
+    margin-top: 0;
     color: var(--color-primary-active);
     font-family: "Noto Sans", sans-serif;
     font-size: 14px;
@@ -201,7 +212,6 @@ html, body {
 }
 
 .auth-link.secondary {
-    margin-top: 16px;
     font-size: 13px;
 }
 

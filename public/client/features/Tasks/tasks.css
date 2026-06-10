@@ -48,13 +48,48 @@ ul {
 
 /* NAVBAR */
 .navbar {
-    width: 180px;
+    width: 220px;
     border-right: 1px solid #ddd;
     padding: 16px;
     align-self: stretch;
     margin-top: 0;
     text-align: left;
     transition: width 0.24s ease, padding 0.24s ease;
+}
+
+.nav-brand {
+    display: grid;
+    grid-template-columns: max-content 52px;
+    align-items: center;
+    justify-content: start;
+    gap: 16px;
+    min-height: 52px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav-brand-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease, width 0.2s ease;
+}
+
+.nav-logo {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    flex: 0 0 auto;
+}
+
+.nav-title {
+    color: black;
+    font-family: "Manrope", sans-serif;
+    font-size: 31px;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
 }
 
 .navbar .nav-list {
@@ -64,9 +99,9 @@ ul {
     font-family: "Noto Sans";
     gap: 8px;
     padding: 0;
-    margin-top: 16px;
+    margin-top: 14px;
     font-size: 17px;
-    text-align: center;
+    text-align: left;
     transition: opacity 0.2s ease, transform 0.2s ease, margin-top 0.2s ease;
 }
 
@@ -78,12 +113,12 @@ ul {
     border-radius: 6px;
     display: block;
     width: 100%;
-    padding: 4px 8px;
+    padding: 4px 10px;
     color: black;
     font-weight: 800;
     cursor: pointer;
     list-style: none;
-    text-align: center;
+    text-align: left;
     box-sizing: border-box;
 }
 
@@ -118,19 +153,20 @@ ul {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding: 4px 0 2px 12px;
+    padding: 4px 0 2px 20px;
     margin: 0;
     font-size: 15px;
-    text-align: center;
+    text-align: left;
 }
 
 .navbar a {
     border-radius: 6px;
     display: block;
     width: 100%;
-    padding: 3px 0;
+    padding: 4px 10px;
     text-decoration: none;
     color: black;
+    box-sizing: border-box;
 }
 
 .navbar a:hover {
@@ -143,16 +179,20 @@ ul {
 }
 
 .menu-toggle {
-    display: block;
+    display: inline-grid;
+    place-items: center;
     background: none;
     border: none;
-    font-size: 58px;
+    font-size: 50px;
     cursor: pointer;
-    margin-bottom: 10px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0;
+    width: 52px;
+    height: 52px;
+    padding: 0;
     text-align: center;
-    transition: margin-left 0.24s ease;
+    line-height: 1;
+    transform: translateY(-4px);
+    transition: margin-left 0.24s ease, transform 0.2s ease;
 }
 
 body.nav-collapsed .navbar {
@@ -169,9 +209,23 @@ body.nav-collapsed .navbar .nav-list {
     height: 0;
 }
 
+body.nav-collapsed .nav-brand {
+    grid-template-columns: 52px;
+    justify-content: center;
+    justify-items: center;
+    border-bottom-color: transparent;
+    padding-bottom: 0;
+}
+
+body.nav-collapsed .nav-brand-main {
+    display: none;
+}
+
 body.nav-collapsed .menu-toggle {
-    margin-left: auto;
-    margin-right: auto;
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: center;
+    margin: 0;
 }
 
 h1 {

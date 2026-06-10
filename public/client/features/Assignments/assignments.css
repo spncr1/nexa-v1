@@ -19,7 +19,7 @@
     --panel: var(--color-panel);
     --border: var(--color-border);
     --surface: var(--color-surface);
-    --nav-width: 180px;
+    --nav-width: 220px;
     --content-max: 1280px;
     --content-pad: 24px;
     --pie-size: 160px;
@@ -55,13 +55,48 @@ ul {
 
 /* NAVBAR */
 .navbar {
-    width: 180px;
+    width: var(--nav-width);
     border-right: 1px solid #ddd;
     padding: 16px;
     align-self: stretch;
     margin-top: 0;
     text-align: left;
     transition: width 0.24s ease, padding 0.24s ease;
+}
+
+.nav-brand {
+    display: grid;
+    grid-template-columns: max-content 52px;
+    align-items: center;
+    justify-content: start;
+    gap: 16px;
+    min-height: 52px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav-brand-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease, width 0.2s ease;
+}
+
+.nav-logo {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    flex: 0 0 auto;
+}
+
+.nav-title {
+    color: black;
+    font-family: "Manrope", sans-serif;
+    font-size: 31px;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
 }
 
 .navbar .nav-list {
@@ -71,9 +106,9 @@ ul {
     font-family: "Noto Sans";
     gap: 8px;
     padding: 0;
-    margin-top: 16px;
+    margin-top: 14px;
     font-size: 17px;
-    text-align: center;
+    text-align: left;
     transition: opacity 0.2s ease, transform 0.2s ease, margin-top 0.2s ease;
 }
 
@@ -85,12 +120,12 @@ ul {
     border-radius: 6px;
     display: block;
     width: 100%;
-    padding: 4px 8px;
+    padding: 4px 10px;
     color: black;
     font-weight: 800;
     cursor: pointer;
     list-style: none;
-    text-align: center;
+    text-align: left;
     box-sizing: border-box;
 }
 
@@ -125,19 +160,20 @@ ul {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding: 4px 0 2px 12px;
+    padding: 4px 0 2px 20px;
     margin: 0;
     font-size: 15px;
-    text-align: center;
+    text-align: left;
 }
 
 .navbar a {
     border-radius: 6px;
     display: block;
     width: 100%;
-    padding: 3px 0;
+    padding: 4px 10px;
     text-decoration: none;
     color: black;
+    box-sizing: border-box;
 }
 
 .navbar a:hover {
@@ -150,16 +186,20 @@ ul {
 }
 
 .menu-toggle {
-    display: block;
+    display: inline-grid;
+    place-items: center;
     background: none;
     border: none;
-    font-size: 58px;
+    font-size: 50px;
     cursor: pointer;
-    margin-bottom: 10px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0;
+    width: 52px;
+    height: 52px;
+    padding: 0;
     text-align: center;
-    transition: margin-left 0.24s ease;
+    line-height: 1;
+    transform: translateY(-4px);
+    transition: margin-left 0.24s ease, transform 0.2s ease;
 }
 
 body.nav-collapsed .navbar {
@@ -176,9 +216,23 @@ body.nav-collapsed .navbar .nav-list {
     height: 0;
 }
 
+body.nav-collapsed .nav-brand {
+    grid-template-columns: 52px;
+    justify-content: center;
+    justify-items: center;
+    border-bottom-color: transparent;
+    padding-bottom: 0;
+}
+
+body.nav-collapsed .nav-brand-main {
+    display: none;
+}
+
 body.nav-collapsed .menu-toggle {
-    margin-left: auto;
-    margin-right: auto;
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: center;
+    margin: 0;
 }
 
 /* ----- HEADERS STYLING ----- */
@@ -486,7 +540,7 @@ body.nav-collapsed .system-settings {
 /* 3-column layout: subjects / all assignments | main | widgets */
 .assignments-layout {
     display: grid;
-    grid-template-columns: 220px minmax(0, 1fr) 180px 300px;
+    grid-template-columns: 220px 400px 180px minmax(300px, 1fr);
     grid-template-rows: minmax(300px, auto) auto;
     gap: 16px;
     row-gap: 20px;
@@ -514,8 +568,8 @@ body.nav-collapsed .system-settings {
 .subjects-panel.has-more::after {
     content: "";
     position: absolute;
-    left: 12px;
-    right: 12px;
+    left: 8px;
+    right: 8px;
     bottom: 12px;
     height: 28px;
     pointer-events: none;
@@ -670,6 +724,7 @@ body.nav-collapsed .system-settings {
     grid-column: 2; 
     grid-row: 1;
     align-self: start;
+    width: 100%;
 }
 
 /* Controls row / Main widget (pie chart) */
@@ -678,7 +733,9 @@ body.nav-collapsed .system-settings {
     background: #fff;
     border-radius: 10px;
     padding: 8px 16px 14px;
-    max-width: 400px;
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
     min-height: calc(var(--pie-size) + 130px);
     height: auto;
     display: grid;

@@ -22,11 +22,17 @@
         <link rel="icon" type="image/png" href="/client/shared/assets/Images/nexa-v1.png">
     </head>
     <body>
-        <script src="/client/shared/theme-boot.js"></script>
         <nav class="navbar">
-            <button class="menu-toggle" aria-label="Toggle navigation">
-                ☰
-            </button>
+            <div class="nav-brand">
+                <div class="nav-brand-main">
+                    <img class="nav-logo" src="/client/shared/assets/Images/nexa-v1.png" alt="" aria-hidden="true">
+                    <span class="nav-title">NEXA</span>
+                </div>
+
+                <button class="menu-toggle" aria-label="Toggle navigation">
+                    ☰
+                </button>
+            </div>
             
             <ul class="nav-list">
                 <li><a href="/" class="active">Home</a></li>
@@ -34,9 +40,9 @@
                     <details class="nav-group" open>
                         <summary>Study</summary>
                         <ul class="nav-submenu">
-                            <li><a href="/client/features/Tasks/tasks.html">Tasks</a></li>
                             <li><a href="/client/features/Assignments/assignments.html">Assignments</a></li>
                             <li><a href="/client/features/StudyPlanner/study-planner.html">Study Planner</a></li>
+                            <li><a href="/client/features/Tasks/tasks.html">Tasks</a></li>
                         </ul>
                     </details>
                 </li>
@@ -74,7 +80,7 @@
                     
                     <div class="date-header">
                         <div class="date-row">
-                            <button id="previous-btn"><</button>
+                            <button id="previous-btn">&#10094</button>
 
                             <div class="date-text">
                                 <h1 id="date-display"></h1>
@@ -330,6 +336,7 @@
              </div>
         </main>
         
+        <script src="/client/shared/theme-boot.js"></script>
         <script src="/client/shared/app-storage.js"></script>
         <script src="/index.js"></script>
     </body>

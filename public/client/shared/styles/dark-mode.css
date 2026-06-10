@@ -6,20 +6,21 @@
 @import url("/client/shared/styles/tokens.css");
 
 body.dark-mode {
-    --color-bg: #0f0f0f;
+    --color-bg: #0f0f10f5;
     --color-text: #e9e9ea;
     --color-surface: #121213;
     --color-panel: var(--color-panel-dark);
     --color-border: var(--color-control-dark);
-    --bg: #0f0f0f;
+    --bg: #0f0f10f5;
     --text: #e9e9ea;
     --panel: var(--color-panel-dark);
     --border: var(--color-border-root);
     --surface: #121213;
+    --home-center-width: 760px;
 }
 
 body.dark-mode {
-    background: #0f0f10;
+    background: #0f0f10f5;
     color: #e9e9ea;
     text-align: center;
     display: flex;
@@ -43,12 +44,50 @@ body.dark-mode ul {
 }
 
 body.dark-mode .navbar {
-    width: 180px;
-    border-right: 1px solid #ddd;
+    width: 220px;
+    border-right: 1px solid rgba(221, 221, 221, 0.55);
     padding: 16px;
     align-self: stretch;
     margin-top: 0;
     text-align: left;
+}
+
+body.dark-mode .nav-brand {
+    display: grid;
+    grid-template-columns: max-content 52px;
+    align-items: center;
+    justify-content: start;
+    gap: 16px;
+    min-height: 52px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(221, 221, 221, 0.55);
+    padding-left: 14px;
+    box-sizing: border-box;
+}
+
+body.dark-mode .nav-brand-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease, width 0.2s ease;
+}
+
+body.dark-mode .nav-logo {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    flex: 0 0 auto;
+    filter: invert(1);
+}
+
+body.dark-mode .nav-title {
+    color: #e9e9ea;
+    font-family: "Manrope", sans-serif;
+    font-size: 31px;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
 }
 
 body.dark-mode .navbar .nav-list {
@@ -58,9 +97,9 @@ body.dark-mode .navbar .nav-list {
     font-family: "Noto Sans";
     gap: 8px;
     padding: 0;
-    margin-top: 16px;
+    margin-top: 14px;
     font-size: 17px;
-    text-align: center;
+    text-align: left;
     font-weight: 500;
 }
 
@@ -75,16 +114,20 @@ body.dark-mode .nav-group summary:hover {
 
 body.dark-mode .navbar .nav-submenu {
     gap: 6px;
+    padding: 4px 0 2px 20px;
     margin: 0;
     font-size: 15px;
+    text-align: left;
 }
 
 body.dark-mode .navbar a {
     border-radius: 6px;
     display: block;
     width: 100%;
+    padding: 4px 10px;
     text-decoration: none;
     color: rgb(255, 255, 255);
+    box-sizing: border-box;
 }
 
 body.dark-mode .navbar a:hover {
@@ -99,15 +142,19 @@ body.dark-mode .navbar a.active {
 }
 
 body.dark-mode .menu-toggle {
-    display: block;
+    display: inline-grid;
+    place-items: center;
     background: none;
     border: none;
-    font-size: 58px;
+    font-size: 50px;
     cursor: pointer;
-    margin-bottom: 10px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0;
+    width: 52px;
+    height: 52px;
+    padding: 0;
     text-align: center;
+    line-height: 1;
+    transform: translateY(-4px);
     color: white;
 }
 
@@ -125,9 +172,24 @@ body.dark-mode.nav-collapsed .navbar .nav-list {
     height: 0;
 }
 
+body.dark-mode.nav-collapsed .nav-brand {
+    grid-template-columns: 52px;
+    justify-content: center;
+    justify-items: center;
+    border-bottom-color: transparent;
+    padding-bottom: 0;
+    padding-left: 0;
+}
+
+body.dark-mode.nav-collapsed .nav-brand-main {
+    display: none;
+}
+
 body.dark-mode.nav-collapsed .menu-toggle {
-    margin-left: auto;
-    margin-right: auto;
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: center;
+    margin: 0;
 }
 
 body.dark-mode h1 {
@@ -153,7 +215,7 @@ body.dark-mode .date-header {
 
 body.dark-mode .home-overview {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 800px;
+    grid-template-columns: minmax(210px, 1fr) minmax(0, var(--home-center-width)) minmax(210px, 1fr);
     align-items: start;
     gap: 24px;
     width: 100%;
@@ -176,6 +238,18 @@ body.dark-mode .date-row {
 
 body.dark-mode .date-text h1, body.dark-mode .date-text h2 {
     margin: 0;
+}
+
+body.dark-mode .home-overview + hr {
+    border: 0;
+    border-top: 2px solid var(--color-border-root);
+    margin: 32px 0 0;
+}
+
+body.dark-mode .home-overview + hr + h2 {
+    max-width: var(--home-center-width);
+    margin: 32px auto 0;
+    text-align: center;
 }
 
 body.dark-mode #today-btn, body.dark-mode #previous-btn, body.dark-mode #next-btn {
@@ -205,10 +279,10 @@ body.dark-mode #today-btn:hover, body.dark-mode #previous-btn:hover, body.dark-m
 
 body.dark-mode .dashboard-cards {
     display: grid;
-    grid-template-columns: minmax(240px, 0.9fr) minmax(320px, 1.35fr) minmax(260px, 1fr);
-    gap: 30px;
-    width: auto;
-    margin: 30px 24px 0;
+    grid-template-columns: minmax(220px, 0.82fr) minmax(300px, 1.18fr) minmax(300px, 0.9fr);
+    gap: 20px;
+    width: 100%;
+    margin: 30px 0 0;
     padding-inline: 0;
     box-sizing: border-box;
     align-items: start;
@@ -549,7 +623,7 @@ body.dark-mode .upcoming-assignment-link {
     grid-template-columns: 56px minmax(0, 1fr);
     gap: 0;
     align-items: center;
-    background: var(--color-border-strong);
+    background: var(--color-border-focus);
     border-radius: 10px;
     padding: 0 8px 0 0;
     text-decoration: none;
@@ -568,7 +642,7 @@ body.dark-mode .upcoming-assignment-countdown {
     min-height: 100%;
     align-self: stretch;
     border-radius: 8px;
-    background: var(--color-primary-active);
+    background: var(--color-priority-medium-dark);
 }
 
 body.dark-mode .upcoming-assignment-link.is-urgent .upcoming-assignment-countdown {
@@ -623,9 +697,10 @@ body.dark-mode .calendar-widget {
     background-color: var(--color-panel);
     border: var(--color-control-dark) 2px solid;
     width: 100%;
+    min-width: 300px;
     box-sizing: border-box;
     border-radius: 10px;
-    padding: 14px 12px;
+    padding: 12px 10px;
     gap: 10px;
     min-height: 260px;
 }
@@ -634,20 +709,27 @@ body.dark-mode .calendar-widget-header h2 {
     margin: 0;
     text-align: left;
     line-height: 1.05;
-    color: #ddd;
+    color: #fff;
+    font-size: 26px;
+    white-space: nowrap;
 }
 
 body.dark-mode .calendar-widget-header {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--color-border-focus);
+    border-radius: 8px;
+    box-sizing: border-box;
 }
 
 body.dark-mode .calendar-widget-nav {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 body.dark-mode .calendar-nav {
@@ -656,8 +738,8 @@ body.dark-mode .calendar-nav {
     background-color: white;
     border: var(--color-border-soft) 2px solid;
     color: var(--color-control-dark);
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     padding: 0;
     display: inline-grid;
     place-items: center;
@@ -682,7 +764,7 @@ body.dark-mode .calendar-weekdays {
 }
 
 body.dark-mode .calendar-weekdays span {
-    color: #bbb;
+    color: #7b7b7b;
 }
 
 body.dark-mode .calendar-days {
@@ -1470,7 +1552,7 @@ body.dark-mode .page-subtitle {
 
 body.dark-mode .assignments-layout {
     display: grid;
-    grid-template-columns: 220px minmax(0, 1fr) 180px 300px;
+    grid-template-columns: 220px 400px 180px minmax(300px, 1fr);
     grid-template-rows: minmax(300px, auto) auto;
     gap: 16px;
     row-gap: 20px;
@@ -1483,6 +1565,7 @@ body.dark-mode .assignments-main {
     grid-column: 2;
     grid-row: 1;
     align-self: start;
+    width: 100%;
 }
 
 body.dark-mode .subjects-panel {
@@ -1501,13 +1584,13 @@ body.dark-mode .subjects-panel {
 body.dark-mode .subjects-panel.has-more::after {
     content: "";
     position: absolute;
-    left: 12px;
-    right: 12px;
+    left: 8px;
+    right: 8px;
     bottom: 12px;
     height: 28px;
     pointer-events: none;
     border-radius: 8px;
-    background: linear-gradient(to bottom, var(--color-scroll-fade-start), var(--color-scroll-fade-end));
+    background: linear-gradient(to bottom, var(--color-scroll-fade-start), var(--color-panel));
 }
 
 body.dark-mode .subjects-panel-header {
@@ -1666,7 +1749,8 @@ body.dark-mode .weighting-carousel {
     border-radius: 10px;
     padding: 8px 16px 14px;
     width: 100%;
-    max-width: 400px;
+    max-width: none;
+    box-sizing: border-box;
     min-height: calc(var(--pie-size) + 130px);
     height: auto;
     display: grid;
@@ -2216,7 +2300,7 @@ body.dark-mode .task-card {
     body.dark-mode .navbar {
         width: 100%;
         border-right: 0;
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid rgba(221, 221, 221, 0.55);
     }
 
     body.dark-mode .content {
@@ -2276,13 +2360,13 @@ body.dark-mode .task-card {
         bottom: 0;
         width: 72px;
         min-height: 100vh;
-        border-right: 1px solid #ddd;
+        border-right: 1px solid rgba(221, 221, 221, 0.55);
         border-bottom: 0;
         padding: 12px 8px;
         box-sizing: border-box;
         text-align: center;
         overflow: hidden;
-        background: #0f0f10;
+        background: #0f0f10f5;
         z-index: 1000;
         transition: width 0.24s ease, padding 0.24s ease, box-shadow 0.24s ease;
         display: flex;
@@ -2324,9 +2408,9 @@ body.dark-mode .task-card {
     }
 
     body.dark-mode .menu-toggle {
-        display: block;
-        font-size: 52px;
-        margin: 0 auto 10px;
+        display: inline-grid;
+        font-size: 50px;
+        margin: 0;
         align-self: center;
     }
 
@@ -2340,6 +2424,11 @@ body.dark-mode .task-card {
 
     body.dark-mode .home-overview {
         grid-template-columns: 1fr;
+    }
+
+    body.dark-mode .home-date-summary,
+    body.dark-mode .upcoming-assignments-widget {
+        grid-column: 1;
     }
 
     body.dark-mode .upcoming-assignments-widget {
@@ -2530,7 +2619,7 @@ body.dark-mode .task-card {
 @media (max-width: 600px) {
     body.dark-mode .page-title { font-size: 26px; }
     body.dark-mode .navbar .nav-list { font-size: 16px; }
-    body.dark-mode .menu-toggle { font-size: 54px; margin-left: auto; margin-right: auto; }
+    body.dark-mode .menu-toggle { font-size: 50px; margin-left: 0; margin-right: 0; }
 
     body.dark-mode .carousel-slide {
         width: 100%;
@@ -2546,6 +2635,7 @@ body.dark-mode .task-card {
     body.dark-mode .calendar-widget {
         grid-column: auto;
         max-width: 100%;
+        min-width: 0;
         justify-self: stretch;
     }
 
@@ -2554,7 +2644,7 @@ body.dark-mode .task-card {
     }
 
     body.dark-mode .menu-toggle {
-        font-size: 46px;
+        font-size: 50px;
     }
 
     body.dark-mode .dashboard-cards {

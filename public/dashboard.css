@@ -13,9 +13,10 @@
     --panel: var(--color-panel);
     --border: var(--color-border);
     --surface: var(--color-surface);
-    --nav-width: 180px;
+    --nav-width: 220px;
     --content-max: 1280px;
     --content-pad: 24px;
+    --home-center-width: 760px;
 }
 
 /* MAIN BODY */
@@ -56,6 +57,43 @@ ul { /* for the navbar for now so the bulletpoints don't show (will organise lat
     transition: width 0.24s ease, padding 0.24s ease;
 }
 
+.nav-brand {
+    display: grid;
+    grid-template-columns: max-content 52px;
+    align-items: center;
+    justify-content: start;
+    gap: 16px;
+    min-height: 52px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #ddd;
+    padding-left: 14px;
+    box-sizing: border-box;
+}
+
+.nav-brand-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease, width 0.2s ease;
+}
+
+.nav-logo {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    flex: 0 0 auto;
+}
+
+.nav-title {
+    color: black;
+    font-family: "Manrope", sans-serif;
+    font-size: 31px;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+}
+
 .navbar .nav-list {
     list-style: none;
     display: flex;
@@ -63,9 +101,9 @@ ul { /* for the navbar for now so the bulletpoints don't show (will organise lat
     font-family: "Noto Sans";
     gap: 8px;
     padding: 0;
-    margin-top: 16px;
+    margin-top: 14px;
     font-size: 17px;
-    text-align: center;
+    text-align: left;
     transition: opacity 0.2s ease, transform 0.2s ease, margin-top 0.2s ease;
 }
 
@@ -77,12 +115,12 @@ ul { /* for the navbar for now so the bulletpoints don't show (will organise lat
     border-radius: 6px;
     display: block;
     width: 100%;
-    padding: 4px 8px;
+    padding: 4px 10px;
     color: black;
     font-weight: 800;
     cursor: pointer;
     list-style: none;
-    text-align: center;
+    text-align: left;
     box-sizing: border-box;
 }
 
@@ -117,19 +155,20 @@ ul { /* for the navbar for now so the bulletpoints don't show (will organise lat
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding: 4px 0 2px 12px;
+    padding: 4px 0 2px 20px;
     margin: 0;
     font-size: 15px;
-    text-align: center;
+    text-align: left;
 }
 
 .navbar a {
     border-radius: 6px;
     display: block;
     width: 100%;
-    padding: 3px 0;
+    padding: 4px 10px;
     text-decoration: none;
     color: black;
+    box-sizing: border-box;
 }
 
 .navbar a:hover {
@@ -142,16 +181,20 @@ ul { /* for the navbar for now so the bulletpoints don't show (will organise lat
 }
 
 .menu-toggle {
-    display: block;
+    display: inline-grid;
+    place-items: center;
     background: none;
     border: none;
-    font-size: 58px;
+    font-size: 50px;
     cursor: pointer;
-    margin-bottom: 10px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0;
+    width: 52px;
+    height: 52px;
+    padding: 0;
     text-align: center;
-    transition: margin-left 0.24s ease;
+    line-height: 1;
+    transform: translateY(-4px);
+    transition: margin-left 0.24s ease, transform 0.2s ease;
 }
 
 body.nav-collapsed .navbar {
@@ -168,9 +211,24 @@ body.nav-collapsed .navbar .nav-list {
     height: 0;
 }
 
+body.nav-collapsed .nav-brand {
+    grid-template-columns: 52px;
+    justify-content: center;
+    justify-items: center;
+    border-bottom-color: transparent;
+    padding-bottom: 0;
+    padding-left: 0;
+}
+
+body.nav-collapsed .nav-brand-main {
+    display: none;
+}
+
 body.nav-collapsed .menu-toggle {
-    margin-left: auto;
-    margin-right: auto;
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: center;
+    margin: 0;
 }
 
 /* ----- HEADERS STYLING ----- */
@@ -197,7 +255,7 @@ h2 {
 
 .home-overview {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 800px;
+    grid-template-columns: minmax(210px, 1fr) minmax(0, var(--home-center-width)) minmax(210px, 1fr);
     align-items: start;
     gap: 24px;
     width: 100%;
@@ -220,6 +278,18 @@ h2 {
 
 .date-text h1, .date-text h2 {
     margin: 0;
+}
+
+.home-overview + hr {
+    border: 0;
+    border-top: 2px solid var(--color-border-root);
+    margin: 32px 0 0;
+}
+
+.home-overview + hr + h2 {
+    max-width: var(--home-center-width);
+    margin: 32px auto 0;
+    text-align: center;
 }
 
 /* MAIN BUTTONS */
@@ -299,10 +369,10 @@ h2 {
 /* DASHBOARD CARDS STYLING */
 .dashboard-cards {
     display: grid;
-    grid-template-columns: minmax(240px, 0.9fr) minmax(320px, 1.35fr) minmax(260px, 1fr);
-    gap: 30px;
-    width: auto;
-    margin: 30px 24px 0;
+    grid-template-columns: minmax(220px, 0.82fr) minmax(300px, 1.18fr) minmax(300px, 0.9fr);
+    gap: 20px;
+    width: 100%;
+    margin: 30px 0 0;
     padding-inline: 0;
     box-sizing: border-box;
     align-items: start;
@@ -676,6 +746,7 @@ h2 {
     gap: 8px;
     overflow: visible;
     position: relative;
+    top: -10px;
     grid-column: 3;
     box-shadow: 4px 4px 6px rgb(0, 0, 0);
 }
@@ -746,7 +817,7 @@ h2 {
     min-height: 100%;
     align-self: stretch;
     border-radius: 8px;
-    background: var(--color-primary-active);
+    background: var(--color-priority-medium);
 }
 
 .upcoming-assignment-link.is-urgent .upcoming-assignment-countdown {
@@ -801,9 +872,10 @@ h2 {
     border: 2px solid #ddd;
     background: #fff;
     width: 100%;
+    min-width: 300px;
     box-sizing: border-box;
     border-radius: 10px;
-    padding: 14px 12px;
+    padding: 12px 10px;
     gap: 10px;
 
 }
@@ -812,19 +884,27 @@ h2 {
     margin: 0;
     text-align: left;
     line-height: 1.05;
+    color: #111;
+    font-size: 26px;
+    white-space: nowrap;
 }
 
 .calendar-widget-header {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--color-table-header);
+    border-radius: 8px;
+    box-sizing: border-box;
 }
 
 .calendar-widget-nav {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .calendar-nav {
@@ -833,8 +913,8 @@ h2 {
     background-color: black;
     border: 2px solid grey;
     color: white;
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     padding: 0;
     display: inline-grid;
     place-items: center;
@@ -1270,9 +1350,15 @@ body.nav-collapsed .system-settings {
         grid-template-columns: 1fr;
     }
 
+    .home-date-summary,
+    .upcoming-assignments-widget {
+        grid-column: 1;
+    }
+
     .upcoming-assignments-widget {
         justify-self: center;
         max-width: 320px;
+        top: 0;
     }
     
     .assignments-layout {
@@ -1376,9 +1462,9 @@ body.nav-collapsed .system-settings {
     }
 
     .menu-toggle {
-        display: block;
-        font-size: 52px;
-        margin: 0 auto 10px;
+        display: inline-grid;
+        font-size: 50px;
+        margin: 0;
         align-self: center;
     }
 
@@ -1582,7 +1668,7 @@ body.nav-collapsed .system-settings {
 @media (max-width: 600px) {
     .page-title { font-size: 26px; }
     .navbar .nav-list { font-size: 16px; }
-    .menu-toggle { font-size: 54px; margin-left: auto; margin-right: auto; }
+    .menu-toggle { font-size: 50px; margin-left: 0; margin-right: 0; }
 
     .carousel-slide {
         width: 100%;
@@ -1598,6 +1684,7 @@ body.nav-collapsed .system-settings {
     .calendar-widget {
         grid-column: auto;
         max-width: 100%;
+        min-width: 0;
         justify-self: stretch;
     }
 
@@ -1606,7 +1693,7 @@ body.nav-collapsed .system-settings {
     }
 
     .menu-toggle {
-        font-size: 46px;
+        font-size: 50px;
     }
 
     .dashboard-cards {
