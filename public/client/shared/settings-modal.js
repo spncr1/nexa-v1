@@ -3,22 +3,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const storage = window.NexaAppStorage;
     let currentUser = storage.getCurrentUser();
+
     const menuToggle = document.querySelector(".menu-toggle");
     const systemSettingsBtn = document.getElementById("system-settings-btn");
     const systemSettingsModal = document.getElementById("system-settings-modal");
+    const settingsBackdrop = document.getElementById("settings-backdrop");
     const navButtons = document.querySelectorAll(".settings-nav");
     const panels = document.querySelectorAll(".settings-panel");
     const subtitle = document.getElementById("settings-subtitle");
-    const darkToggle = document.getElementById("dark-mode-toggle");
+    const themeSwitch = document.getElementById("theme-switch");
     const resetAppDataBtn = document.getElementById("reset-app-data-btn");
+    const loadDemoDataBtn = document.getElementById("load-demo-data-btn");
     const accountNameInput = document.getElementById("account-name-input");
     const accountEmailInput = document.getElementById("account-email-input");
     const accountSemesterInput = document.getElementById("account-semester-input");
     const saveAccountBtn = document.getElementById("save-account-btn");
     const logoutBtn = document.getElementById("logout-btn");
     const deleteAccountBtn = document.getElementById("delete-account-btn");
-    let settingsStatusEl = null;
-    let settingsStatusTimer = null;
 
     const NAV_COLLAPSED_KEY = "studenthub_nav_collapsed";
     const USER_NAME_KEY = "studenthub_user_name";
@@ -26,6 +27,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     const APP_DATA_KEYS = ["tasksByDate", "studenthub_subjects", "studenthub_assignments", USER_NAME_KEY, SEMESTER_KEY];
     const DEFAULT_USER_NAME = currentUser?.name || "Student";
     const DEFAULT_SEMESTER_LABEL = "Untitled Semester";
+    const mobileNavQuery = window.matchMedia("(max-width: 768px)");
+
+    let settingsStatusEl = null;
+    let settingsStatusTimer = null;
+
+    /*
+      ==========================
+      SHARED APP SHELL
+      ==========================
+    */
 
     function setNavCollapsed(isCollapsed) {
         document.body.classList.toggle("nav-collapsed", isCollapsed);
@@ -42,6 +53,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         event.preventDefault();
         event.stopPropagation();
     }
+
+    /*
+      ==========================
+      SYSTEM SETTINGS MODAL
+      ==========================
+    */
 
     function loadUserName() {
         const saved = storage.getItem(USER_NAME_KEY);
@@ -100,12 +117,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function openSystemSettings() {
         clearSettingsStatus();
-        systemSettingsModal?.classList.remove("hidden");
         populateAccountInputs();
+        settingsBackdrop?.classList.remove("hidden");
+        systemSettingsModal?.classList.remove("hidden");
     }
 
     function closeSystemSettings() {
         systemSettingsModal?.classList.add("hidden");
+        settingsBackdrop?.classList.add("hidden");
         clearSettingsStatus();
     }
 
@@ -121,12 +140,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (subtitle) {
             subtitle.textContent = tabKey.charAt(0).toUpperCase() + tabKey.slice(1);
         }
-    }
-
-    function setDarkMode(isOn) {
-        document.body.classList.toggle("dark-mode", isOn);
-        storage.setItem("darkMode", isOn ? "1" : "0");
-        document.cookie = `nexa_dark_mode=${isOn ? "1" : "0"}; path=/; max-age=31536000; SameSite=Lax`;
     }
 
     async function saveAccountSettings() {
@@ -159,6 +172,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         storage.setItem(USER_NAME_KEY, nameValue);
         storage.setItem(SEMESTER_KEY, semesterValue);
         populateAccountInputs();
+        window.dispatchEvent(new CustomEvent("nexa:account-updated", {
+            detail: { user: currentUser, name: nameValue, semester: semesterValue }
+        }));
         showSettingsStatus("Account details saved successfully.");
     }
 
@@ -212,14 +228,47 @@ document.addEventListener("DOMContentLoaded", async () => {
             "Reset all app data? This will permanently delete all saved tasks, subjects, and assignments across the application."
         );
         if (!confirmed) return;
+
         APP_DATA_KEYS.forEach((key) => storage.removeItem(key));
+        populateAccountInputs();
+        window.dispatchEvent(new CustomEvent("nexa:app-data-reset"));
+    }
+
+    function requestDemoData() {
+        window.dispatchEvent(new CustomEvent("nexa:load-demo-data"));
         populateAccountInputs();
     }
 
-    menuToggle?.addEventListener("click", () => {
-        const next = !document.body.classList.contains("nav-collapsed");
-        setNavCollapsed(next);
-    });
+    /*
+      ==========================
+      THEME SETTINGS
+      ==========================
+    */
+
+    function setDarkMode(isOn) {
+        document.body.classList.toggle("dark-mode", isOn);
+        storage.setItem("darkMode", isOn ? "1" : "0");
+        document.cookie = `nexa_dark_mode=${isOn ? "1" : "0"}; path=/; max-age=31536000; SameSite=Lax`;
+        themeSwitch?.setAttribute("aria-pressed", isOn.toString());
+        themeSwitch?.setAttribute("aria-label", isOn ? "Switch to light mode" : "Switch to dark mode");
+    }
+
+    function initialiseThemeSetting() {
+        const savedDarkMode = storage.getItem("darkMode") === "1";
+        setDarkMode(savedDarkMode);
+
+        themeSwitch?.addEventListener("click", () => {
+            setDarkMode(!document.body.classList.contains("dark-mode"));
+        });
+    }
+
+    if (menuToggle) {
+        const savedCollapsed = storage.getItem(NAV_COLLAPSED_KEY) === "1";
+        setNavCollapsed(mobileNavQuery.matches ? true : savedCollapsed);
+        menuToggle.addEventListener("click", () => {
+            setNavCollapsed(!document.body.classList.contains("nav-collapsed"));
+        });
+    }
 
     document.querySelector(".navbar .nav-list")?.addEventListener("click", stopCollapsedNavActivation, true);
     document.querySelector(".navbar .nav-list")?.addEventListener("keydown", (event) => {
@@ -228,7 +277,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }, true);
 
-    systemSettingsBtn?.addEventListener("click", openSystemSettings);
+    systemSettingsBtn?.addEventListener("click", (event) => {
+        event.stopPropagation();
+        openSystemSettings();
+    });
+    settingsBackdrop?.addEventListener("click", closeSystemSettings);
     document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") closeSystemSettings();
     });
@@ -242,8 +295,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         btn.addEventListener("click", () => setActiveTab(btn.dataset.tab));
     });
 
-    darkToggle?.addEventListener("change", () => setDarkMode(darkToggle.checked));
     resetAppDataBtn?.addEventListener("click", resetAllAppData);
+    loadDemoDataBtn?.addEventListener("click", requestDemoData);
     saveAccountBtn?.addEventListener("click", () => {
         saveAccountSettings().catch((error) => {
             console.error("Failed to save account settings:", error);
@@ -264,9 +317,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     setActiveTab("general");
-    setNavCollapsed(storage.getItem(NAV_COLLAPSED_KEY) === "1");
-    const savedDarkMode = storage.getItem("darkMode") === "1";
-    if (darkToggle) darkToggle.checked = savedDarkMode;
-    setDarkMode(savedDarkMode);
+    initialiseThemeSetting();
     populateAccountInputs();
 });

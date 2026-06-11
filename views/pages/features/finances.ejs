@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>NEXA - Finances</title>
+        
+        <!-- CSS stylesheet -->
+        <link rel="stylesheet" href="/dashboard.css">
+        <link rel="stylesheet" href="/client/shared/styles/dark-mode.css">
+
+        <!-- Primary Font (Headers & Titles - Manrope) -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+
+        <!-- Secondary Font (Body Text - Noto Sans) -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="/client/shared/assets/Images/nexa-v1.png">
+    </head>
+    <body>
+        <script src="/client/shared/theme-boot.js"></script>
+
+        <nav class="navbar">
+            <div class="nav-brand">
+                <div class="nav-brand-main">
+                    <img class="nav-logo" src="/client/shared/assets/Images/nexa-v1.png" alt="" aria-hidden="true">
+                    <span class="nav-title">NEXA</span>
+                </div>
+
+                <button class="menu-toggle" aria-label="Toggle navigation">
+                    <img class="app-icon" src="/client/shared/assets/Icons/menu.svg" alt="" aria-hidden="true">
+                </button>
+            </div>
+            
+            <ul class="nav-list">
+                <li><a href="/" class="nav-item" aria-label="Home"><img class="app-icon nav-item-icon" src="/client/shared/assets/Icons/home.svg" alt="" aria-hidden="true"> <span class="nav-item-label">Home</span></a></li>
+                <li>
+                    <details class="nav-group">
+                        <summary aria-label="Study"><span class="nav-summary-main"><img class="app-icon nav-summary-icon" src="/client/shared/assets/Icons/school.svg" alt="" aria-hidden="true"> <span class="nav-summary-label">Study</span></span><img class="app-icon nav-chevron" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></summary>
+                        <ul class="nav-submenu">
+                            <li><a href="/assignments">Assignments</a></li>
+                            <li><a href="/study-planner">Study Planner</a></li>
+                            <li><a href="/tasks">Tasks</a></li>
+                        </ul>
+                    </details>
+                </li>
+                <li>
+                    <details class="nav-group">
+                        <summary aria-label="Life"><span class="nav-summary-main"><img class="app-icon nav-summary-icon" src="/client/shared/assets/Icons/habits.svg" alt="" aria-hidden="true"> <span class="nav-summary-label">Life</span></span><img class="app-icon nav-chevron" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></summary>
+                        <ul class="nav-submenu">
+                            <li><a href="/habits">Habits</a></li>
+                        </ul>
+                    </details>
+                </li>
+                <li>
+                    <details class="nav-group">
+                        <summary aria-label="Career"><span class="nav-summary-main"><img class="app-icon nav-summary-icon" src="/client/shared/assets/Icons/career.svg" alt="" aria-hidden="true"> <span class="nav-summary-label">Career</span></span><img class="app-icon nav-chevron" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></summary>
+                        <ul class="nav-submenu">
+                            <li><a href="/job-applications">Job Applications</a></li>
+                        </ul>
+                    </details>
+                </li>
+                <li>
+                    <details class="nav-group" open>
+                        <summary class="active" aria-label="Financial"><span class="nav-summary-main"><img class="app-icon nav-summary-icon" src="/client/shared/assets/Icons/financial.svg" alt="" aria-hidden="true"> <span class="nav-summary-label">Financial</span></span><img class="app-icon nav-chevron" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></summary>
+                        <ul class="nav-submenu">
+                            <li><a href="/finances" class="active">Finances</a></li>
+                        </ul>
+                    </details>
+                </li>
+            </ul>
+        </nav>
+
+        <main class="content">
+
+            <h1>Coming soon...</h1>
+            <%- include("../../partials/system-settings") %>
+        </main>
+        
+        <script src="/client/app-storage.js"></script>
+        <script src="/client/shared/settings-modal.js"></script>
+    </body>
+</html>

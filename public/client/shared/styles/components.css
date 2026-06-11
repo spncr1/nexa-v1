@@ -9,3 +9,60 @@
 .switch input:checked + .slider {
     background: var(--color-primary-active);
 }
+
+#settings-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+#theme-switch {
+    appearance: none;
+    -webkit-appearance: none;
+    display: inline-grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    margin-right: 10px;
+    border: 1px solid var(--color-border-focus);
+    border-radius: 50%;
+    background: var(--color-surface);
+    cursor: pointer;
+    transition: transform 0.2s ease, filter 0.2s ease, border-color 0.2s ease;
+}
+
+#theme-switch:hover {
+    transform: scale(1.06);
+    filter: brightness(1.04);
+    border-color: var(--color-primary-active);
+}
+
+#theme-switch img {
+    width: 24px;
+    height: 24px;
+    filter: none;
+}
+
+#theme-switch img:last-child {
+    display: none;
+}
+
+body.dark-mode #theme-switch {
+    background: #202024;
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+body.dark-mode #theme-switch:hover {
+    border-color: var(--color-primary-soft);
+}
+
+body.dark-mode #theme-switch img:first-child {
+    display: none;
+}
+
+body.dark-mode #theme-switch img:last-child {
+    display: block;
+    filter: invert(1);
+}

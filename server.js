@@ -75,7 +75,7 @@ function ensureAppReady() {
 }
 
 function renderLogin(res, options = {}) {
-    res.status(options.status || 200).render('login.ejs', {
+    res.status(options.status || 200).render('pages/auth/login.ejs', {
         values: options.values || {},
         errors: options.errors || {},
         formError: options.formError || null,
@@ -84,7 +84,7 @@ function renderLogin(res, options = {}) {
 }
 
 function renderRegister(res, options = {}) {
-    res.status(options.status || 200).render('register.ejs', {
+    res.status(options.status || 200).render('pages/auth/register.ejs', {
         values: options.values || {},
         errors: options.errors || {},
         formError: options.formError || null
@@ -92,7 +92,7 @@ function renderRegister(res, options = {}) {
 }
 
 function renderForgotPassword(res, options = {}) {
-    res.status(options.status || 200).render('forgot-password.ejs', {
+    res.status(options.status || 200).render('pages/auth/forgot-password.ejs', {
         values: options.values || {},
         errors: options.errors || {},
         formError: options.formError || null,
@@ -101,7 +101,7 @@ function renderForgotPassword(res, options = {}) {
 }
 
 function renderResetPassword(res, options = {}) {
-    res.status(options.status || 200).render('reset-password.ejs', {
+    res.status(options.status || 200).render('pages/auth/reset-password.ejs', {
         token: options.token || '',
         errors: options.errors || {},
         formError: options.formError || null,
@@ -197,11 +197,41 @@ app.use(async (req, res, next) => {
 
 app.get('/', (req, res) => {
     if (req.isAuthenticated()) {
-        return res.render('index.ejs')
+        return res.render('pages/index.ejs')
     }
 
     res.redirect('/login')
 });
+
+const APP_PAGE_ROUTES = {
+    '/tasks': 'pages/features/tasks.ejs',
+    '/assignments': 'pages/features/assignments.ejs',
+    '/study-planner': 'pages/features/study-planner.ejs',
+    '/habits': 'pages/features/habits.ejs',
+    '/job-applications': 'pages/features/job-applications.ejs',
+    '/finances': 'pages/features/finances.ejs'
+}
+
+const LEGACY_APP_PAGE_REDIRECTS = {
+    '/client/features/Tasks/tasks.html': '/tasks',
+    '/client/features/Assignments/assignments.html': '/assignments',
+    '/client/features/StudyPlanner/study-planner.html': '/study-planner',
+    '/client/features/Habits/habits.html': '/habits',
+    '/client/features/JobApplications/job-applications.html': '/job-applications',
+    '/client/features/Finances/finances.html': '/finances'
+}
+
+Object.entries(APP_PAGE_ROUTES).forEach(([route, view]) => {
+    app.get(route, checkAuthenticated, (req, res) => {
+        res.render(view)
+    })
+})
+
+Object.entries(LEGACY_APP_PAGE_REDIRECTS).forEach(([legacyRoute, route]) => {
+    app.get(legacyRoute, checkAuthenticated, (req, res) => {
+        res.redirect(route)
+    })
+})
 
 app.get('/login', checkNotAuthenticated, (req, res) => {
     renderLogin(res, {
@@ -566,7 +596,6 @@ app.put('/api/app-state', checkAuthenticatedApi, async (req, res) => {
 app.get('/index.html', checkAuthenticated, (req, res) => {
     res.redirect('/')
 })
-app.get('/client/features/:featureName/:pageName.html', checkAuthenticated, sendProtectedHtml)
 app.use(express.static(path.join(__dirname, 'public')))
 
 //middleware function
@@ -591,10 +620,6 @@ function checkAuthenticatedApi(req, res, next) {
     }
 
     res.status(401).json({ error: 'Not authenticated' })
-}
-
-function sendProtectedHtml(req, res) {
-    res.sendFile(path.join(__dirname, 'public', req.path))
 }
 
 const PORT = process.env.PORT || 3000

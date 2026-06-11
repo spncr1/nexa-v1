@@ -1,9 +1,11 @@
 /*  =========================================
-    DARK MODE TOKENS + SHARED COLOURS
+    DARK MODE TOKENS + 
+    LIGHT MODE COLOUR OVERRIDES
     =========================================
 */
 
 @import url("/client/shared/styles/tokens.css");
+@import url("/client/shared/styles/components.css");
 
 body.dark-mode {
     --color-bg: #0f0f10f5;

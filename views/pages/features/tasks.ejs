@@ -42,9 +42,9 @@
                     <details class="nav-group" open>
                         <summary class="active" aria-label="Study"><span class="nav-summary-main"><img class="app-icon nav-summary-icon" src="/client/shared/assets/Icons/school.svg" alt="" aria-hidden="true"> <span class="nav-summary-label">Study</span></span><img class="app-icon nav-chevron" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></summary>
                         <ul class="nav-submenu">
-                            <li><a href="/client/features/Assignments/assignments.html">Assignments</a></li>
-                            <li><a href="/client/features/StudyPlanner/study-planner.html">Study Planner</a></li>
-                            <li><a href="/client/features/Tasks/tasks.html" class="active">Tasks</a></li>
+                            <li><a href="/assignments">Assignments</a></li>
+                            <li><a href="/study-planner">Study Planner</a></li>
+                            <li><a href="/tasks" class="active">Tasks</a></li>
                         </ul>
                     </details>
                 </li>
@@ -52,7 +52,7 @@
                     <details class="nav-group">
                         <summary aria-label="Life"><span class="nav-summary-main"><img class="app-icon nav-summary-icon" src="/client/shared/assets/Icons/habits.svg" alt="" aria-hidden="true"> <span class="nav-summary-label">Life</span></span><img class="app-icon nav-chevron" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></summary>
                         <ul class="nav-submenu">
-                            <li><a href="/client/features/Habits/habits.html">Habits</a></li>
+                            <li><a href="/habits">Habits</a></li>
                         </ul>
                     </details>
                 </li>
@@ -60,7 +60,7 @@
                     <details class="nav-group">
                         <summary aria-label="Career"><span class="nav-summary-main"><img class="app-icon nav-summary-icon" src="/client/shared/assets/Icons/career.svg" alt="" aria-hidden="true"> <span class="nav-summary-label">Career</span></span><img class="app-icon nav-chevron" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></summary>
                         <ul class="nav-submenu">
-                            <li><a href="/client/features/JobApplications/job-applications.html">Job Applications</a></li>
+                            <li><a href="/job-applications">Job Applications</a></li>
                         </ul>
                     </details>
                 </li>
@@ -68,7 +68,7 @@
                     <details class="nav-group">
                         <summary aria-label="Financial"><span class="nav-summary-main"><img class="app-icon nav-summary-icon" src="/client/shared/assets/Icons/financial.svg" alt="" aria-hidden="true"> <span class="nav-summary-label">Financial</span></span><img class="app-icon nav-chevron" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></summary>
                         <ul class="nav-submenu">
-                            <li><a href="/client/features/Finances/finances.html">Finances</a></li>
+                            <li><a href="/finances">Finances</a></li>
                         </ul>
                     </details>
                 </li>
@@ -189,111 +189,12 @@
                     <button class="btn-secondary" id="confirm-task-btn"><span class="ui-btn-label">Add</span><img class="app-icon" src="/client/shared/assets/Icons/check.svg" alt="" aria-hidden="true"></button>
                 </div>
             </div>
-
-            <!-- SYSTEM SETTINGS MODAL -->
-              <div id="system-settings-modal" class="hidden" role="dialog" aria-modal="true" aria-label="System Settings">
-                <div class="settings-layout">
-                    <aside class="settings-sidebar">
-                        <ul class="settings-sidebar-list">
-                            <li><button type="button" class="settings-nav" data-tab="general">General</button></li>
-                            <li><button type="button" class="settings-nav" data-tab="account">Account</button></li>
-                            <li><button type="button" class="settings-nav" data-tab="customise">Customise</button></li>
-                        </ul>
-                    </aside>
-
-                    <!-- Main content -->
-                     <div class="settings-content">
-                        <div class="settings-header">
-                            <h3 class="settings-title">SYSTEM SETTINGS</h3>
-                            <div id="settings-subtitle" class="settings-subtitle">General</div>
-                        </div>
-
-                        <div class="settings-body">
-                            <div class="settings-panel" data-panel="general">
-                                <div class="setting-row">
-                                    <div>
-                                        <div class="setting-labels">Reset App Data</div>
-                                    </div>
-                                    <button type="button" id="reset-app-data-btn" class="setting-action-btn danger"><span class="ui-btn-label">Reset</span><img class="app-icon" src="/client/shared/assets/Icons/delete.svg" alt="" aria-hidden="true"></button>
-                                </div>
-
-                                <div class="setting-row">
-                                    <div>
-                                        <div class="setting-labels">Load Demo Data</div>
-                                    </div>
-                                    <button type="button" id="load-demo-data-btn" class="setting-action-btn success"><span class="ui-btn-label">Load</span><img class="app-icon" src="/client/shared/assets/Icons/add-circle.svg" alt="" aria-hidden="true"></button>
-                                </div>
-                            </div>
-
-                            <div class="settings-panel hidden" data-panel="account">
-                                <div class="setting-row">
-                                    <div>
-                                        <div class="setting-labels">Name</div>
-                                    </div>
-                                    <input type="text" id="account-name-input" class="setting-account-input">
-                                </div>
-
-                                <div class="setting-row">
-                                    <div>
-                                        <div class="setting-labels">Email</div>
-                                    </div>
-                                    <input type="text" id="account-email-input" class="setting-account-input">
-                                </div>
-
-                                <div class="setting-row">
-                                    <div>
-                                        <div class="setting-labels">Semester label</div>
-                                    </div>
-                                    <input type="text" id="account-semester-input" class="setting-account-input">
-                                </div>
-
-                                <div class="setting-row">
-                                    <div>
-                                        <div class="setting-labels">Save account details</div>
-                                    </div>
-                                    <button type="button" id="save-account-btn" class="setting-action-btn success"><span class="ui-btn-label">Save</span><img class="app-icon" src="/client/shared/assets/Icons/check.svg" alt="" aria-hidden="true"></button>
-                                </div>
-
-                                <div class="setting-row">
-                                    <div>
-                                        <div class="setting-labels">Logout?</div>
-                                    </div>
-                                    <button type="button" id="logout-btn" class="setting-action-btn neutral"><span class="ui-btn-label">Logout</span><img class="app-icon" src="/client/shared/assets/Icons/logout.svg" alt="" aria-hidden="true"></button>
-                                </div>
-
-                                <div class="setting-row">
-                                    <div>
-                                        <div class="setting-labels">Delete account?</div>
-                                    </div>
-                                    <button type="button" id="delete-account-btn" class="setting-action-btn danger"><span class="ui-btn-label">Delete</span><img class="app-icon" src="/client/shared/assets/Icons/delete.svg" alt="" aria-hidden="true"></button>
-                                </div>
-                            </div>
-
-                            <div class="settings-panel" data-panel="customise">
-                                <div class="setting-row">
-                                    <div>
-                                        <div class="setting-labels">Dark mode</div>
-                                    </div>
-
-                                    <label class="switch">
-                                        <input type="checkbox" id="dark-mode-toggle">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                     </div>
-                </div>
-              </div>
-              
-              <!-- System Settings Button (placement)-->
-             <div class="system-settings">
-                <button id="system-settings-btn" aria-label="System settings"><img class="app-icon" src="/client/shared/assets/Icons/system-settings.svg" alt="" aria-hidden="true"></button>
-             </div>
+            <%- include("../../partials/system-settings") %>
         </main>
         
         <script src="/client/shared/theme-boot.js"></script>
-        <script src="/client/shared/app-storage.js"></script>
+        <script src="/client/app-storage.js"></script>
+        <script src="/client/shared/settings-modal.js"></script>
         <script src="/client/features/Tasks/tasks.js"></script>
     </body>
 </html>

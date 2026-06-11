@@ -1,44 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
     await window.NexaAppStorage.ready;
     const storage = window.NexaAppStorage;
-    let currentUser = storage.getCurrentUser();
-    const menuToggle = document.querySelector(".menu-toggle");
-    const NAV_COLLAPSED_KEY = "studenthub_nav_collapsed";
-    const mobileNavQuery = window.matchMedia("(max-width: 768px)");
-
-    function setNavCollapsed(isCollapsed) {
-        document.body.classList.toggle("nav-collapsed", isCollapsed);
-        storage.setItem(NAV_COLLAPSED_KEY, isCollapsed ? "1" : "0");
-        if (menuToggle) {
-            menuToggle.setAttribute("aria-expanded", (!isCollapsed).toString());
-        }
-    }
-
-    function stopCollapsedNavActivation(event) {
-        if (!document.body.classList.contains("nav-collapsed")) return;
-
-        const target = event.target.closest(".navbar .nav-list a, .navbar .nav-group summary");
-        if (!target) return;
-
-        event.preventDefault();
-        event.stopPropagation();
-    }
-
-    if (menuToggle) {
-        const savedCollapsed = storage.getItem(NAV_COLLAPSED_KEY) === "1";
-        setNavCollapsed(mobileNavQuery.matches ? true : savedCollapsed);
-        menuToggle.addEventListener("click", () => {
-            const next = !document.body.classList.contains("nav-collapsed");
-            setNavCollapsed(next);
-        });
-    }
-
-    document.querySelector(".navbar .nav-list")?.addEventListener("click", stopCollapsedNavActivation, true);
-    document.querySelector(".navbar .nav-list")?.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-            stopCollapsedNavActivation(event);
-        }
-    }, true);
 
     /* Date Buttons Interactivity */
     const todayBtn = document.getElementById("today-btn");
@@ -85,24 +47,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     let currentSortMode = storage.getItem("taskSortMode") || "createdNewOld"; // load saved sort mode (default: createdNewOld)
     sortSelect.value = currentSortMode;
 
-    // SYSTEM SETTINGS
-    const systemSettingsBtn = document.getElementById("system-settings-btn");
-    const systemSettingsModal = document.getElementById("system-settings-modal");
-    const navButtons = document.querySelectorAll(".settings-nav");
-    const panels = document.querySelectorAll(".settings-panel");
-    const subtitle = document.getElementById("settings-subtitle");
-    const darkToggle = document.getElementById("dark-mode-toggle"); // for dark mode
-    const resetAppDataBtn = document.getElementById("reset-app-data-btn");
-    const loadDemoDataBtn = document.getElementById("load-demo-data-btn");
-    const accountNameInput = document.getElementById("account-name-input");
-    const accountEmailInput = document.getElementById("account-email-input");
-    const accountSemesterInput = document.getElementById("account-semester-input");
-    const saveAccountBtn = document.getElementById("save-account-btn");
-    const logoutBtn = document.getElementById("logout-btn");
-    const deleteAccountBtn = document.getElementById("delete-account-btn");
-    let settingsStatusEl = null;
-    let settingsStatusTimer = null;
-
     let selectedDate = new Date();
 
     // Normalise the time to midday to avoid timezone issues
@@ -115,9 +59,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const SUBJECTS_KEY = "studenthub_subjects";
     const USER_NAME_KEY = "studenthub_user_name";
     const SEMESTER_KEY = "studenthub_semester_label";
-    const DEFAULT_USER_NAME = currentUser?.name || "Student";
+    const DEFAULT_USER_NAME = "Student";
     const DEFAULT_SEMESTER_LABEL = "Untitled Semester";
-    const APP_DATA_KEYS = [TASKS_KEY, SUBJECTS_KEY, ASSIGNMENTS_KEY, USER_NAME_KEY, SEMESTER_KEY];
     const ASSIGNMENTS_PREVIEW_LIMIT = 2;
     const UPCOMING_ASSIGNMENTS_LIMIT = 3;
 
@@ -147,143 +90,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         labels.forEach((el) => {
             el.textContent = `(${loadSemesterLabel()})`;
         });
-    }
-
-    function populateAccountInputs() {
-        if (accountNameInput) {
-            accountNameInput.value = loadUserName();
-        }
-        if (accountEmailInput) {
-            accountEmailInput.value = currentUser?.email || "";
-        }
-        if (accountSemesterInput) {
-            accountSemesterInput.value = loadSemesterLabel();
-        }
-    }
-
-    function ensureSettingsStatus() {
-        if (settingsStatusEl) return settingsStatusEl;
-
-        settingsStatusEl = document.createElement("p");
-        settingsStatusEl.className = "settings-status hidden";
-        settingsStatusEl.setAttribute("role", "status");
-        systemSettingsModal?.insertAdjacentElement("afterend", settingsStatusEl);
-
-        return settingsStatusEl;
-    }
-
-    function positionSettingsStatus() {
-        const statusEl = ensureSettingsStatus();
-        if (!systemSettingsModal) return;
-
-        const modalRect = systemSettingsModal.getBoundingClientRect();
-        statusEl.style.left = `${modalRect.left + modalRect.width / 2}px`;
-        statusEl.style.top = `${modalRect.bottom + 12}px`;
-    }
-
-    function clearSettingsStatus() {
-        window.clearTimeout(settingsStatusTimer);
-        settingsStatusTimer = null;
-        if (!settingsStatusEl) return;
-
-        settingsStatusEl.classList.add("hidden");
-        settingsStatusEl.textContent = "";
-    }
-
-    function showSettingsStatus(message) {
-        const statusEl = ensureSettingsStatus();
-
-        statusEl.textContent = message;
-        positionSettingsStatus();
-        statusEl.classList.remove("hidden");
-        window.clearTimeout(settingsStatusTimer);
-        settingsStatusTimer = window.setTimeout(clearSettingsStatus, 2500);
-    }
-
-    async function saveAccountSettings() {
-        const nameValue = (accountNameInput?.value || "").trim() || DEFAULT_USER_NAME;
-        const emailValue = (accountEmailInput?.value || "").trim().toLowerCase();
-        const semesterValue = (accountSemesterInput?.value || "").trim() || DEFAULT_SEMESTER_LABEL;
-
-        if (!emailValue) {
-            window.alert("Email cannot be blank.");
-            populateAccountInputs();
-            return;
-        }
-
-        const response = await fetch("/api/me", {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "same-origin",
-            body: JSON.stringify({
-                name: nameValue,
-                email: emailValue
-            })
-        });
-
-        if (!response.ok) {
-            const payload = await response.json().catch(() => ({}));
-            window.alert(payload.error || "Could not update account details right now.");
-            populateAccountInputs();
-            return;
-        }
-
-        currentUser = await response.json();
-        storage.setCurrentUser(currentUser);
-        storage.setItem(USER_NAME_KEY, nameValue);
-        storage.setItem(SEMESTER_KEY, semesterValue);
-
-        renderUserName();
-        renderSemesterLabel();
-        populateAccountInputs();
-        showSettingsStatus("Account details saved successfully.");
-    }
-
-    async function logoutCurrentUser() {
-        const confirmed = window.confirm("Are you sure you want to log out?");
-        if (!confirmed) return;
-
-        const response = await fetch("/logout", {
-            method: "DELETE",
-            credentials: "same-origin"
-        });
-
-        if (!response.ok) {
-            window.alert("Could not log out right now.");
-            return;
-        }
-
-        window.location.href = "/login";
-    }
-
-    function showAccountDeletedNotice() {
-        const notice = document.createElement("div");
-        notice.className = "account-delete-notice";
-        notice.textContent = "Account deleted successfully.";
-        document.body.appendChild(notice);
-    }
-
-    async function deleteCurrentUserAccount() {
-        const confirmed = window.confirm("Are you sure you want to delete this account? This cannot be undone.");
-        if (!confirmed) return;
-
-        const response = await fetch("/api/me", {
-            method: "DELETE",
-            credentials: "same-origin"
-        });
-
-        if (!response.ok) {
-            const payload = await response.json().catch(() => ({}));
-            window.alert(payload.error || "Could not delete account right now.");
-            return;
-        }
-
-        showAccountDeletedNotice();
-        window.setTimeout(() => {
-            window.location.href = "/login";
-        }, 900);
     }
 
     // converts selectedDate to YYYY-MM-DD
@@ -461,7 +267,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     function getAssignmentDetailsHref(assignmentId) {
         // I want both home-page assignment card types to open the exact same
         // assignment target, so the deep-link path lives in one place.
-        return `/client/features/Assignments/assignments.html?assignmentId=${encodeURIComponent(assignmentId)}`;
+        return `/assignments?assignmentId=${encodeURIComponent(assignmentId)}`;
     }
 
     function formatCalendarMonthYear(dateObj) {
@@ -1026,67 +832,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         return copy;
     }
 
-    /* SYSTEM SETTINGS */
-    // helper methods
-    function openSystemSettings() {
-
-        backdrop.classList.remove("hidden");
-        clearSettingsStatus();
-        systemSettingsModal.classList.remove("hidden");
-    }
-
-    function closeSystemSettings() {
-        systemSettingsModal.classList.add("hidden");
-        clearSettingsStatus();
-
-        const addTaskOpen = !modal.classList.contains("hidden");
-        if (!addTaskOpen) {
-            backdrop.classList.add("hidden");
-        }
-    }
-
-    function setActiveTab(tabKey) {
-        navButtons.forEach(btn => { // active button syling
-            btn.classList.toggle("active", btn.dataset.tab === tabKey);
-        });
-
-        panels.forEach(panel => {
-            panel.classList.toggle("hidden", panel.dataset.panel !== tabKey);
-        });
-
-        if (subtitle) {
-            subtitle.textContent = tabKey.charAt(0).toUpperCase() + tabKey.slice(1);
-        }
-    }
-
-    function setDarkMode(isOn) {
-        document.body.classList.toggle("dark-mode", isOn);
-        storage.setItem("darkMode", isOn ? "1" : "0");
-        document.cookie = `nexa_dark_mode=${isOn ? "1" : "0"}; path=/; max-age=31536000; SameSite=Lax`;
-    }
-
     function randomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     function pick(list) {
         return list[randomInt(0, list.length - 1)];
-    }
-
-    function hasAnyAppData() {
-        return APP_DATA_KEYS.some((key) => {
-            const raw = storage.getItem(key);
-            if (raw === null || raw.trim() === "") return false;
-
-            try {
-                const parsed = JSON.parse(raw);
-                if (Array.isArray(parsed)) return parsed.length > 0;
-                if (parsed && typeof parsed === "object") return Object.keys(parsed).length > 0;
-                return true;
-            } catch {
-                return true;
-            }
-        });
     }
 
     function formatISODate(dateObj) {
@@ -1273,24 +1024,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         return { subjects, assignments };
     }
 
-    function resetAllAppData() {
-        if (!hasAnyAppData()) {
-            alert("No app data to reset.");
-            return;
-        }
-
-        const confirmed = window.confirm(
-            "Reset all app data? This will permanently delete all saved tasks, subjects, and assignments across the application."
-        );
-        if (!confirmed) return;
-
-        APP_DATA_KEYS.forEach((key) => storage.removeItem(key));
+    function handleAppDataReset() {
         editingTaskId = null;
         selectedDate = new Date();
         selectedDate.setHours(12, 0, 0, 0);
         renderUserName();
         renderSemesterLabel();
-        populateAccountInputs();
         renderDate();
     }
 
@@ -1309,7 +1048,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         selectedDate.setHours(12, 0, 0, 0);
         renderUserName();
         renderSemesterLabel();
-        populateAccountInputs();
         renderDate();
     }
 
@@ -1368,84 +1106,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         renderTasksForSelectedDate();
     });
 
-    // System Settings wired up clicks
-    systemSettingsBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        openSystemSettings();
-    });
-
     backdrop.addEventListener("click", () => {
         closeModal(); // close whichever modal(s) are open
-        closeSystemSettings();
     });
 
     document.addEventListener("keydown", (e) => {
         if (e.key !== "Escape") return;
         closeModal();
-        closeSystemSettings();
     });
-    window.addEventListener("resize", () => {
-        if (settingsStatusEl && !settingsStatusEl.classList.contains("hidden")) {
-            positionSettingsStatus();
-        }
-    });
-
-    navButtons.forEach(btn => {
-        btn.addEventListener("click", () => setActiveTab(btn.dataset.tab));
-    });
-
-    setActiveTab("general"); // default tab when opening system settings modal
 
     if (assignmentsDueCard) {
         assignmentsDueCard.setAttribute("role", "button");
         assignmentsDueCard.setAttribute("tabindex", "0");
     }
 
-    if (darkToggle) {
-        // load saved preference
-        const saved = storage.getItem("darkMode") === "1";
-        darkToggle.checked = saved;
-        setDarkMode(saved);
-
-        darkToggle.addEventListener("change", () => {
-            setDarkMode(darkToggle.checked);
-        });
-    }
-
-    if (resetAppDataBtn) {
-        resetAppDataBtn.addEventListener("click", resetAllAppData);
-    }
-
-    if (loadDemoDataBtn) {
-        loadDemoDataBtn.addEventListener("click", loadAllDemoData);
-    }
-
-    if (saveAccountBtn) {
-        saveAccountBtn.addEventListener("click", () => {
-            saveAccountSettings().catch((error) => {
-                console.error("Failed to save account settings:", error);
-                window.alert("Could not update account details right now.");
-            });
-        });
-    }
-
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", () => {
-            logoutCurrentUser().catch((error) => {
-                console.error("Failed to log out:", error);
-                window.alert("Could not log out right now.");
-            });
-        });
-    }
-
-    if (deleteAccountBtn) {
-        deleteAccountBtn.addEventListener("click", () => {
-            deleteCurrentUserAccount().catch((error) => {
-                console.error("Failed to delete account:", error);
-                window.alert("Could not delete account right now.");
-            });
-        });
-    }
+    window.addEventListener("nexa:load-demo-data", loadAllDemoData);
+    window.addEventListener("nexa:app-data-reset", handleAppDataReset);
+    window.addEventListener("nexa:account-updated", () => {
+        renderUserName();
+        renderSemesterLabel();
+    });
 
     taskListEl?.addEventListener("scroll", updateHomeOverflowHints);
     upcomingAssignmentsListEl?.addEventListener("scroll", updateHomeOverflowHints);
@@ -1453,6 +1133,5 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     renderUserName();
     renderSemesterLabel();
-    populateAccountInputs();
     renderDate(); // IMPORTANT: when the date changes, the tasks need to be re-rendered to avoid confusion
 });
