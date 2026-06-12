@@ -64,6 +64,31 @@ const authTokensActiveHashIndexSql = `
     WHERE used_at IS NULL;
 `;
 
+const pendingRegistrationsTableSql = `
+    CREATE TABLE IF NOT EXISTS pending_registrations (
+        id BIGSERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        password_hash TEXT NOT NULL,
+        token_hash CHAR(64) NOT NULL UNIQUE,
+        expires_at TIMESTAMPTZ NOT NULL,
+        used_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+`;
+
+const pendingRegistrationsActiveEmailIndexSql = `
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_pending_registrations_active_email
+    ON pending_registrations (email)
+    WHERE used_at IS NULL;
+`;
+
+const pendingRegistrationsActiveHashIndexSql = `
+    CREATE INDEX IF NOT EXISTS idx_pending_registrations_active_hash
+    ON pending_registrations (token_hash)
+    WHERE used_at IS NULL;
+`;
+
 const sessionTableSql = `
     CREATE TABLE IF NOT EXISTS "session" (
         sid VARCHAR PRIMARY KEY,
@@ -90,6 +115,9 @@ async function ensureDatabaseSchema() {
     await pool.query(authTokensTableSql);
     await pool.query(authTokensUserPurposeIndexSql);
     await pool.query(authTokensActiveHashIndexSql);
+    await pool.query(pendingRegistrationsTableSql);
+    await pool.query(pendingRegistrationsActiveEmailIndexSql);
+    await pool.query(pendingRegistrationsActiveHashIndexSql);
     await pool.query(sessionTableSql);
     await pool.query(sessionExpireIndexSql);
 }
@@ -291,6 +319,119 @@ async function resetPasswordWithAuthToken({ purpose, tokenHash, passwordHash }) 
     }
 }
 
+async function invalidatePendingRegistration(id) {
+    await pool.query(
+        `UPDATE pending_registrations
+         SET used_at = NOW()
+         WHERE id = $1
+           AND used_at IS NULL`,
+        [id]
+    );
+}
+
+async function createPendingRegistration({ name, email, passwordHash, tokenHash, expiresAt }) {
+    const normalizedEmail = email.trim().toLowerCase();
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+        await client.query(
+            `UPDATE pending_registrations
+             SET used_at = NOW()
+             WHERE email = $1
+               AND used_at IS NULL`,
+            [normalizedEmail]
+        );
+
+        const result = await client.query(
+            `INSERT INTO pending_registrations (name, email, password_hash, token_hash, expires_at)
+             VALUES ($1, $2, $3, $4, $5)
+             RETURNING id, name, email, expires_at, used_at, created_at`,
+            [name.trim(), normalizedEmail, passwordHash, tokenHash, expiresAt]
+        );
+
+        await client.query('COMMIT');
+        return result.rows[0];
+    } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+    } finally {
+        client.release();
+    }
+}
+
+async function createUserFromPendingRegistrationToken(tokenHash) {
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+
+        const pendingResult = await client.query(
+            `SELECT id, name, email, password_hash
+             FROM pending_registrations
+             WHERE token_hash = $1
+               AND used_at IS NULL
+               AND expires_at > NOW()
+             LIMIT 1
+             FOR UPDATE`,
+            [tokenHash]
+        );
+
+        const pendingRegistration = pendingResult.rows[0];
+        if (!pendingRegistration) {
+            await client.query('ROLLBACK');
+            return null;
+        }
+
+        const existingUserResult = await client.query(
+            `SELECT id
+             FROM users
+             WHERE email = $1
+             LIMIT 1`,
+            [pendingRegistration.email]
+        );
+
+        if (existingUserResult.rows[0]) {
+            await client.query(
+                `UPDATE pending_registrations
+                 SET used_at = NOW()
+                 WHERE email = $1
+                   AND used_at IS NULL`,
+                [pendingRegistration.email]
+            );
+            await client.query('COMMIT');
+            return null;
+        }
+
+        const userResult = await client.query(
+            `INSERT INTO users (name, email, password_hash)
+             VALUES ($1, $2, $3)
+             RETURNING id, name, email, password_hash AS password`,
+            [
+                pendingRegistration.name,
+                pendingRegistration.email,
+                pendingRegistration.password_hash
+            ]
+        );
+
+        await client.query(
+            `UPDATE pending_registrations
+             SET used_at = NOW()
+             WHERE email = $1
+               AND used_at IS NULL`,
+            [pendingRegistration.email]
+        );
+
+        await client.query('COMMIT');
+        return userResult.rows[0] || null;
+    } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+    } finally {
+        client.release();
+    }
+}
+
 async function getUserAppState(userId) {
     const result = await pool.query(
         `SELECT storage
@@ -345,6 +486,9 @@ module.exports = {
     createAuthToken,
     findValidAuthToken,
     resetPasswordWithAuthToken,
+    createPendingRegistration,
+    createUserFromPendingRegistrationToken,
+    invalidatePendingRegistration,
     getUserAppState,
     saveUserAppState
 };

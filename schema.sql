@@ -34,6 +34,25 @@ CREATE INDEX IF NOT EXISTS idx_auth_tokens_active_hash
 ON auth_tokens (purpose, token_hash)
 WHERE used_at IS NULL;
 
+CREATE TABLE IF NOT EXISTS pending_registrations (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password_hash TEXT NOT NULL,
+    token_hash CHAR(64) NOT NULL UNIQUE,
+    expires_at TIMESTAMPTZ NOT NULL,
+    used_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_pending_registrations_active_email
+ON pending_registrations (email)
+WHERE used_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_pending_registrations_active_hash
+ON pending_registrations (token_hash)
+WHERE used_at IS NULL;
+
 CREATE TABLE IF NOT EXISTS "session" (
     sid VARCHAR PRIMARY KEY,
     sess JSON NOT NULL,

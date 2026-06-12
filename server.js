@@ -18,7 +18,8 @@ const PgSession = require('connect-pg-simple')(session)
 const methodOverride = require('method-override')
 const {
     createAuthToken,
-    createUser,
+    createPendingRegistration,
+    createUserFromPendingRegistrationToken,
     deleteUserById,
     ensureDatabaseSchema,
     findUserByEmail,
@@ -27,6 +28,7 @@ const {
     formatDbError,
     getUserAppState,
     invalidateAuthTokens,
+    invalidatePendingRegistration,
     pool,
     resetPasswordWithAuthToken,
     saveUserAppState,
@@ -42,6 +44,7 @@ const {
 } = require('./auth-validation')
 const {
     assertEmailConfiguration,
+    sendEmailVerificationEmail,
     sendPasswordResetEmail
 } = require('./mailer')
 
@@ -54,7 +57,8 @@ initialisePassport(
 
 const PASSWORD_RESET_PURPOSE = 'password_reset'
 const PASSWORD_RESET_TTL_MS = 60 * 60 * 1000
-const FORGOT_PASSWORD_SUCCESS_MESSAGE = 'If an account exists for that email, a password reset link has been sent.'
+const EMAIL_VERIFICATION_TTL_MS = 60 * 60 * 1000
+const FORGOT_PASSWORD_SUCCESS_MESSAGE = 'If an account exists for that email, a password reset link has been sent. If it does not arrive soon, check your spam or junk folder.'
 
 let startupPromise = null
 
@@ -100,6 +104,12 @@ function renderForgotPassword(res, options = {}) {
     })
 }
 
+function renderCheckEmail(res, options = {}) {
+    res.status(options.status || 200).render('pages/auth/check-email.ejs', {
+        email: options.email || null
+    })
+}
+
 function renderResetPassword(res, options = {}) {
     res.status(options.status || 200).render('pages/auth/reset-password.ejs', {
         token: options.token || '',
@@ -133,6 +143,10 @@ function getAppBaseUrl() {
 
 function createPasswordResetUrl(token) {
     return new URL(`/reset-password/${token}`, getAppBaseUrl()).toString()
+}
+
+function createEmailVerificationUrl(token) {
+    return new URL(`/verify-email/${token}`, getAppBaseUrl()).toString()
 }
 
 const DEFINITE_EMAIL_DOMAIN_FAILURE_CODES = new Set(['ENOTFOUND', 'ENODATA', 'ENODOMAIN'])
@@ -250,6 +264,12 @@ app.get('/forgot-password', checkNotAuthenticated, (req, res) => {
     renderForgotPassword(res)
 });
 
+app.get('/check-email', checkNotAuthenticated, (req, res) => {
+    renderCheckEmail(res, {
+        email: req.flash('verificationEmail')[0]
+    })
+});
+
 app.get('/reset-password/:token', checkNotAuthenticated, async (req, res) => {
     try {
         const tokenHash = hashAuthToken(req.params.token)
@@ -273,6 +293,24 @@ app.get('/reset-password/:token', checkNotAuthenticated, async (req, res) => {
             formError: 'Could not load password reset right now.',
             canReset: false
         })
+    }
+});
+
+app.get('/verify-email/:token', checkNotAuthenticated, async (req, res) => {
+    try {
+        const createdUser = await createUserFromPendingRegistrationToken(hashAuthToken(req.params.token))
+
+        if (!createdUser) {
+            req.flash('error', 'This verification link is invalid or has expired. Please register again.')
+            return res.redirect('/register')
+        }
+
+        req.flash('success', 'Email verified. You can log in now.')
+        res.redirect('/login')
+    } catch (error) {
+        console.error('Failed to verify email:', formatDbError(error))
+        req.flash('error', 'Could not verify your email right now.')
+        res.redirect('/register')
     }
 });
 
@@ -441,20 +479,44 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
             })
         }
 
-        const hashed_password = await bcrypt.hash(req.body.password, 10);
+        assertEmailConfiguration()
 
-        await createUser({
+        const hashed_password = await bcrypt.hash(req.body.password, 10);
+        const rawToken = createRawAuthToken()
+        const tokenHash = hashAuthToken(rawToken)
+        const expiresAt = new Date(Date.now() + EMAIL_VERIFICATION_TTL_MS)
+
+        const pendingRegistration = await createPendingRegistration({
             name: validation.values.name,
             email: validation.values.email,
-            passwordHash: hashed_password
+            passwordHash: hashed_password,
+            tokenHash,
+            expiresAt
         })
 
-        req.flash('success', 'Account created successfully. You can log in now.')
-        res.redirect('/login') // redirect to login page so user can login with the account they just registered
+        try {
+            await sendEmailVerificationEmail({
+                to: validation.values.email,
+                name: validation.values.name,
+                verificationUrl: createEmailVerificationUrl(rawToken)
+            })
+        } catch (error) {
+            await invalidatePendingRegistration(pendingRegistration.id)
+            throw error
+        }
+
+        req.flash('verificationEmail', validation.values.email)
+        res.redirect('/check-email')
     } catch (error) {
         console.error('Failed to register user:', formatDbError(error))
-        req.flash('error', 'Could not create account right now')
-        res.redirect('/register') // redirect to register in case of a failure
+        renderRegister(res, {
+            status: 500,
+            values: {
+                name: req.body?.name || '',
+                email: req.body?.email || ''
+            },
+            formError: 'Could not send verification email right now.'
+        })
     }
 });
 

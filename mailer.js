@@ -71,18 +71,48 @@ async function sendPasswordResetEmail({ to, name, resetUrl }) {
             'We received a request to reset your NEXA password.',
             `Reset your password here: ${resetUrl}`,
             '',
-            'This link expires in 60 minutes. If you did not request this, you can ignore this email.'
+            'This link expires in 60 minutes. If you did not request this, you can ignore this email.',
+            'If this email landed in spam or junk, mark it as not spam so future NEXA emails reach your inbox.'
         ].join('\n'),
         html: `
             <p>Hi ${escapeHtml(displayName)},</p>
             <p>We received a request to reset your NEXA password.</p>
             <p>You can reset your password <a href="${escapeHtml(resetUrl)}">here</a>.</p>
             <p>This link expires in 60 minutes. If you did not request this, you can ignore this email.</p>
+            <p>If this email landed in spam or junk, mark it as not spam so future NEXA emails reach your inbox.</p>
+        `
+    })
+}
+
+async function sendEmailVerificationEmail({ to, name, verificationUrl }) {
+    const transporter = createTransporter()
+    const displayName = name || 'there'
+
+    await transporter.sendMail({
+        from: process.env.MAIL_FROM,
+        to,
+        subject: 'Verify your NEXA account',
+        text: [
+            `Hi ${displayName},`,
+            '',
+            'Thanks for signing up for NEXA.',
+            `Verify your account here: ${verificationUrl}`,
+            '',
+            'This link expires in 60 minutes. If you did not create a NEXA account, you can ignore this email.',
+            'If this email landed in spam or junk, mark it as not spam so future NEXA emails reach your inbox.'
+        ].join('\n'),
+        html: `
+            <p>Hi ${escapeHtml(displayName)},</p>
+            <p>Thanks for signing up for NEXA.</p>
+            <p>You can verify your account <a href="${escapeHtml(verificationUrl)}">here</a>.</p>
+            <p>This link expires in 60 minutes. If you did not create a NEXA account, you can ignore this email.</p>
+            <p>If this email landed in spam or junk, mark it as not spam so future NEXA emails reach your inbox.</p>
         `
     })
 }
 
 module.exports = {
     assertEmailConfiguration,
+    sendEmailVerificationEmail,
     sendPasswordResetEmail
 }

@@ -493,22 +493,25 @@ body.nav-collapsed .menu-toggle {
   ==========================
 */
 
-.system-settings {
-    display: block;
+.app-shell-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     position: fixed;
     bottom: 50px;
-    left: calc((var(--nav-width, 220px) + 32px - 48px) / 2);
+    left: calc((var(--nav-width, 220px) + 32px - 108px) / 2);
     z-index: 2000;
     opacity: 1;
     transform: none;
     pointer-events: auto;
 }
 
-body.nav-collapsed .system-settings {
-    left: 22px;
+body.nav-collapsed .app-shell-actions {
+    left: 12px;
+    gap: 8px;
 }
 
-#system-settings-btn {
+.app-shell-action-btn {
     appearance: none;
     -webkit-appearance: none;
     display: inline-grid;
@@ -519,16 +522,26 @@ body.nav-collapsed .system-settings {
     border: none;
     background: transparent;
     cursor: pointer;
+    transition: transform 0.2s ease, filter 0.2s ease;
 }
 
-#system-settings-btn .app-icon {
+.app-shell-action-btn .app-icon {
     width: 40px;
     height: 40px;
+}
+
+#system-settings-btn {
+    transition-duration: 0.3s;
 }
 
 #system-settings-btn:hover {
     transition: transform 0.3s ease, filter 0.3s ease;
     transform: scale(1.15) rotate(8deg);
+    filter: brightness(1.05);
+}
+
+#logout-btn:hover {
+    transform: scale(1.08);
     filter: brightness(1.05);
 }
 
@@ -603,13 +616,22 @@ body.nav-collapsed .system-settings {
 }
 
 .settings-header {
+    padding-top: 10px;
     padding-bottom: 10px;
     margin-bottom: 12px;
     border-bottom: 1px solid #ddd;
 }
 
+.settings-brand-logo {
+    display: block;
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    margin: 0 auto 6px;
+}
+
 .settings-title {
-    margin: 5px;
+    margin: 0 5px;
     text-align: center;
     font-size: 16px;
     font-weight: 800;
@@ -664,4 +686,16 @@ body.nav-collapsed .system-settings {
     font-size: 13px;
     margin-right: 10px;
     box-sizing: border-box;
+}
+
+.modal-brand-logo {
+    display: block;
+    width: 46px;
+    height: 46px;
+    object-fit: contain;
+    margin: 0 auto 8px;
+}
+
+.modal-brand-logo + h3 {
+    margin-top: 0;
 }

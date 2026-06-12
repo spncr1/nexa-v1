@@ -534,13 +534,6 @@ h2 {
     background-color: var(--color-assignment-reset);
 }
 
-#reset-btn:hover {
-    background-color: var(--color-control-hover);
-    cursor: pointer;
-    border-color: grey;
-    color: black;
-}
-
 .controls-group {
     display: grid;
     gap: 6px;

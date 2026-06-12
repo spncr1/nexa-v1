@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const accountEmailInput = document.getElementById("account-email-input");
     const accountSemesterInput = document.getElementById("account-semester-input");
     const saveAccountBtn = document.getElementById("save-account-btn");
+    const saveStudyBtn = document.getElementById("save-study-btn");
     const logoutBtn = document.getElementById("logout-btn");
     const deleteAccountBtn = document.getElementById("delete-account-btn");
 
@@ -145,7 +146,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function saveAccountSettings() {
         const nameValue = (accountNameInput?.value || "").trim() || DEFAULT_USER_NAME;
         const emailValue = (accountEmailInput?.value || "").trim().toLowerCase();
-        const semesterValue = (accountSemesterInput?.value || "").trim() || DEFAULT_SEMESTER_LABEL;
 
         if (!emailValue) {
             window.alert("Email cannot be blank.");
@@ -170,12 +170,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         currentUser = await response.json();
         storage.setCurrentUser(currentUser);
         storage.setItem(USER_NAME_KEY, nameValue);
+        populateAccountInputs();
+        window.dispatchEvent(new CustomEvent("nexa:account-updated", {
+            detail: { user: currentUser, name: nameValue, semester: loadSemesterLabel() }
+        }));
+        showSettingsStatus("Account details saved successfully.");
+    }
+
+    function saveStudySettings() {
+        const semesterValue = (accountSemesterInput?.value || "").trim() || DEFAULT_SEMESTER_LABEL;
+
         storage.setItem(SEMESTER_KEY, semesterValue);
         populateAccountInputs();
         window.dispatchEvent(new CustomEvent("nexa:account-updated", {
-            detail: { user: currentUser, name: nameValue, semester: semesterValue }
+            detail: { user: currentUser, name: loadUserName(), semester: semesterValue }
         }));
-        showSettingsStatus("Account details saved successfully.");
+        showSettingsStatus("Study details saved successfully.");
     }
 
     async function logoutCurrentUser() {
@@ -303,6 +313,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             window.alert("Could not update account details right now.");
         });
     });
+    saveStudyBtn?.addEventListener("click", saveStudySettings);
     logoutBtn?.addEventListener("click", () => {
         logoutCurrentUser().catch((error) => {
             console.error("Failed to log out:", error);

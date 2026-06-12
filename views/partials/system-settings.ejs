@@ -6,12 +6,14 @@
             <ul class="settings-sidebar-list">
                 <li><button type="button" class="settings-nav" data-tab="general">General</button></li>
                 <li><button type="button" class="settings-nav" data-tab="account">Account</button></li>
+                <li><button type="button" class="settings-nav" data-tab="study">Study</button></li>
                 <li><button type="button" class="settings-nav" data-tab="customise">Customise</button></li>
             </ul>
         </aside>
 
         <div class="settings-content">
             <div class="settings-header">
+                <img class="settings-brand-logo" src="/client/shared/assets/Images/nexa-v1.png" alt="" aria-hidden="true">
                 <h3 class="settings-title">SYSTEM SETTINGS</h3>
                 <div id="settings-subtitle" class="settings-subtitle">General</div>
             </div>
@@ -50,13 +52,6 @@
 
                     <div class="setting-row">
                         <div>
-                            <div class="setting-labels">Semester label</div>
-                        </div>
-                        <input type="text" id="account-semester-input" class="setting-account-input">
-                    </div>
-
-                    <div class="setting-row">
-                        <div>
                             <div class="setting-labels">Save account details</div>
                         </div>
                         <button type="button" id="save-account-btn" class="setting-action-btn success"><span class="ui-btn-label">Save</span><img class="app-icon" src="/client/shared/assets/Icons/check.svg" alt="" aria-hidden="true"></button>
@@ -64,16 +59,25 @@
 
                     <div class="setting-row">
                         <div>
-                            <div class="setting-labels">Logout?</div>
+                            <div class="setting-labels">Delete account?</div>
                         </div>
-                        <button type="button" id="logout-btn" class="setting-action-btn neutral"><span class="ui-btn-label">Logout</span><img class="app-icon" src="/client/shared/assets/Icons/logout.svg" alt="" aria-hidden="true"></button>
+                        <button type="button" id="delete-account-btn" class="setting-action-btn danger"><span class="ui-btn-label">Delete</span><img class="app-icon" src="/client/shared/assets/Icons/delete.svg" alt="" aria-hidden="true"></button>
+                    </div>
+                </div>
+
+                <div class="settings-panel hidden" data-panel="study">
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-labels">Semester label</div>
+                        </div>
+                        <input type="text" id="account-semester-input" class="setting-account-input">
                     </div>
 
                     <div class="setting-row">
                         <div>
-                            <div class="setting-labels">Delete account?</div>
+                            <div class="setting-labels">Save study details</div>
                         </div>
-                        <button type="button" id="delete-account-btn" class="setting-action-btn danger"><span class="ui-btn-label">Delete</span><img class="app-icon" src="/client/shared/assets/Icons/delete.svg" alt="" aria-hidden="true"></button>
+                        <button type="button" id="save-study-btn" class="setting-action-btn success"><span class="ui-btn-label">Save</span><img class="app-icon" src="/client/shared/assets/Icons/check.svg" alt="" aria-hidden="true"></button>
                     </div>
                 </div>
 
@@ -94,6 +98,7 @@
     </div>
 </div>
 
-<div class="system-settings">
-    <button id="system-settings-btn" aria-label="System settings"><img class="app-icon" src="/client/shared/assets/Icons/system-settings.svg" alt="" aria-hidden="true"></button>
+<div class="app-shell-actions">
+    <button id="system-settings-btn" class="app-shell-action-btn" aria-label="System settings"><img class="app-icon" src="/client/shared/assets/Icons/system-settings.svg" alt="" aria-hidden="true"></button>
+    <button id="logout-btn" class="app-shell-action-btn" aria-label="Log out"><img class="app-icon" src="/client/shared/assets/Icons/logout.svg" alt="" aria-hidden="true"></button>
 </div>

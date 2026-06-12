@@ -619,7 +619,7 @@ h2 {
 }
 
 .upcoming-assignment-link.is-urgent {
-    border: var(--color-accent-warm-border) 3.5px solid;
+    border-color: #b63b3b;
 }
 
 .upcoming-assignment-countdown {
@@ -631,11 +631,13 @@ h2 {
     align-self: stretch;
     border-radius: 8px;
     background: var(--color-priority-medium);
+    box-sizing: border-box;
 }
 
 .upcoming-assignment-link.is-urgent .upcoming-assignment-countdown {
-    background: var(--color-primary-soft);
-    box-shadow: inset -2px 0 0 var(--color-primary-soft);
+    grid-template-rows: 13px auto auto;
+    gap: 0;
+    padding: 4px 0;
 }
 
 .upcoming-assignment-days-value {
@@ -663,6 +665,45 @@ h2 {
     font-weight: 550;
     color: #111;
     padding-left: 4px;
+}
+
+.upcoming-assignment-badge {
+    display: none;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+    max-width: 52px;
+    padding: 1px 3px;
+    border: 1px solid rgba(182, 59, 59, 0.8);
+    border-radius: 999px;
+    background: rgba(216, 76, 76, 0.12);
+    color: #9f1f1f;
+    font-size: 7px;
+    font-weight: 800;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.upcoming-assignment-badge .app-icon {
+    width: 12px;
+    height: 12px;
+    flex: 0 0 auto;
+    filter: invert(18%) sepia(77%) saturate(2009%) hue-rotate(344deg) brightness(88%) contrast(87%);
+}
+
+.upcoming-assignment-badge span {
+    overflow: hidden;
+    text-overflow: clip;
+}
+
+.upcoming-assignment-link.is-urgent .upcoming-assignment-badge {
+    display: inline-flex;
+}
+
+.upcoming-assignment-link.is-urgent .upcoming-assignment-days-value,
+.upcoming-assignment-link.is-urgent .upcoming-assignment-days-label {
+    color: #9f1f1f;
 }
 
 .upcoming-assignment-subject {

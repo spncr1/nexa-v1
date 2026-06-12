@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXA - Check Email</title>
+
+    <!-- CSS stylesheet -->
+    <link rel="stylesheet" href="/client/shared/styles/auth.css">
+
+    <!-- Primary Font (Headers & Titles - Manrope) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+
+    <!-- Secondary Font (Body Text - Noto Sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900&display=swap" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/client/shared/assets/Images/nexa-v1.png">
+</head>
+<body>
+
+    <main class="content">
+        <% const verificationEmail = typeof email !== 'undefined' ? email : null; %>
+
+        <img id="nexa-logo" src="/client/shared/assets/Images/nexa-v1.png">
+        <h1>Check your email</h1>
+
+        <% if (verificationEmail) { %>
+            <p class="auth-status success">We sent a verification link to <%= verificationEmail %>.</p>
+        <% } else { %>
+            <p class="auth-status success">If your registration was submitted, a verification link has been sent.</p>
+        <% } %>
+
+        <p>Open the link in your inbox to finish creating your NEXA account.</p>
+        <p>If it does not arrive soon, check your spam or junk folder and mark the email as not spam.</p>
+
+        <div class="auth-footer">
+            <a class="auth-link secondary" href="/register">Use a different email</a>
+            <a class="auth-link" href="/login">Back to login</a>
+        </div>
+    </main>
+
+</body>
+</html>

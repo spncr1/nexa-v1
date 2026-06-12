@@ -68,11 +68,13 @@ body.dark-mode .nav-brand {
 }
 
 body.dark-mode .nav-logo,
+body.dark-mode .settings-brand-logo,
+body.dark-mode .modal-brand-logo,
 body.dark-mode .nav-item-icon,
 body.dark-mode .nav-summary-icon,
 body.dark-mode .nav-chevron,
 body.dark-mode .menu-toggle .app-icon,
-body.dark-mode #system-settings-btn .app-icon {
+body.dark-mode .app-shell-action-btn .app-icon {
     filter: invert(1);
 }
 
@@ -237,7 +239,9 @@ body.dark-mode #task-list .task-list-item,
 body.dark-mode .assignment-due-item,
 body.dark-mode .assignments-due-more,
 body.dark-mode .upcoming-assignment-link {
-    background: rgba(255, 255, 255, 0.75);
+    background: var(--color-auth-button);
+    border-width: 2px;
+    border-style: solid;
     border-color: var(--color-control-dark);
     color: #111;
 }
@@ -260,11 +264,18 @@ body.dark-mode #task-list .task-list-item.is-completed {
 }
 
 body.dark-mode .upcoming-assignment-countdown {
-    background: var(--color-priority-medium-dark);
+    background: var(--color-task-tbd-hover);
 }
 
-body.dark-mode .upcoming-assignment-link.is-urgent .upcoming-assignment-countdown {
-    background: var(--color-primary-soft);
+body.dark-mode .upcoming-assignment-link.is-urgent {
+    border-width: 2px;
+    border-style: solid;
+    border-color: #d84c4c;
+}
+
+body.dark-mode .upcoming-assignment-link.is-urgent .upcoming-assignment-days-value,
+body.dark-mode .upcoming-assignment-link.is-urgent .upcoming-assignment-days-label {
+    color: #9f1f1f;
 }
 
 body.dark-mode .today-tasks.has-more::after,
